@@ -34,7 +34,7 @@ render_db 	= imp.load_source('render_db','/home/blender/scripts/queue/render_db.
 
 
 
-class PG_MyProperties(PropertyGroup):
+class queue_helper_properties(PropertyGroup):
 
    
 	my_render_modes: EnumProperty(
@@ -48,9 +48,12 @@ class PG_MyProperties(PropertyGroup):
 		)
 
 
-	resolution_options=[ ('1920x1080', "1920x1080", ""),
+	resolution_options=[ 
+				('2560x1440', '2560x1440', ""),
+				('1920x1080', "1920x1080", ""),
 				('960x540', "960x540", ""),
 				('480x270', "480x270", ""),
+
 			   ]
 
 
@@ -150,6 +153,8 @@ class ReQueueFileOperator(bpy.types.Operator):
 		filename = bpy.context.blend_data.filepath
 
 		scene = context.scene
+
+
 		#my_queue_tool = scene.my_queue_tool
 
 		#print("enum state:", mytool.my_resolutions)
@@ -158,6 +163,39 @@ class ReQueueFileOperator(bpy.types.Operator):
 
 		# 0 for all frames
 		theDB.update_jobs_mark_file_queued(filename,0)
+
+		return {'FINISHED'}
+
+
+class ResizeFileOperator(bpy.types.Operator):
+	bl_idname = "wm.resize_file_operator"
+	bl_label = "ReSize File"
+
+	def execute(self, context):
+
+		theDB = render_db.render_db()
+		theDB.openDB()
+		theDB.create_tables()
+
+		filename = bpy.context.blend_data.filepath
+
+		scene = context.scene
+		my_queue_tool = scene.my_queue_tool
+
+		resX,resY=my_queue_tool.my_resolutions.split("x")
+		theDB.outputX=resX
+		theDB.outputY=resY
+		theDB.change_resolution(filename)
+
+
+		#my_queue_tool = scene.my_queue_tool
+
+		#print("enum state:", mytool.my_resolutions)
+
+		print("Resize file: %s (%sx%s)"%(filename,resX,resY))
+
+		# 0 for all frames
+		#theDB.update_jobs_mark_file_queued(filename,0)
 
 		return {'FINISHED'}
 
@@ -190,6 +228,7 @@ class QueueHelperPanel(Panel):
 		layout.operator(PrintQueueOperator.bl_idname)
 		layout.operator(ClearFileFromQueueOperator.bl_idname)
 		layout.prop( my_queue_tool, "my_resolutions", text="Resolution") 
+		layout.operator(ResizeFileOperator.bl_idname)
 
 		layout.prop( my_queue_tool, "my_render_modes", text="Render Mode") 
 		
@@ -209,12 +248,12 @@ class QueueHelperPanel(Panel):
 
 def register():
 #	bpy.utils.register_module(__name__)
-	bpy.types.Scene.my_queue_tool = PointerProperty(type=PG_MyProperties)
+	bpy.types.Scene.my_queue_tool = PointerProperty(type=queue_helper_properties)
 	#print( bpy.types.Scene.my_queue_tool)
 
 def unregister():
 #	bpy.utils.unregister_module(__name__)
-	del bpy.types.Scene.my_tool
+	del bpy.types.Scene.my_queue_tool
 
 #if __name__ == "__main__":
 #	register()

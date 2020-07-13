@@ -16,6 +16,7 @@ import imp
 from bpy_extras.io_utils import ImportHelper
 
 from bpy.props import CollectionProperty
+
 from bpy.props import (StringProperty,
                        BoolProperty,
                        IntProperty,
@@ -23,6 +24,11 @@ from bpy.props import (StringProperty,
                        EnumProperty,
                        PointerProperty,
                        )
+
+from bpy.types import (Panel,
+					Operator,
+					PropertyGroup,
+					)
 
 
 #  bpy.ops.wm.path_open().  bpy.ops.wm.path_open(filepath="C:\\folder with spaces\\")
@@ -38,6 +44,19 @@ util_helper 		= imp.load_source('util_helper','/home/blender/scripts/util_helper
 util_lux 			= imp.load_source('util_lux','/home/blender/scripts/lux/util_lux_helper.py')
 util_cycles 		= imp.load_source('util_cycles','/home/blender/scripts/cycles/util_cycles_helper.py')
 util_world_helper	= imp.load_source('util_cycles','/home/blender/scripts/cycles/util_world_helper.py')
+
+
+class camera_helper_properties(PropertyGroup):
+
+	pan_step : IntProperty(
+		name = "PanStep",
+		description = "Steps between animation pan keyframes",
+		default = 1,
+		min = 0,
+		max = 1000
+		)
+
+
 
 
 
@@ -201,7 +220,9 @@ class SetupLightingOperator(bpy.types.Operator):
 
 	def execute(self, context):
 
-		theRendHelper = rend_helper.Rend_Helper(False)
+		my_camera_tool = context.scene.my_camera_tool
+
+		theRendHelper = rend_helper.Rend_Helper(isolate_output_in_folder=False,autopanstep=my_camera_tool.pan_step)
 		theRendHelper.setup_lighting()
 
 		del theRendHelper
@@ -229,25 +250,6 @@ class SetBackgroundSceneHelperOperator(bpy.types.Operator):
 		return {'FINISHED'}
 
 
-class SetupAutoViewOperator(bpy.types.Operator):
-	bl_idname = "wm.setup_auto_view"
-	bl_label = "Rend Keyframes"
-
-	def execute(self, context):
-
-		thePanHelper = auto_camera_pan.Cam_Pan_Helper(None)
-
-		if thePanHelper.validate_settings()==True:
-			thePanHelper.setup_auto_pan(1)
-			theDolly = camera_dolly_helper.camera_dolly_helper(thePanHelper)
-			theDolly.adjust_lights_for_camera(1)
-		else:
-			self.report({'INFO'}, "camalign: %s" % thePanHelper.status_message)
-
-		del thePanHelper
-
-		return {'FINISHED'}
-
 class SetupAutoPanOperator(bpy.types.Operator):
 	bl_idname = "wm.setup_auto_pan"
 	bl_label = "Anim Keyframes"
@@ -257,16 +259,51 @@ class SetupAutoPanOperator(bpy.types.Operator):
 
 		thePanHelper = auto_camera_pan.Cam_Pan_Helper(None)
 
+		my_camera_tool = context.scene.my_camera_tool
+
+		print("Auto Pan: %d"%my_camera_tool.pan_step)
 		if thePanHelper.validate_settings()==True:
-			thePanHelper.setup_auto_pan(85)
+			thePanHelper.setup_auto_pan(my_camera_tool.pan_step)
 			theDolly = camera_dolly_helper.camera_dolly_helper(thePanHelper)
-			theDolly.adjust_lights_for_camera(85)
+			theDolly.adjust_lights_for_camera(my_camera_tool.pan_step)
 		else:
 			self.report({'INFO'}, "camalign: %s" % thePanHelper.status_message)
 
 		del thePanHelper
 
 		return {'FINISHED'}
+
+class DumpCamDataOperator(bpy.types.Operator):
+
+	bl_idname = "wm.dumpcamoperator"
+	bl_label = "dumpCam"
+	bl_description = "DESCRIPTION"
+
+	def execute(self, context):
+
+		camTarget=None
+		camObject=None
+
+		# first find camTarget
+		for obj in bpy.data.objects:
+			if obj.type=="CAMERA":
+				for constraint in obj.constraints:
+					if constraint.type == 'TRACK_TO':
+						camTarget=constraint.target
+						camObject=obj
+
+		for f in range(bpy.context.scene.frame_start,bpy.context.scene.frame_end+1):
+			bpy.context.scene.frame_set(f)
+			camLoc = camObject.location
+			targetLoc = camTarget.location
+			print("[ %d, [%f,%f,%f],[%f,%f,%f] ],"%(
+				f,
+				camLoc[0],camLoc[1],camLoc[2],
+				targetLoc[0],targetLoc[1],targetLoc[2]))
+
+		return {'FINISHED'}
+
+
 
 class CamHelperPanel(bpy.types.Panel):
 	bl_idname="PANEL_PT_cameraHelperPanel"
@@ -276,8 +313,6 @@ class CamHelperPanel(bpy.types.Panel):
 
 	bl_category = "Camera"
 	bl_context = "objectmode"   
-
-
 
 	def draw(self, context):
 		layout = self.layout
@@ -297,8 +332,13 @@ class CamHelperPanel(bpy.types.Panel):
 		layout.operator(SetBackgroundSceneHelperOperator.bl_idname)
 		layout.operator(LoadSceneOperator.bl_idname)
 		layout.operator(ClearSceneHelperOperator.bl_idname)
-		layout.operator(SetupAutoViewOperator.bl_idname)
+
+		my_camera_tool = scene.my_camera_tool
+
+		layout.prop( my_camera_tool, "pan_step")
+		#layout.operator(SetupAutoViewOperator.bl_idname)
 		layout.operator(SetupAutoPanOperator.bl_idname)
+		
 
 		layout.operator(SetupRenderSettingsLuxOperator.bl_idname)
 		layout.operator(LinkRandomLuxHdriOperator.bl_idname)
@@ -308,19 +348,22 @@ class CamHelperPanel(bpy.types.Panel):
 
 		layout.operator(SetupLightingOperator.bl_idname)
 
+		layout.operator(DumpCamDataOperator.bl_idname)
 
 	@classmethod
 	def poll(self,context):
 		return context.object is not None
 
 
-#def register():
+def register():
+	bpy.types.Scene.my_camera_tool = PointerProperty(type=camera_helper_properties)
 #	print()
 	#bpy.utils.register_class()
 	#bpy.utils.register_module(__name__)
 
 	
-#def unregister():
+def unregister():
+	del bpy.types.Scene.my_camera_tool
 	#bpy.utils.unregister_class( )
 	#bpy.utils.unregister_module(__name__)
 
