@@ -123,8 +123,9 @@ class render_db:
 			print("Searching %s" % fq_path)
 
 			for f in glob.glob(fq_path):
-				self.insert_or_update_blend_file(f,1)
 				print("Found: %s"%f)
+				self.iterate_blend_files(f)
+				
 
 	def insert_file(self,filename,frames):
 		timestamp = datetime.now()
