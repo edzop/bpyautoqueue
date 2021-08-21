@@ -82,18 +82,24 @@ class render_db:
 	def render_db(self):
 		print("render")
 
-		next_rend = self.get_next_in_queue()
+		doContinue=True
 
-		if len(next_rend)>0:
-			args=["blender"]
-			args.append("-b")
-			args.append(next_rend[0])
-			args.append("-P")
-			#self.databasefile="%s/render_db.db"%(this_script_file_path)
-			args.append("%s/headless_rend.py"%(this_script_file_path))
+		while doContinue:
 
-			out=subprocess.check_output(args)
-			print(out)
+			next_rend = self.get_next_in_queue()
+
+			if len(next_rend)>0:
+				args=["blender"]
+				args.append("-b")
+				args.append(next_rend[0])
+				args.append("-P")
+				#self.databasefile="%s/render_db.db"%(this_script_file_path)
+				args.append("%s/headless_rend.py"%(this_script_file_path))
+
+				out=subprocess.check_output(args)
+				print(out)
+			else:
+				doContinue=False
 		
 	def iterate_blend_files(self,path):
 

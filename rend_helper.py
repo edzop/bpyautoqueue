@@ -317,8 +317,8 @@ class Rend_Helper:
 #			print("Resuming from frame %d - total frames %d - max %d" %(self.frame_start,self.frame_end,self.max_frames) )
 #		else:
 
-		self.theLogger.log_resolution_info()
-		self.theLogger.dump_status_onetime_data()
+		#self.theLogger.log_resolution_info()
+		#self.theLogger.dump_status_onetime_data()
 
 		bpy.context.scene.frame_set(frameIndex)
 
@@ -429,22 +429,7 @@ class Rend_Helper:
 			return None
 
 
-	def fix_texlib_path(self):
 
-		isCorrect=True
-
-		for lib in bpy.data.libraries:
-			filepath = os.path.basename(lib.filepath)
-			print(filepath)
-
-			if filepath.find('texlib.blend') is not -1:
-				if lib.filepath!='/home/blender/texlib.blend':
-					isCorrect=False
-
-				print("found texlib: " + lib.filepath)
-				lib.filepath='/home/blender/texlib.blend'
-
-		return isCorrect
 
 	def setup_stamp(self):
 		bpy.context.scene.render.use_stamp=False

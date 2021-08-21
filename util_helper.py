@@ -7,16 +7,8 @@ import functools
 import glob
 import hashlib
 
-# TODO: remove_all_texts
-
-# TODO: fix_texlib_path
-
-
 def stringToHash(s):
 	val = int(hashlib.md5(s.encode('utf-8')).hexdigest(), 16)
-	
-#	val = abs(hash(s)) % (10 ** 4)
-#	print("String %s = hash %d" %(s,val) )
 	return val
 
 def remove_constraint_from_object(object,constraint_name):
@@ -36,28 +28,13 @@ def generate_location_keyframes(target_object,current_frame):
 
 def find_object_by_name(object_name):
 	for obj in bpy.data.objects:
-	#	print(obj.name)
 		if(obj.name==object_name):
 			return obj		
 
 def remove_object_by_name(object_name):
 	for obj in bpy.data.objects:
-	#	print(obj.name)
 		if(obj.name==object_name):
-	#		print("found")
-	#        bpy.context.scene.collection.objects.unlink(obj)
 			bpy.data.objects.remove(obj)
-
-def copy_lux_fstop_to_cycles():
-
-	fstop = bpy.context.scene.camera.data.luxrender_camera.fstop
-
-	bpy.context.scene.camera.data.show_limits=True
-
-	bpy.context.scene.camera.data.cycles.aperture_fstop = fstop
-	bpy.context.scene.camera.data.cycles.aperture_type = 'FSTOP'
-	bpy.context.scene.camera.data.cycles.aperture_blades = 5
-
 
 def do_save():
 	bpy.ops.wm.save_mainfile(filepath=bpy.context.blend_data.filepath, 
@@ -66,16 +43,12 @@ def do_save():
 		compress=True, 
 		relative_remap=False)
 
-
-
 def IsNotNull(value):
 	return value is not None and len(value) > 0
-
 
 def add_sun_light():
 	print("adding sun")
 	bpy.ops.object.light_add(type='SUN', radius=1, location=(-4, -14, 15),rotation=(0.785, 0.0, -0.349))
-
 
 def ensure_dir(f):
 	d = os.path.dirname(f)
@@ -103,8 +76,6 @@ def inclusive_range(start, stop, step=1):
 		l.append(x)
 		x += step
 	return l
-	
-
 
 def get_blendfile_without_extension():
 	blend_file = os.path.basename(bpy.data.filepath)
@@ -166,7 +137,6 @@ def scene_remove_hemi_light():
 				
 def remove_group_by_name(searchname):
 	for g in bpy.data.groups:
-		#print("Group Name: %s"%g.name)
 		if g.name==searchname:
 			print("remove_group_by_name: %s"%searchname)
 			bpy.data.groups.remove(g)
