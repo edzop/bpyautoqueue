@@ -12,7 +12,7 @@ bl_info = {
 	"category": "User"}
 
 import bpy
-import imp
+
 from bpy.props import CollectionProperty
 from bpy_extras.io_utils import ImportHelper
 
@@ -29,8 +29,7 @@ from bpy.types import (Panel,
 					   PropertyGroup,
 					   )
 
-render_db 	= imp.load_source('render_db','/home/blender/scripts/queue/render_db.py')
-
+from . import render_db
 
 
 
@@ -57,7 +56,6 @@ class queue_helper_properties(PropertyGroup):
 			   ]
 
 
-
 	my_resolutions: EnumProperty(
 		items=resolution_options,
 		description="Resolutions....",
@@ -65,6 +63,14 @@ class queue_helper_properties(PropertyGroup):
 		default="1920x1080"
 	)
 
+def check_file_saved(operator):
+		filename = bpy.context.blend_data.filepath
+
+		if len(filename)<1:
+			operator.report({'ERROR'}, "need to save file first")
+			return None
+
+		return filename
 
 
 class QueueSingleFrameOperator(bpy.types.Operator):
@@ -72,13 +78,15 @@ class QueueSingleFrameOperator(bpy.types.Operator):
 	bl_label = "Queue Frame"
 
 	def execute(self, context):
+	
+		filename=check_file_saved(self)
+
+		if filename==None:
+			return {'CANCELLED'}
 
 		theDB = render_db.render_db()
-		theDB.openDB()
-		theDB.create_tables()
 
-		filename = bpy.context.blend_data.filepath
-		current_frame = bpy.context.scene.frame_current
+		current_frame = [ bpy.context.scene.frame_current ]
 
 		scene = context.scene
 		my_queue_tool = scene.my_queue_tool
@@ -91,7 +99,11 @@ class QueueSingleFrameOperator(bpy.types.Operator):
 
 		theDB.configure_anim_mode(rendermode)
 
-		print("Filename: %s Frame %d (%s %s) %s"%(filename,current_frame,resX,resY,rendermode))
+		print("Filename: %s Frame: %d Resolution(%s %s) Mode: %s"%(
+			filename,
+			current_frame[0],
+			resX,resY,
+			rendermode))
 
 		theDB.IgnoreHashVal=True
 
@@ -108,13 +120,14 @@ class PrintQueueOperator(bpy.types.Operator):
 	bl_label = "PrintQueue"
 
 	def execute(self, context):
+		
+		filename=check_file_saved(self)
+
+		if filename==None:
+			return {'CANCELLED'}
 
 		theDB = render_db.render_db()
-		theDB.openDB()
-		theDB.create_tables()
-
-		filename = bpy.context.blend_data.filepath
-
+		
 		print("Print queue Filename: %s"%filename)
 
 		theDB.do_printDB(filename)
@@ -127,12 +140,14 @@ class ClearFileFromQueueOperator(bpy.types.Operator):
 
 	def execute(self, context):
 
+		filename=check_file_saved(self)
+
+		if filename==None:
+			return {'CANCELLED'}
+
+
 		theDB = render_db.render_db()
-		theDB.openDB()
-		theDB.create_tables()
-
-		filename = bpy.context.blend_data.filepath
-
+	
 		theDB.clear_file_from_queue(filename)
 
 		print("Clear Queue Filename: %s"%filename)
@@ -146,14 +161,15 @@ class ReQueueFileOperator(bpy.types.Operator):
 
 	def execute(self, context):
 
+		filename=check_file_saved(self)
+
+		if filename==None:
+			return {'CANCELLED'}
+
+
 		theDB = render_db.render_db()
-		theDB.openDB()
-		theDB.create_tables()
-
-		filename = bpy.context.blend_data.filepath
-
+	
 		scene = context.scene
-
 
 		#my_queue_tool = scene.my_queue_tool
 
@@ -173,11 +189,13 @@ class ResizeFileOperator(bpy.types.Operator):
 
 	def execute(self, context):
 
-		theDB = render_db.render_db()
-		theDB.openDB()
-		theDB.create_tables()
+		filename=check_file_saved(self)
 
-		filename = bpy.context.blend_data.filepath
+		if filename==None:
+			return {'CANCELLED'}
+
+
+		theDB = render_db.render_db()
 
 		scene = context.scene
 		my_queue_tool = scene.my_queue_tool
@@ -246,14 +264,14 @@ class QueueHelperPanel(Panel):
 		#layout.prop(mytool, "my_render_modes", text="") 
 		#layout.prop(mytool, "my_resolutions", text="") 
 
-def register():
+#def register():
 #	bpy.utils.register_module(__name__)
-	bpy.types.Scene.my_queue_tool = PointerProperty(type=queue_helper_properties)
+	
 	#print( bpy.types.Scene.my_queue_tool)
 
-def unregister():
+#def unregister():
 #	bpy.utils.unregister_module(__name__)
-	del bpy.types.Scene.my_queue_tool
+	
 
 #if __name__ == "__main__":
 #	register()

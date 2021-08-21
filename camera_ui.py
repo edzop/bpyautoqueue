@@ -11,7 +11,7 @@ bl_info = {
 	"category": "User"}
 
 import bpy
-import imp
+import os
 
 from bpy_extras.io_utils import ImportHelper
 
@@ -36,14 +36,21 @@ from bpy.types import (Panel,
 # bpy.ops.wm.read_history()
 # ./config/recent-files.txt
 
+from . import rend_helper
 
-rend_helper 		= imp.load_source('util_helper','/home/blender/scripts/rend_helper.py')
-auto_camera_pan 	= imp.load_source('auto_camera_pan','/home/blender/scripts/auto_camera_pan.py')
-camera_dolly_helper = imp.load_source('camera_dolly_helper','/home/blender/scripts/camera_dolly_helper.py')
-util_helper 		= imp.load_source('util_helper','/home/blender/scripts/util_helper.py')
-util_lux 			= imp.load_source('util_lux','/home/blender/scripts/lux/util_lux_helper.py')
-util_cycles 		= imp.load_source('util_cycles','/home/blender/scripts/cycles/util_cycles_helper.py')
-util_world_helper	= imp.load_source('util_cycles','/home/blender/scripts/cycles/util_world_helper.py')
+from .util_cycles import cycles_helper
+from . import auto_camera_pan
+from . import camera_dolly_helper
+
+#from .util_lux import lux_helper
+
+#rend_helper 		= imp.load_source('util_helper','/home/blender/scripts/rend_helper.py')
+#auto_camera_pan 	= imp.load_source('auto_camera_pan','/home/blender/scripts/auto_camera_pan.py')
+#camera_dolly_helper = imp.load_source('camera_dolly_helper','/home/blender/scripts/camera_dolly_helper.py')
+#util_helper 		= imp.load_source('util_helper','/home/blender/scripts/util_helper.py')
+#util_lux 			= imp.load_source('util_lux','/home/blender/scripts/lux/util_lux_helper.py')
+#util_cycles 		= imp.load_source('util_cycles','/home/blender/scripts/cycles/util_cycles_helper.py')
+#util_world_helper	= imp.load_source('util_cycles','/home/blender/scripts/cycles/util_world_helper.py')
 
 
 class camera_helper_properties(PropertyGroup):
@@ -55,9 +62,6 @@ class camera_helper_properties(PropertyGroup):
 		min = 0,
 		max = 1000
 		)
-
-
-
 
 
 class SetupRenderSettingsLuxOperator(bpy.types.Operator):
@@ -173,7 +177,6 @@ class Operator_Choose_World(bpy.types.Operator, ImportHelper):
 		return {'RUNNING_MODAL'}
 
 	def execute(self, context):
-		import bpy, os
 		theRendHelper = rend_helper.Rend_Helper(False)
 
 		theWorldHelper = util_world_helper.World_Helper()
@@ -205,7 +208,6 @@ class Operator_Choose_Background(bpy.types.Operator, ImportHelper):
 		return {'RUNNING_MODAL'}
 
 	def execute(self, context):
-		import bpy, os
 		theRendHelper = rend_helper.Rend_Helper(False)
 		theRendHelper.remove_scene()
 		theRendHelper.link_scene_file(self.properties.filepath)
@@ -354,18 +356,3 @@ class CamHelperPanel(bpy.types.Panel):
 	def poll(self,context):
 		return context.object is not None
 
-
-def register():
-	bpy.types.Scene.my_camera_tool = PointerProperty(type=camera_helper_properties)
-#	print()
-	#bpy.utils.register_class()
-	#bpy.utils.register_module(__name__)
-
-	
-def unregister():
-	del bpy.types.Scene.my_camera_tool
-	#bpy.utils.unregister_class( )
-	#bpy.utils.unregister_module(__name__)
-
-#if __name__ == "__main__":
-#	register()

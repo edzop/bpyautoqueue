@@ -1,0 +1,103 @@
+TODO:
+
+- from blender addon - button to reset all records to "queued" for filename
+- Summary listing (no sort DB) without listing each record (for speed)
+
+
+
+Isolate into seperate script - store result into custom variable:
+- Link Random World
+- Link Random Scene
+
+
+NO background button in cam helper gui
+render time to DB instead of log file
+
+
+imView -> load blend file on hotkey
+
+
+- max frames
+- Resolution
+- Use Stamp
+- Auto Pan / Adjust frames
+
+redo queue - make new renders from existing records:
+python /home/blender/scripts/queue/render_db.py -n
+
+Print Queue:
+python /home/blender/scripts/queue/render_db.py -p
+python /home/blender/scripts/queue/render_db.py -e lux -p
+python /home/blender/scripts/queue/render_db.py -b
+
+Clear Queue:
+python /home/blender/scripts/queue/render_db.py -c
+
+320x188
+480x270
+640x360
+960x540
+
+Set Resolution
+python /home/blender/scripts/queue/render_db.py -r 480x270 -k
+python /home/blender/scripts/queue/render_db.py -r 960x540 -k
+
+blender -noaudio colored_shapes_floor.blend -P /home/blender/scripts/generate_position_frames.py
+
+
+/home/blender/scripts/generate_anim_helper.sh /home/blender/rend/colored_shapes_floor cycles false
+
+/home/blender/scripts/generate_anim_helper.sh <searchpath> <render_engine> <anim_mode>
+		|
+		|
+		\/
+render_db_load_frames.py
+
+		- How many frames to load? 
+			ANIM_Mode true = framestep more (about 85) (animation movie) - no time stamp - isolate files into directories
+			ANIM_Mode false = framestep 1 (render only) - time stamp, don't isolate files into directories
+			ANIM_Mode none = don't do any auto pan - use frames as defined in blend file
+
+
+===========================================================================
+mode		|	autopan		|	movie mode (timestamp / isolate files)  Frames
+===========================================================================
+pananim		|	85			|	yes                                     85 x sequence steps
+pankey		|	1			|	no                                      1 x sequence steps
+=========================================================================== 
+anim		|	0			|	yes                                     start - end
+images		|	0			|	no                                      
+===========================================================================
+(digit)     |   0           |   no                                      frame specified
+===========================================================================
+
+CREATE TABLE blendfiles
+             (jobID INTEGER PRIMARY KEY AUTOINCREMENT, 
+			 syncdate timestamp, 
+			 filename text,
+			 hashval text, 
+			 outputX int, outputY int,
+			 frameIndex int,
+			 status int default 0,
+			 renderengine text,
+			 autopanstep int
+			 moviemode int default 0);
+
+
+===========================
+render_cycles.sh
+render_lux.sh			
+			TARGET_RENDERER
+			ANIM_MODE (false)	
+					---> batch_render_script.sh 
+							--> headless_rend.py
+
+===========================
+anim_cycles.sh
+anim_lux.sh
+			TARGET_RENDERER
+			ANIM_MODE (true)
+					---> batch_render_script.sh  
+							--> headless_rend.py
+
+===========================
