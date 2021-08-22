@@ -73,6 +73,15 @@ class bake_db:
 				
 		return nextbake
 
+	def clear_file_from_queue(self,filename):
+		if self.verbose:
+			print("clearing database")
+		cursor = self.conn.cursor()
+		sqltext='''DELETE FROM bakes where filename="%s"'''%filename
+		
+		cursor.execute(sqltext)
+		self.conn.commit()
+
 
 	def clear_results(self):
 		print("clearing resuts")
@@ -318,6 +327,7 @@ def main(argv):
 				"clear",
 				"clearresults",
 				"bake",
+				"brief",
 				"results",
 				"setupdraft",
 				"setupfinal",

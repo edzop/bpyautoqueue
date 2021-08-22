@@ -152,8 +152,10 @@ class ClearFileFromQueueOperator(bpy.types.Operator):
 
 
 		theDB = render_db.render_db()
-	
 		theDB.clear_file_from_queue(filename)
+
+		theBakeDB = bake_db.bake_db()
+		theBakeDB.clear_file_from_queue(filename)
 
 		print("Clear Queue Filename: %s"%filename)
 

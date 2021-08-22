@@ -34,7 +34,7 @@ def do_bake(obj,modifier):
 
 	#modifier.show_viewport = False
 	#bpy.context.view_layer.update() 
-	domain_size="%2.1f,%2.1f,%2.1f"%(obj.dimensions.x,obj.dimensions.y,obj.dimensions.z)
+	
 
 	settings=modifier.domain_settings
 	
@@ -47,13 +47,12 @@ def do_bake(obj,modifier):
 	
 	status_text = ""
 	
-	status_text=" - Resolution: %03d, end_frame: %04d, subframes: %02d, timesteps: %02d %02d, domain: (%s)" %(
+	status_text=" - Resolution: %03d, end_frame: %04d, subframes: %02d, timesteps: %02d %02d" %(
 		settings.resolution_max,
 		settings.cache_frame_end,
 		0,
 		settings.timesteps_min,
-		settings.timesteps_max,
-		domain_size)
+		settings.timesteps_max)
 		
 	print(status_text)
 
@@ -80,8 +79,17 @@ def do_bake(obj,modifier):
 	if os.path.isdir(settings.cache_directory):
 		cache_size=subprocess.check_output(['du','-sh', settings.cache_directory]).split()[0].decode('utf-8')
 
+
+	bpy.context.scene.frame_current=settings.cache_frame_end
+
+	# With adaptive domain - the max domain size is usually at end of simulation as it gruws usually
+	domain_size="%2.1f,%2.1f,%2.1f"%(obj.dimensions.x,obj.dimensions.y,obj.dimensions.z)
+
+	
 	blend_file = os.path.basename(bpy.context.blend_data.filepath)
 	theDB.log_result(blend_file,bake_time,settings.cache_frame_end,settings.resolution_max,domain_size,cache_size)
+
+	bpy.context.scene.frame_current=1
 	
 	#print(status_text)
 	
@@ -208,9 +216,9 @@ def assign_particles():
 	spray_obj_name="autogen_liquid_spray"
 	bubbles_obj_name="autogen_liquid_bubbles"
 
-	util_helper.remove_object_by_name(foam_obj_name)
-	util_helper.remove_object_by_name(spray_obj_name)
-	util_helper.remove_object_by_name(bubbles_obj_name)
+	util_helper.remove_object_by_name(foam_obj_name,starts_with=True)
+	util_helper.remove_object_by_name(spray_obj_name,starts_with=True)
+	util_helper.remove_object_by_name(bubbles_obj_name,starts_with=True)
 
 	particle_size=0.12
 

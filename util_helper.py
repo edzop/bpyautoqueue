@@ -31,10 +31,14 @@ def find_object_by_name(object_name):
 		if(obj.name==object_name):
 			return obj		
 
-def remove_object_by_name(object_name):
+def remove_object_by_name(object_name,starting_with=False):
 	for obj in bpy.data.objects:
-		if(obj.name==object_name):
-			bpy.data.objects.remove(obj)
+		if starting_with:
+			if obj.name.startswith(object_name):
+				bpy.data.objects.remove(obj)
+		else:	
+			if(obj.name==object_name):
+				bpy.data.objects.remove(obj)
 
 def do_save():
 	bpy.ops.wm.save_mainfile(filepath=bpy.context.blend_data.filepath, 
