@@ -80,7 +80,6 @@ class render_db:
 				return self.insert_file(filename,frames)		
 
 	def render_db(self):
-		print("render")
 
 		doContinue=True
 
@@ -110,8 +109,6 @@ class render_db:
 					pass
 				except KeyboardInterrupt:
 					exit(0)
-
-				
 
 			else:
 				doContinue=False
@@ -295,19 +292,22 @@ class render_db:
 		return file_updated
 				
 		
-	def mark_item_finished(self,jobID):
+	def mark_item_finished(self,jobID,rendertime,samples):
+
+		print("Time2")
+		print(rendertime)
 		cursor = self.conn.cursor()
-		cursor.execute('''UPDATE blendfiles SET status =? WHERE jobID = ? ''',
-			(self.code_finished,jobID))
+		cursor.execute('''UPDATE blendfiles SET status =?, rendertime=?, samples=? WHERE jobID = ? ''',
+			(self.code_finished,rendertime,samples,jobID))
 		self.conn.commit()
 		
 		
 	def mark_item_failed(self,jobID):
-			
+
 		cursor = self.conn.cursor()
 		cursor.execute('''UPDATE blendfiles SET status =? WHERE jobID = ? ''',
 			(self.code_failed,jobID))
-		self.conn.commit()		
+		self.conn.commit()
 		
 	def blend_exists(self,filename,frameIndex):
 		cursor = self.conn.cursor()
@@ -359,7 +359,7 @@ class render_db:
 			"syncdate timestamp, filename text,hashval text, outputX int, outputY int, " \
 			"frameIndex int,status int default 0,renderengine text, " \
 			"autopanstep int, moviemode int default 0, " \
-			"samples int, rendertime int)")
+			"samples int default 0, rendertime REAL default 0)")
                   
 
 	def get_next_in_queue(self):
@@ -371,7 +371,6 @@ class render_db:
 			"FROM blendfiles WHERE (status=%d AND renderengine='%s') ORDER BY filename LIMIT 1"%(self.code_queued,self.selected_render_engine))
 			
 		for row in c:
-			print("%s"%(row[0]))
 			nextrend.append(row[0])
 			nextrend.append(row[1])
 			nextrend.append(row[2])
@@ -430,11 +429,17 @@ class render_db:
 		if status_code!=self.code_none:
 			codeselect = ' where status="%d"'%status_code
 
-		query_text='''SELECT jobID, frameIndex, outputX,outputY, filename,status,renderengine,autopanstep,moviemode FROM blendfiles%s%s'''%(fileselect,codeselect)
+		query_text='''SELECT jobID, frameIndex, outputX,outputY, filename,status,renderengine,autopanstep,moviemode,samples,rendertime FROM blendfiles%s%s'''%(fileselect,codeselect)
 		
 		c=self.conn.execute(query_text)
 		for row in c:
-			print('{0} {1}x{2} f:{3} pan:{7} movie:{8} {5}\t\t{6}\t{4}	'.format(row[0], row[2],row[3], row[1],row[4],self.statuscode_to_text(row[5]),row[6],row[7],row[8]))
+			print('{0} {1}x{2} f:{3} pan:{7} movie:{8} {5}\t\t{6}\t{4} samples: {9} time: {10}'.format(
+				row[0], 
+				row[2],
+				row[3], row[1],row[4],
+				self.statuscode_to_text(row[5]),
+				row[6],row[7],row[8],
+				row[9],round(row[10],2)))
 		#	print(row)
 		
 			if row[5]==self.code_queued:

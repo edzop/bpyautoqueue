@@ -32,7 +32,7 @@ def add_frames(target_renderer,anim_mode):
 	print("Autopan step: %d" %(theDB.autopanstep))
 
 	if theDB.autopanstep>0:
-		thePanHelper = auto_camera_pan.Cam_Pan_Helper(theRendHelper.theLogger)
+		thePanHelper = auto_camera_pan.Cam_Pan_Helper()
 		thePanHelper.setup_auto_pan(theDB.autopanstep)
 		
 

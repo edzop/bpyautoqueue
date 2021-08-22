@@ -23,7 +23,7 @@ from . import camera_dolly_helper
 class Cam_Pan_Helper:
 	
 	
-	def __init__(self,logger):
+	def __init__(self):
 
 		self.verbose=False
 		
@@ -53,8 +53,6 @@ class Cam_Pan_Helper:
 		self.orignal_dof_X = 0
 		self.orignal_dof_Y = 0
 		self.orignal_dof_Z = 1
-		
-		self.theLogger = logger
 		
 		self.scenecount=5
 		
@@ -298,9 +296,6 @@ class Cam_Pan_Helper:
 			if self.verbose==True:	
 				print(infoText)
 			
-			#if self.theLogger!=None:
-			#	self.theLogger.add_status_onetime_data(infoText)
-			
 #			self.set_lens_length(50)
 
 			# rendered frames are +1, internally is zero based
@@ -529,12 +524,8 @@ class Cam_Pan_Helper:
 		cam_angle = math.degrees(camObj.data.angle)
 		info = "============ Zoom frame %d ==zoom factor %2.2f ==Camera Angle %0.2f=================" %(bpy.context.scene.frame_current,zoom_factor,cam_angle)
 		
-		#if self.theLogger!=None:
-		#	self.theLogger.add_status_onetime_data(info)
-		
 		continue_zoom = True
-		
-		
+			
 		while continue_zoom:
 			
 #			print("\n")
@@ -615,9 +606,6 @@ class Cam_Pan_Helper:
 			
 			if self.verbose==True:
 				print(status_text)
-			
-		if self.theLogger!=None:
-			self.theLogger.appendToExtraStampNotes(status_text)	
 
 			
 #			bpy.context.scene.render.stamp_note_text=status_text

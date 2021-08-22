@@ -73,9 +73,6 @@ class World_Helper():
 
 		bpy.ops.wm.link(directory=world_file + '/World/',files=[{'name': 'linkworld'}],relative_path=False)
 
-	#	if self.theLogger!=None:
-	#		self.theLogger.add_status_onetime_data("World: " + world_file)
-
 		for cworld in bpy.data.worlds:
 	#			print("Assiging world: " + str(cworld))
 			bpy.context.scene.world=cworld

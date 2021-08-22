@@ -5,9 +5,10 @@ import time
 import functools
 import glob
 
-from ..import logger_helper
 
-#logger_helper 		= imp.load_source('logger_helper','/home/blender/scripts/logger_helper.py')
+
+def get_cycles_samples():
+	return 400
 
 def setup_cycles_fstop():
 	bpy.context.scene.camera.data.cycles.aperture_type="FSTOP"
@@ -57,7 +58,7 @@ def check_cycles_is_lit():
 
 	return islit
 
-def setup_cycles_settings(logger):
+def setup_cycles_settings():
 	#bpy.context.scene.render.use_raytrace=True
 	#bpy.context.scene.render.use_antialiasing=False
 	#bpy.context.scene.render.antialiasing_samples='5'
@@ -76,7 +77,7 @@ def setup_cycles_settings(logger):
 	bpy.context.scene.cycles.transmission_bounces=12
 	bpy.context.scene.cycles.transparent_min_bounces=8
 	bpy.context.scene.cycles.transparent_max_bounces=8
-	bpy.context.scene.cycles.samples=400
+	bpy.context.scene.cycles.samples=get_cycles_samples()
 	bpy.context.scene.cycles.use_transparent_shadows=True
 	bpy.context.scene.cycles.no_caustics=False
 	bpy.context.scene.cycles.use_square_samples=False
@@ -120,9 +121,6 @@ def setup_cycles_settings(logger):
 
 
 	setup_cycles_fstop()
-
-	logger.add_status_onetime_data("Cycles samples: " + str(bpy.context.scene.cycles.samples))
-
 
 
 def make_emission_material_cycles(name,color):

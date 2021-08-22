@@ -9,7 +9,7 @@ import hashlib
 
 
 from . import util_helper
-from . import logger_helper
+
 
 from .util_cycles import cycles_helper
 from .util_cycles import cycles_world_helper
@@ -27,8 +27,6 @@ from . import environment_helper
 #environment_helper 		= imp.load_source('environment_helper','/home/blender/scripts/environment_helper.py')
 #auto_camera_pan 		= imp.load_source('auto_camera_pan','/home/blender/scripts/auto_camera_pan.py')
 #camera_dolly_helper 	= imp.load_source('camera_dolly_helper','/home/blender/scripts/camera_dolly_helper.py')
-
-#logger_helper 			= imp.load_source('logger_helper','/home/blender/scripts/logger_helper.py')
 
 
 class Rend_Helper:
@@ -53,9 +51,6 @@ class Rend_Helper:
 		self.output_path="./output"
 		self.max_frames=2
 		self.isolate_output_in_folder=isolate_output_in_folder
-
-		self.theLogger = None
-
 
 		#name of blender file eg: filename.blend
 		#self.blend_file = os.path.basename(bpy.context.blend_data.filepath)
@@ -89,19 +84,16 @@ class Rend_Helper:
 
 		util_helper.ensure_dir(self.render_output_path);
 
-		self.theLogger = logger_helper.Logger(self.render_output_path,bpy.context.scene.render.engine)
-
+	
 		if self.autopanstep>0:
-			self.thePanHelper = auto_camera_pan.Cam_Pan_Helper(self.theLogger)
+			self.thePanHelper = auto_camera_pan.Cam_Pan_Helper()
 
 
 	def setup_common_settings(self):
 		bpy.context.scene.display_settings.display_device='sRGB'
-
 		return
 
 	def setup_resolution(self,width,height,scale):
-
 		bpy.context.scene.render.resolution_x=width
 		bpy.context.scene.render.resolution_y=height
 		bpy.context.scene.render.resolution_percentage=scale
@@ -171,6 +163,13 @@ class Rend_Helper:
 			print("Scene already lit - not adding lights")
 
 
+	def get_samples(self):
+		if bpy.context.scene.render.engine==self.engine_name_cycles:
+			return cycles_helper.get_cycles_samples()
+
+		return 0
+
+
 
 	def setup_render_settings(self):
 
@@ -185,7 +184,7 @@ class Rend_Helper:
 
 			#self.link_random_world()
 
-			cycles_helper.setup_cycles_settings(self.theLogger)
+			cycles_helper.setup_cycles_settings()
 	#	elif bpy.context.scene.render.engine=="cyclesgpu":
 
 			#self.link_random_world()
@@ -197,7 +196,7 @@ class Rend_Helper:
 			#util_lux.import_all_materials_from_filelist()
 			#util_lux.update_material_slots()
 
-			util_lux.setup_lux_settings(self.theLogger)
+			util_lux.setup_lux_settings()
 
 			#if self.scene_lit==False:
 			#	self.scene_lit = util_lux.lux_scene_is_lit(bpy.context.scene)
@@ -221,8 +220,6 @@ class Rend_Helper:
 		else:
 			bpy.context.scene.render.use_stamp=False
 				
-		#self.theLogger.add_status_onetime_data("renderer: " + self.renderer_name)
-
 		#self.image_file_extension = "PNG"
 
 		self.temp_dir = os.environ.get("TEMP")
@@ -304,30 +301,16 @@ class Rend_Helper:
 					scene.node_tree.links.new(denoise_node.outputs[0],node.inputs[0])
 					node.location=(600,-300)
 
-
+	last_frame_time=0
 			
 
 	def do_render(self,frameIndex):
 
-		self.theLogger.get_progress()
-
-#		self.frame_start=frameIndex
-
-#		if self.frame_start!=1:
-#			print("Resuming from frame %d - total frames %d - max %d" %(self.frame_start,self.frame_end,self.max_frames) )
-#		else:
-
-		#self.theLogger.log_resolution_info()
-		#self.theLogger.dump_status_onetime_data()
-
 		bpy.context.scene.frame_set(frameIndex)
-
-		#if self.theLogger.stamp_notes!=None:
-		#	if current_frame<=len(self.theLogger.stamp_notes):
-		#		bpy.context.scene.render.stamp_note_text=self.renderer_name+" "+self.theLogger.stamp_notes[frameIndex-1]
 
 		image_output_filename = util_helper.get_output_filename(util_helper.get_blendfile_without_extension(),frameIndex,self.renderer_name,self.image_file_extension)
 
+		self.last_frame_time=0
 		render_start = time.time()
 		sys.stdout.flush()
 
@@ -337,32 +320,21 @@ class Rend_Helper:
 				print("Render Failed: d%s"%e)
 				return False
 
-		frame_time = time.time() - render_start
-		self.theLogger.increment_times(frame_time)
+		self.last_frame_time = time.time() - render_start
 
 		if 'FINISHED' in render_result:
-			print(self.renderer_name)
 
 			if self.renderer_name=="luxcore":
 				util_lux.enable_lux_denoise()
-
-			print('Frame ' + str(frameIndex) + ' rendered OK')
 
 			full_output_image_path=self.render_output_path + image_output_filename
 
 			bpy.data.images['Render Result'].save_render(filepath=full_output_image_path)
 
-			self.theLogger.update_render_log(frameIndex,frame_time)
-			self.theLogger.write_progress(frameIndex,frame_time)
-
 			print("Saved to: " + full_output_image_path)
 		else:
-			self.theLogger.logFail("util_helper.get_blendfile_without_extension() frame %d Fail" %(frameIndex,util_helper.get_blendfile_without_extension()))
 			return False
 
-		#self.theLogger.record_session_summary()
-
-		self.theLogger.dump_status_extra_data()
 		return True
 
 	def is_inside_scene(self):
@@ -414,9 +386,6 @@ class Rend_Helper:
 			bpy.context.scene.objects['object_scene'].location=[0,0,0]
 			#print(bpy.context.scene.objects['object_scene'])
 
-			if self.theLogger!=None:
-				self.theLogger.add_status_onetime_data("Scene: " + scenefile)
-
 			self.set_scene_file(scenefile)
 
 	def set_scene_file(self,scenefile):
@@ -427,8 +396,6 @@ class Rend_Helper:
 			return bpy.context.scene["scenefile"]
 		else:
 			return None
-
-
 
 
 	def setup_stamp(self):

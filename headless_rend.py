@@ -94,7 +94,7 @@ class headless_renderer:
 			self.theRendHelper.setup_render_settings();
 
 			if self.autopanstep>0:
-				thePanHelper = auto_camera_pan.Cam_Pan_Helper(self.theRendHelper.theLogger)
+				thePanHelper = auto_camera_pan.Cam_Pan_Helper()
 				thePanHelper.setup_auto_pan(self.autopanstep)
 
 			self.theRendHelper.setup_lighting();
@@ -123,10 +123,10 @@ class headless_renderer:
 				self.target_renderer,
 				self.filename))
 
-			sys.stdout.flush()	
+			#sys.stdout.flush()	
 
 			if self.theRendHelper.do_render(self.frameIndex)==True:
-				self.theDB.mark_item_finished(self.jobID)
+				self.theDB.mark_item_finished(self.jobID,self.theRendHelper.last_frame_time,self.theRendHelper.get_samples())
 				self.frames_rendered+=1
 				result=True
 			else:

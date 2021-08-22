@@ -154,7 +154,7 @@ def enable_lux_denoise():
 			scene.node_tree.links.new(render_layers_node.outputs['DENOISED'],composite_node.inputs[0])
 
 
-def setup_lux_settings(logger):
+def setup_lux_settings():
 	setup_lux_common_settings()
 	setup_dof()
 #	bpy.context.scene.render.engine='LUXCORE'
@@ -210,16 +210,13 @@ def setup_lux_settings(logger):
 
 
 #	bpy.context.scene.luxcore.halt.time=60
-#	logger.add_status_onetime_data("Lux Time: " + str(bpy.context.scene.luxcore.halt.time))
 #	bpy.context.scene.luxcore.halt.use_time=True
 
 	bpy.context.scene.luxcore.halt.use_samples=True
 	bpy.context.scene.luxcore.halt.samples=200
-	logger.add_status_onetime_data("Lux samples: " + str(bpy.context.scene.luxcore.halt.samples))
-	
+
 #	bpy.context.scene.luxcore.halt.use_noise_thresh=True
 #	bpy.context.scene.luxcore.halt.noise_thresh=255
-#	logger.add_status_onetime_data("Lux noise: " + str(bpy.context.scene.luxcore.halt.noise_thresh))
 
 	bpy.context.scene.luxcore.display.interval=240
 
