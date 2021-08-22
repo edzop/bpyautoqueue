@@ -30,6 +30,7 @@ from bpy.types import (Panel,
 					   )
 
 from . import render_db
+from . import bake_db
 
 
 
@@ -127,10 +128,14 @@ class PrintQueueOperator(bpy.types.Operator):
 			return {'CANCELLED'}
 
 		theDB = render_db.render_db()
+		theBakeDB = bake_db.bake_db()
 		
 		print("Print queue Filename: %s"%filename)
 
 		theDB.do_printDB(filename)
+
+		theBakeDB.do_printDB(filename)
+		theBakeDB.do_print_results(filename)
 
 		return {'FINISHED'}
 
@@ -155,9 +160,11 @@ class ClearFileFromQueueOperator(bpy.types.Operator):
 		return {'FINISHED'}
 
 
-class ReQueueFileOperator(bpy.types.Operator):
-	bl_idname = "wm.render_requeue_file_operator"
-	bl_label = "ReQueue File"
+class ReQueueBakeOperator(bpy.types.Operator):
+	"""Requeue file for baking AND rendering if it exists in queue"""
+	bl_idname = "wm.render_requeue_bake_operator"
+	bl_label = "ReQueue Bake"
+	
 
 	def execute(self, context):
 
@@ -167,13 +174,35 @@ class ReQueueFileOperator(bpy.types.Operator):
 			return {'CANCELLED'}
 
 
+		theBakeDB = bake_db.bake_db()
+		theDB = render_db.render_db()
+
+		print("Requeue Bake Filename: %s"%filename)
+
+		# 0 for all frames
+		theDB.update_jobs_mark_file_queued(filename,0)
+
+		theBakeDB.update_jobs_mark_file_queued(filename)
+
+		return {'FINISHED'}
+
+
+class ReQueueFileOperator(bpy.types.Operator):
+	"""Requeue file for rendering if it exists in render queue"""
+	bl_idname = "wm.render_requeue_file_operator"
+	bl_label = "ReQueue Rend"
+
+
+	def execute(self, context):
+
+		filename=check_file_saved(self)
+
+		if filename==None:
+			return {'CANCELLED'}
+
 		theDB = render_db.render_db()
 	
 		scene = context.scene
-
-		#my_queue_tool = scene.my_queue_tool
-
-		#print("enum state:", mytool.my_resolutions)
 
 		print("Requeue Filename: %s"%filename)
 
@@ -204,11 +233,6 @@ class ResizeFileOperator(bpy.types.Operator):
 		theDB.outputX=resX
 		theDB.outputY=resY
 		theDB.change_resolution(filename)
-
-
-		#my_queue_tool = scene.my_queue_tool
-
-		#print("enum state:", mytool.my_resolutions)
 
 		print("Resize file: %s (%sx%s)"%(filename,resX,resY))
 
@@ -247,31 +271,7 @@ class QueueHelperPanel(Panel):
 		layout.operator(ClearFileFromQueueOperator.bl_idname)
 		layout.prop( my_queue_tool, "my_resolutions", text="Resolution") 
 		layout.operator(ResizeFileOperator.bl_idname)
+		layout.operator(ReQueueBakeOperator.bl_idname)
 
 		layout.prop( my_queue_tool, "my_render_modes", text="Render Mode") 
 		
-
-		#layout.prop(scene, 'QueueSettings.my_resolutions')
-
-		
-
-		#layout.operator_menu_enum("QueueSettings.my_resolutions",
-		#						  property="resolution",
-		#						  text="Render Resolution...",
-		#						  )
-
-
-		#layout.prop(mytool, "my_render_modes", text="") 
-		#layout.prop(mytool, "my_resolutions", text="") 
-
-#def register():
-#	bpy.utils.register_module(__name__)
-	
-	#print( bpy.types.Scene.my_queue_tool)
-
-#def unregister():
-#	bpy.utils.unregister_module(__name__)
-	
-
-#if __name__ == "__main__":
-#	register()

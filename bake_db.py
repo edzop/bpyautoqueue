@@ -111,7 +111,12 @@ class bake_db:
 	def do_print_results(self,filename=None,status_code=code_none):
 		print("================== Results =================")
 
-		query_text='''SELECT finishdate, filename,baketime,frames,resolution,domain_size FROM results'''
+		fileselect=''
+
+		if filename!=None:
+			fileselect = ' where filename=\"%s\"'%filename
+
+		query_text="SELECT finishdate, filename,baketime,frames,resolution,domain_size FROM results%s"%fileselect
 
 		c=self.conn.execute(query_text)
 		for row in c:

@@ -29,6 +29,7 @@ classes = (
 	queue_ui.ReQueueFileOperator,
 	queue_ui.ResizeFileOperator,
 	queue_ui.QueueHelperPanel,
+	queue_ui.ReQueueBakeOperator,
 
 	camera_ui.camera_helper_properties,
 	camera_ui.SetupRenderSettingsLuxOperator,
