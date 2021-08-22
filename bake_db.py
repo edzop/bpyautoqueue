@@ -12,11 +12,6 @@ import functools
 this_script_file_path=os.path.dirname(os.path.abspath(__file__))
 
 
-def secondsToStr(t):
-	rediv = lambda ll,b : list(divmod(ll[0],b)) + ll[1:]
-	return "%d:%02d:%02d" % tuple(functools.reduce(rediv,[[t*1000,],1000,60]))
-
-
 class bake_db:
 
 	verbose=False
@@ -120,10 +115,15 @@ class bake_db:
 
 		c=self.conn.execute(query_text)
 		for row in c:
-			time_str = secondsToStr(int(row[2]))
+			bakeSeconds=row[2]
+
+			m, s = divmod(bakeSeconds, 60)
+			h, m = divmod(m, 60)
+
+			timeStr='{:02.0f}:{:02.0f}:{:02.0f}'.format(h, m, s)
 
 			#print(row[0])
-			print('{0} baketime: {2} frames: {3}, resolution: {4} domain: ({5}) filename: {1} '.format(row[0], row[1],time_str,row[3],row[4],row[5]))
+			print('{0} baketime: {2} frames: {3}, resolution: {4} domain: ({5}) filename: {1} '.format(row[0], row[1],timeStr,row[3],row[4],row[5]))
 
 
 
@@ -328,8 +328,6 @@ def main(argv):
 	theDB=bake_db()
 
 	for opt, arg in opts:
-
-		print("%s = %s"%(opt,arg))
 
 		if opt in ("-p","--print"):
 			theDB.do_printDB()

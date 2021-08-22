@@ -9,6 +9,7 @@ import os
 import subprocess
 
 
+
 #this_script_file_path = os.path.realpath(__file__)
 
 #import pathlib
@@ -461,6 +462,28 @@ class render_db:
 	def closeDB(self):
 		self.conn.close()
 
+	def printTimes(self):
+
+		print("================== Times =================")
+
+		c=self.conn.execute("SELECT filename,samples,sum(rendertime),outputX,outputY FROM blendfiles " \
+			"GROUP by filename")
+			
+		for row in c:
+			filename=row[0]
+
+			renderSeconds=row[2]
+			m, s = divmod(renderSeconds, 60)
+			h, m = divmod(m, 60)
+
+			timeStr='{:02.0f}:{:02.0f}:{:02.0f}'.format(h, m, s)
+			
+			samples=row[1]
+			outputRes="(%dx%d)"%(row[3],row[4])
+
+			print("Samples: %d Resolution: %s Time: %s File: %s"%(samples,outputRes,timeStr,filename))
+
+
 
 
 def main(argv):
@@ -478,6 +501,7 @@ def main(argv):
 				"requeuefailed",
 				"print",
 				"render",
+				"times",
 				"brief",
 				"clear",
 				"mode",
@@ -534,6 +558,8 @@ def main(argv):
 			theDB.render_db()
 		elif opt in ("-p","--print"):
 			theDB.do_printDB()
+		elif opt in ("--times"):
+			theDB.printTimes()
 		elif opt in ("--printqueued"):
 			theDB.do_printDB(None,theDB.code_queued)
 		elif opt in ("--printfailed"):
@@ -573,6 +599,7 @@ def main(argv):
 			print("-e engine: 'CYCLES' or 'LUXCORE'")
 #			print("-k change resolution (must be used with -r)")
 			print("--requeueall - requeue all jobs")
+			print("--times - summary of render times")
 			print("--requeuefailed - requeue failed jobs")
 			print("--requeuefile FILENAME - requeue specific file (searches like wildcard)")
 			print("--removefile FILENAME - remove specific file (searches like wildcard)")
