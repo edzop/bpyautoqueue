@@ -123,7 +123,7 @@ class render_db:
 			args.append("-b")
 			args.append(path)
 			args.append("-P")
-			args.append("add_helper.py")
+			args.append("%s/add_helper.py"%(this_script_file_path))
 			args.append("--")
 			args.append(self.selected_render_engine)
 			args.append(self.anim_mode)
