@@ -2,7 +2,7 @@
 import sys, getopt
 import sqlite3
 from datetime import date, datetime
-import hashlib
+#import hashlib
 import glob
 import os
 import subprocess
@@ -80,15 +80,13 @@ class bake_db:
 
 
 	def clear_results(self):
-		if self.verbose:
-			print("clearing resuts")
+		print("clearing resuts")
 		cursor = self.conn.cursor()
 		cursor.execute('''DELETE FROM results''')
 		self.conn.commit()
 
 	def clear_database(self):
-		if self.verbose:
-			print("clearing database")
+		print("clearing database")
 		cursor = self.conn.cursor()
 		cursor.execute('''DELETE FROM bakes''')
 		self.conn.commit()
@@ -209,8 +207,23 @@ class bake_db:
 					args.append(str(jobID))
 					args.append(str(bake_op))
 
-					out=subprocess.check_output(args)
-					print(out)
+					proc = subprocess.Popen(args,stdout=subprocess.PIPE)
+
+					try:
+						while True:
+							line = proc.stdout.readline()
+							if not line:
+								break
+							#the real code does filtering here
+							print(line.decode(),end="")
+
+					except BrokenPipeError:
+						pass
+					except KeyboardInterrupt:
+						exit(0)
+
+					#out=subprocess.check_output(args)
+					#print(out)
 
 
 	def blend_exists(self,filename):
@@ -228,13 +241,14 @@ class bake_db:
 		if os.path.isfile(path):
 			if self.blend_exists(path)==False:
 				print("Found: %s"%path)
-				insert_file(path)
+				self.insert_file(path)
 		else:
 			fq_path = "%s*.blend" % path
 			
 			print("Searching %s" % fq_path)
 
 			for f in glob.glob(fq_path):
+				print(f)
 				if self.blend_exists(f)==False:
 					self.insert_file(f)
 				print("Found: %s"%f)
@@ -293,11 +307,11 @@ def main(argv):
 	theDB = None
 
 	try:
-		opts, args = getopt.getopt(argv,"hbs:pr",[
+		opts, args = getopt.getopt(argv,"hbpr",[
 				"print",
 				"clear",
 				"clearresults",
-				"dobake",
+				"bake",
 				"setupdraft",
 				"setupfinal",
 				"clean",
@@ -314,9 +328,12 @@ def main(argv):
 	theDB=bake_db()
 
 	for opt, arg in opts:
+
+		print("%s = %s"%(opt,arg))
+
 		if opt in ("-p","--print"):
 			theDB.do_printDB()
-		elif opt in ("--dobake"):
+		elif opt in ("--bake"):
 			theDB.do_bake(mark_processing=True,bake_op=theDB.code_bake_op_bake)
 		elif opt in ("--setupdraft"):
 			theDB.do_bake(mark_processing=True,bake_op=theDB.code_bake_op_setup_draft) 
@@ -327,6 +344,7 @@ def main(argv):
 		elif opt in ("-r","--results"):
 			theDB.do_print_results()
 		elif opt in ("-s", "--searchpath"):
+			print("zzz")
 			theDB.iterate_blend_files(arg)
 		elif opt in ("--requeueall"):
 			theDB.update_all_jobs_set_status(theDB.code_queued)
@@ -346,7 +364,7 @@ def main(argv):
 			print("====================================")
 			print("-p --print\t\t| print all files")
 			print("-b --brief\t\t| brief summary of DB")
-			print("--dobake\t\t| bake remaining files in queue")
+			print("--bake\t\t| bake remaining files in queue")
 			print("--setupdraft\t\t| setup draft settings")
 			print("--setupfinal\t\t| setup final settings")
 			print("--clean\t\t| clean particles")

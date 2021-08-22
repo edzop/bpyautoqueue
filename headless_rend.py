@@ -121,7 +121,9 @@ class headless_renderer:
 				self.outputY,
 				self.autopanstep,
 				self.target_renderer,
-				self.filename))		
+				self.filename))
+
+			sys.stdout.flush()	
 
 			if self.theRendHelper.do_render(self.frameIndex)==True:
 				self.theDB.mark_item_finished(self.jobID)

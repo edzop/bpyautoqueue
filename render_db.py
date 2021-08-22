@@ -96,8 +96,23 @@ class render_db:
 				#self.databasefile="%s/render_db.db"%(this_script_file_path)
 				args.append("%s/headless_rend.py"%(this_script_file_path))
 
-				out=subprocess.check_output(args)
-				print(out)
+				proc = subprocess.Popen(args,stdout=subprocess.PIPE)
+
+				try:
+					while True:
+						line = proc.stdout.readline()
+						if not line:
+							break
+
+						print(line.decode(),end="")
+
+				except BrokenPipeError:
+					pass
+				except KeyboardInterrupt:
+					exit(0)
+
+				
+
 			else:
 				doContinue=False
 		
@@ -118,10 +133,25 @@ class render_db:
 			#args.append(str(self.autopanstep))
 			
 			#print(args)
-			#subprocess.Popen(args,stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+			proc = subprocess.Popen(args,stdout = subprocess.PIPE)
 
-			out=subprocess.check_output(args)
-			print(out)
+			try:
+
+				while True:
+					line = proc.stdout.readline()
+					if not line:
+						break
+
+					print(line.decode(),end="")
+
+			except BrokenPipeError:
+				pass
+			except KeyboardInterrupt:
+				exit(0)
+
+
+			#out=subprocess.check_output(args)
+			#print(out)
 			#self.insert_or_update_blend_file(path,[1])
 		else:
 			fq_path = "%s/*.blend" % path
@@ -324,8 +354,12 @@ class render_db:
 		
 	def create_tables(self):
 		# Create table
-		self.conn.execute('''CREATE TABLE IF NOT EXISTS blendfiles
-             (jobID INTEGER PRIMARY KEY AUTOINCREMENT, syncdate timestamp, filename text,hashval text, outputX int, outputY int,frameIndex int,status int default 0,renderengine text,autopanstep int, moviemode int default 0)''')
+		self.conn.execute("CREATE TABLE IF NOT EXISTS blendfiles " \
+             "(jobID INTEGER PRIMARY KEY AUTOINCREMENT, " \
+			"syncdate timestamp, filename text,hashval text, outputX int, outputY int, " \
+			"frameIndex int,status int default 0,renderengine text, " \
+			"autopanstep int, moviemode int default 0, " \
+			"samples int, rendertime int)")
                   
 
 	def get_next_in_queue(self):
