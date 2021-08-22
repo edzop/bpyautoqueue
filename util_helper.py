@@ -77,8 +77,9 @@ def inclusive_range(start, stop, step=1):
 		x += step
 	return l
 
-def get_blendfile_without_extension():
-	blend_file = os.path.basename(bpy.data.filepath)
+def get_blendfile_without_extension(blendfile=None):
+	if blendfile==None:
+		blend_file = os.path.basename(bpy.data.filepath)
 		
 	blendfile_without_extension = os.path.splitext(blend_file)[0]
 	return blendfile_without_extension

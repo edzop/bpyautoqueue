@@ -45,7 +45,7 @@ class render_db:
 #	target_job_ID=0
 	 
 	def __init__(self):
-		self.databasefile="%s/render_db.db"%(this_script_file_path)
+		self.databasefile="%s/render_db.sqlite3"%(this_script_file_path)
 		#self.databasefile=databasefile
 
 		#self.configure_anim_mode(self.anim_mode)

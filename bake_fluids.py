@@ -2,6 +2,7 @@ import bpy
 import os
 import sys
 from sys import exc_info 
+import subprocess
 import time
 from mathutils import Matrix
 
@@ -33,7 +34,7 @@ def do_bake(obj,modifier):
 
 	#modifier.show_viewport = False
 	#bpy.context.view_layer.update() 
-	domain_size="%2.1f %2.1f %2.1f"%(obj.dimensions.x,obj.dimensions.y,obj.dimensions.z)
+	domain_size="%2.1f,%2.1f,%2.1f"%(obj.dimensions.x,obj.dimensions.y,obj.dimensions.z)
 
 	settings=modifier.domain_settings
 	
@@ -46,7 +47,7 @@ def do_bake(obj,modifier):
 	
 	status_text = ""
 	
-	status_text=" - Resolution: %03d end_frame: %04d subframes: %02d timesteps: %02d %02d domain: (%s)" %(
+	status_text=" - Resolution: %03d, end_frame: %04d, subframes: %02d, timesteps: %02d %02d, domain: (%s)" %(
 		settings.resolution_max,
 		settings.cache_frame_end,
 		0,
@@ -73,8 +74,14 @@ def do_bake(obj,modifier):
 	theDB = bake_db.bake_db()
 	theDB.update_job_set_status(jobID,bake_db.bake_db.code_finished)
 
+	cache_size="-"
+
+
+	if os.path.isdir(settings.cache_directory):
+		cache_size=subprocess.check_output(['du','-sh', settings.cache_directory]).split()[0].decode('utf-8')
+
 	blend_file = os.path.basename(bpy.context.blend_data.filepath)
-	theDB.log_result(blend_file,bake_time,settings.cache_frame_end,settings.resolution_max,domain_size)
+	theDB.log_result(blend_file,bake_time,settings.cache_frame_end,settings.resolution_max,domain_size,cache_size)
 	
 	#print(status_text)
 	
@@ -127,9 +134,9 @@ def update_fluid_objects(fluid_settings):
 						modifier.effector_settings.subframes = fluid_settings["effector_subframes"]
 
 					modifier.show_viewport = True
-
-	print("save")				
+				
 	util_helper.do_save()
+
 
 
 def configure_fluid_domain(obj,settings,fluid_settings):
