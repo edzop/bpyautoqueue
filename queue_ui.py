@@ -14,6 +14,7 @@ import bpy
 
 from bpy.props import CollectionProperty
 from bpy_extras.io_utils import ImportHelper
+from . import material_helper
 
 from bpy.props import (StringProperty,
 					   BoolProperty,
@@ -32,6 +33,7 @@ from . import render_db
 from . import bake_db
 
 
+texlibpath_materials="/home/blender/texlib.blend/Material"
 
 class queue_helper_properties(PropertyGroup):
 
@@ -71,6 +73,92 @@ def check_file_saved(operator):
 			return None
 
 		return filename
+
+
+class FluidAssignInflowOperator(bpy.types.Operator):
+	bl_idname = "wm.render_queue_assign_inflow"
+	bl_label = "Assign Inflow"
+
+	@classmethod
+	def poll(cls, context):
+		return bpy.context.active_object != None
+		
+	def execute(self, context):
+		sel = bpy.context.selected_objects
+		for ob in sel:
+			material_helper.assign_linked_material(ob,"fluid.inflow",texlibpath_materials)
+		return{'FINISHED'}
+
+class FluidAssignOutflowOperator(bpy.types.Operator):
+	bl_idname = "wm.render_queue_assign_outflow"
+	bl_label = "Assign Outflow"
+
+	@classmethod
+	def poll(cls, context):
+		return bpy.context.active_object != None
+
+	def execute(self, context):
+		sel = bpy.context.selected_objects
+		for ob in sel:
+		#ob = bpy.context.active_object
+			material_helper.assign_linked_material(ob,"fluid.outflow",texlibpath_materials)
+
+		return{'FINISHED'}
+
+class FluidAssignObstacleOperator(bpy.types.Operator):
+	bl_idname = "wm.render_queue_assign_obstacle"
+	bl_label = "Assign Obstacle"
+
+	@classmethod
+	def poll(cls, context):
+		return bpy.context.active_object != None
+
+	def execute(self, context):
+
+		sel = bpy.context.selected_objects
+
+		for ob in sel:
+			material_helper.assign_linked_material(ob,"fluid.obstacle",texlibpath_materials)
+		
+		return{'FINISHED'}
+
+class FluidAssignBevelOperator(bpy.types.Operator):
+	bl_idname = "wm.render_queue_assign_bevel"
+	bl_label = "Assign Bevel"
+
+	@classmethod
+	def poll(cls, context):
+		return bpy.context.active_object != None
+
+	def execute(self, context):
+		sel = bpy.context.selected_objects
+		for ob in sel:
+			bevel = ob.modifiers.new(type="BEVEL", name="bevel")
+			bevel.segments=3
+			
+		return{'FINISHED'}
+
+
+class FluidAssignWireSkinOperator(bpy.types.Operator):
+	bl_idname = "wm.render_queue_assign_wireskin"
+	bl_label = "Assign Wireskin"
+
+	@classmethod
+	def poll(cls, context):
+		return bpy.context.active_object != None
+
+	def execute(self, context):
+		ob = bpy.context.active_object
+
+		# Assign to last slot (-1)
+		material_helper.assign_linked_material(ob,"24kgold",texlibpath_materials,slot=-1)
+
+		wireframe = ob.modifiers.new(type="WIREFRAME", name="wireframe")
+		wireframe.use_replace = False
+		wireframe.material_offset = 1
+		wireframe.thickness = 0.01
+
+		return{'FINISHED'}
 
 
 class QueueSingleFrameOperator(bpy.types.Operator):
@@ -273,6 +361,12 @@ class QueueHelperPanel(Panel):
 		layout.prop( my_queue_tool, "my_resolutions", text="Resolution") 
 		layout.operator(ResizeFileOperator.bl_idname)
 		layout.operator(ReQueueBakeOperator.bl_idname)
+
+		layout.operator(FluidAssignInflowOperator.bl_idname)
+		layout.operator(FluidAssignOutflowOperator.bl_idname)
+		layout.operator(FluidAssignObstacleOperator.bl_idname)
+		layout.operator(FluidAssignWireSkinOperator.bl_idname)
+		layout.operator(FluidAssignBevelOperator.bl_idname)
 
 		layout.prop( my_queue_tool, "my_render_modes", text="Render Mode") 
 		

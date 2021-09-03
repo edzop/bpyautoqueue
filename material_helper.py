@@ -16,6 +16,28 @@ def delete_material(material_name):
 		if m.name==material_name:
 			bpy.data.materials.remove(m)
 
+def get_material(material_name):
+	for m in bpy.data.materials:
+		if m.name==material_name:
+			return m
+
+	return None
+
+def assign_linked_material(ob,material_name,path,slot=0):
+
+	# first search for material
+	m=get_material(material_name)
+
+	# Import material
+	if m is None:
+		bpy.ops.wm.link(directory=path,link=True,files=[{'name': "%s"%material_name}], relative_path=False)
+
+		# Try again to find material after import
+		m = get_material(material_name)
+
+	if m is not None:
+		assign_material(ob,m,slot)
+		
 
 
 def make_diffuse_material(name,color):
@@ -69,6 +91,7 @@ def make_subsurf_material(name,color):
 	nodes=tree.nodes
 
 	shader_node = nodes['Principled BSDF']
+
 	shader_node.inputs[0].default_value=color
 
 	# subsurf
@@ -79,14 +102,23 @@ def make_subsurf_material(name,color):
 	return mat
 
 
-def assign_material(ob,mat):
+# Use -1 for slot to assign to last material 
+# This case would be used when you want multiple materials and not overwrite the 0 slot
+def assign_material(ob,mat,slot=0):
 	# Assign it to object
 	if ob.data.materials:
-	# assign to 1st material slot
-		ob.data.materials[0] = mat
-	else:
-	# no slots
-		ob.data.materials.append(mat)
+		if slot!=-1:
+			# assign to material slot
+			ob.data.materials[slot] = mat
+			return
+		else:
+			# Check if already assigned to last slot
+			material_count=len(ob.data.materials)
+			if ob.data.materials[material_count-1].name==mat.name:
+				return
+
+	# Assign to last slot
+	ob.data.materials.append(mat)
 
 
 def make_liquid_material(name,color):

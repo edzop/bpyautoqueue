@@ -31,6 +31,12 @@ classes = (
 	queue_ui.QueueHelperPanel,
 	queue_ui.ReQueueBakeOperator,
 
+	queue_ui.FluidAssignInflowOperator,
+	queue_ui.FluidAssignOutflowOperator,
+	queue_ui.FluidAssignWireSkinOperator,
+	queue_ui.FluidAssignObstacleOperator,
+	queue_ui.FluidAssignBevelOperator,
+
 	camera_ui.camera_helper_properties,
 	camera_ui.SetupRenderSettingsLuxOperator,
 	camera_ui.SetupRenderSettingsCyclesOperator,

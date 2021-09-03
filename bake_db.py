@@ -272,7 +272,7 @@ class bake_db:
 		return True
 
 	def requeue_failed_jobs(self):
-	
+
 		cursor = self.conn.cursor()
 		cursor.execute("UPDATE bakes SET status = ? WHERE status = ?",
 			(self.code_queued,self.code_failed))
@@ -299,7 +299,7 @@ class bake_db:
 
 
 	def update_jobs_mark_file_queued(self,filename):
-
+		
 		cursor = self.conn.cursor()
 
 		print(filename)
@@ -315,9 +315,9 @@ def main(argv):
 	theDB = None
 
 	try:
-		opts, args = getopt.getopt(argv,"hbpr",[
+		opts, args = getopt.getopt(argv,"hpbr",[
 				"print",
-				"clear",
+				"clearjobs",
 				"clearresults",
 				"bake",
 				"brief",
@@ -339,9 +339,9 @@ def main(argv):
 
 	for opt, arg in opts:
 
-		if opt in ("-p","--print"):
+		if opt=="-p":
 			theDB.do_printDB()
-		elif opt in ("--bake"):
+		elif opt=="--bake":
 			theDB.do_bake(mark_processing=True,bake_op=theDB.code_bake_op_bake)
 		elif opt in ("--setupdraft"):
 			theDB.do_bake(mark_processing=True,bake_op=theDB.code_bake_op_setup_draft) 
@@ -351,7 +351,7 @@ def main(argv):
 			theDB.do_bake(mark_processing=True,bake_op=theDB.code_bake_op_clean) 
 		elif opt in ("-r","--results"):
 			theDB.do_print_results()
-		elif opt in ("-s", "--searchpath"):
+		elif opt=="--searchpath":
 			theDB.iterate_blend_files(arg)
 		elif opt in ("--requeueall"):
 			theDB.update_all_jobs_set_status(theDB.code_queued)
@@ -365,7 +365,7 @@ def main(argv):
 			theDB.do_briefDB()
 		elif opt in ("--clearresults"):
 			theDB.clear_results()
-		elif opt in ("--clear"):
+		elif opt in ("--clearjobs"):
 			theDB.clear_database()
 		elif opt in ("-h","--help"):
 			print("====================================")
@@ -375,9 +375,10 @@ def main(argv):
 			print("--setupdraft\t\t| setup draft settings")
 			print("--setupfinal\t\t| setup final settings")
 			print("--clean\t\t| clean particles")
+			print("--clearresults\t\t| delete all bake results")
 			print("--results -r\t\tPrint bake results")
 			print("-s --searchpath\t\t| add files to DB")
-			print("--clear\t\t\t| clear DB")
+			print("--clearjobs\t\t\t| clear DB")
 			print("--markallfinished\t| mark all files as finished")
 			print("--requeueall\t\t| requeue all jobs")
 			print("--requeuefailed\t\t| requeue failed jobs")
@@ -389,3 +390,4 @@ def main(argv):
 if __name__ == "__main__":
 	main(sys.argv[1:])
 
+		
