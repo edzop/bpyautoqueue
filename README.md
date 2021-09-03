@@ -9,6 +9,8 @@ There are 4 parts to the bpyautoqueue set of tools:
 * Camera Helper UI
 * Queue Helper UI
 
+bpyautoqueue uses sqlite3 for storage. 
+
 
 ## Camera Helper UI
 The Camera Helper UI is provided to provide a consistant repeatable way to streamline scene setup / camera placement / and automatic camera panning keyframes for animation sequences. 
