@@ -75,7 +75,7 @@ The command `blq --clear` will clear all jobs from the render queue
 The command `blq --times` will display a summary of the total time for all frames rendered for each blender file in the render queue:
 
 ```
-Opening database: /media/user/storage/2020_mint/workspace/bpyautoqueue/render_db.sqlite3
+Opening database: /blender/bpyautoqueue/render_db.sqlite3
 ================== Times =================
 Samples: 512 Resolution: (1920x1080) Time: 06:03:38 File: /home/blender/anim/water/2012_figure_splash.blend
 Samples: 512 Resolution: (1920x1080) Time: 03:39:16 File: /home/blender/anim/water/2020_02_16_water.blend
@@ -141,7 +141,7 @@ The command `blb --search test/` will search the `test` directory for any matchi
 
 The command `blb -p` will print the current bake queue:
 ```
-Opening database: /home/ek/data/workspace/bpyautoqueue/bake_db.sqlite3
+Opening database: /blender/bpyautoqueue/bake_db.sqlite3
 ================== BakeDB =================
 #1 status: Queued file: test/test2.blend
 #2 status: Queued file: test/test1.blend
