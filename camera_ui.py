@@ -1,12 +1,13 @@
 bl_info = {
 	"name": "Camera_Helper",
-	"author": "zuka",
-	"version": (1, 3, 0),
-	"blender": (2, 80, 0),
+	"author": "Ed Kraus",
+	"version": (1, 3, 2),
+	"blender": (2, 93, 0),
 	"location": "User > Camera Helper",
 	"description": "Camera Helper",
 	"warning": "",
 	"wiki_url": "",
+	"wiki_url": "https://edzop.github.io/bpyautoqueue",
 	"tracker_url": "",
 	"category": "User"}
 
@@ -41,17 +42,6 @@ from . import rend_helper
 from .util_cycles import cycles_helper
 from . import auto_camera_pan
 from . import camera_dolly_helper
-
-#from .util_lux import lux_helper
-
-#rend_helper 		= imp.load_source('util_helper','/home/blender/scripts/rend_helper.py')
-#auto_camera_pan 	= imp.load_source('auto_camera_pan','/home/blender/scripts/auto_camera_pan.py')
-#camera_dolly_helper = imp.load_source('camera_dolly_helper','/home/blender/scripts/camera_dolly_helper.py')
-#util_helper 		= imp.load_source('util_helper','/home/blender/scripts/util_helper.py')
-#util_lux 			= imp.load_source('util_lux','/home/blender/scripts/lux/util_lux_helper.py')
-#util_cycles 		= imp.load_source('util_cycles','/home/blender/scripts/cycles/util_cycles_helper.py')
-#util_world_helper	= imp.load_source('util_cycles','/home/blender/scripts/cycles/util_world_helper.py')
-
 
 class camera_helper_properties(PropertyGroup):
 
@@ -189,19 +179,13 @@ class Operator_Choose_Background(bpy.types.Operator, ImportHelper):
 	bl_idname = "wm.scene_helper_choose_background"
 	bl_label = "Choose Background"
 
-    # From ImportHelper. Filter filenames.
 	filename_ext = ".blend"
-
-	#filter_glob = bpy.props.StringProperty(default="*.blend", options={'HIDDEN'})
-
 
 	filepath : StringProperty(
         name="File Path",
         description="Path to Background file",
         default="",
         maxlen=1024)
-
-	#filepath = bpy.props.StringProperty(name="File Path", maxlen=1024, default="")
 
 	def invoke(self, context, event):
 		context.window_manager.fileselect_add(self)
@@ -230,9 +214,6 @@ class SetupLightingOperator(bpy.types.Operator):
 		del theRendHelper
 
 		return {'FINISHED'}
-
-	
-
 
 class SetBackgroundSceneHelperOperator(bpy.types.Operator):
 	bl_idname = "wm.scene_helper_set_background"
@@ -321,13 +302,6 @@ class CamHelperPanel(bpy.types.Panel):
 
 		scene = context.scene
 		
-#        row = layout.row()
-#        row.label(text="Cam Align:")
-
-#		split = layout.split()
-#		col = split.column(align=True)
-
-#        col.operator("mesh.primitive_plane_add", text="Plane", icon='MESH_PLANE')
 		layout.operator(Operator_Choose_World.bl_idname)
 		layout.operator(Operator_Choose_Background.bl_idname)
 		
@@ -338,7 +312,7 @@ class CamHelperPanel(bpy.types.Panel):
 		my_camera_tool = scene.my_camera_tool
 
 		layout.prop( my_camera_tool, "pan_step")
-		#layout.operator(SetupAutoViewOperator.bl_idname)
+
 		layout.operator(SetupAutoPanOperator.bl_idname)
 		
 

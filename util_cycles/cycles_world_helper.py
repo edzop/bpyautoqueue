@@ -9,10 +9,6 @@ class World_Helper():
 	worldlist = list()
 	blacklist = list()
 
-	#def __init__(self):
-		
-
-
 	def set_world_file(self,worldfile):
 		bpy.context.scene["worldfile"]=worldfile
 
@@ -126,9 +122,6 @@ class World_Helper():
 	def link_random_cycles_hdri(self):
 		print("Linking random Cycles hdri")
 
-		#util_helper.scene_remove_hemi_light()
-		#util_helper.scene_remove_sun_light()
-
 		self.remove_world()
 		self.set_black_world()
 
@@ -142,8 +135,6 @@ class World_Helper():
 		for infile in glob.glob( os.path.join(hdripath, '*.hdr' )):
 			hdrilist.append(infile)
 
-		#for infile in glob.glob( os.path.join(hdripath, '*.exr' )):
-		#	hdrilist.append(infile)
 
 		hdrilist.sort()
 
@@ -156,15 +147,3 @@ class World_Helper():
 
 		self.set_hdri_world(hdri_filename)
 		
-		#bpy.ops.image.open(filepath=hdri_filename)
-		#filename_without_path=os.path.basename(hdri_filename)
-
-		#img=bpy.ops.image.open(filepath=hdri_filename)
-
-
-		#bpy.data.worlds[0].luxcore.light="infinite"
-		#bpy.data.worlds[0].luxcore.image=bpy.data.images[filename_without_path]
-		#bpy.data.worlds[0].luxcore.rotation=math.radians(90)
-
-		#bpy.context.scene.luxcore.lightgroups.default.gain=0.5
-

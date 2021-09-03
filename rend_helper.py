@@ -7,9 +7,7 @@ import functools
 import glob
 import hashlib
 
-
 from . import util_helper
-
 
 from .util_cycles import cycles_helper
 from .util_cycles import cycles_world_helper
@@ -17,17 +15,6 @@ from .util_cycles import cycles_world_helper
 from . import auto_camera_pan
 from . import camera_dolly_helper
 from . import environment_helper
-
-#unwrap_uv_util 		= imp.load_source('unwrap_all_UVs','/home/blender/scripts/unwrap_all_UVs.py')
-#util_lux 			= imp.load_source('util_lux','/home/blender/scripts/lux/util_lux_helper.py')
-#util_cycles 		= imp.load_source('util_cycles','/home/blender/scripts/cycles/util_cycles_helper.py')
-#cycles_world_helper	= imp.load_source('util_cycles_world_helper','/home/blender/scripts/cycles/util_world_helper.py')
-
-#util_helper 			= imp.load_source('util_helper','/home/blender/scripts/util_helper.py')
-#environment_helper 		= imp.load_source('environment_helper','/home/blender/scripts/environment_helper.py')
-#auto_camera_pan 		= imp.load_source('auto_camera_pan','/home/blender/scripts/auto_camera_pan.py')
-#camera_dolly_helper 	= imp.load_source('camera_dolly_helper','/home/blender/scripts/camera_dolly_helper.py')
-
 
 class Rend_Helper:
 
@@ -47,40 +34,15 @@ class Rend_Helper:
 		self.renderer_name = ''
 		self.use_stamp = True
 
-#		self.filename_without_extension = ''
 		self.output_path="./output"
 		self.max_frames=2
 		self.isolate_output_in_folder=isolate_output_in_folder
-
-		#name of blender file eg: filename.blend
-		#self.blend_file = os.path.basename(bpy.context.blend_data.filepath)
-		# name of blenderfile without slash filename
-
-		#t_extension() = util_helper.get_blendfile_without_extension()
-
-		
-		#os.path.splitext(self.blend_file)[0]
-
-		#bpy.context.scene.render.engine=target_renderer
-
-		#if bpy.context.scene.render.engine!=None:
-		#	bpy.context.scene.render.engine = bpy.context.scene.render.engine.lower()
-		#else:
-		#	bpy.context.scene.render.engine = os.environ.get("TARGET_RENDERER")
-		#	if bpy.context.scene.render.engine==None:
-		#		bpy.context.scene.render.engine = self.engine_name_cycles
-
-		
-		#print("Blendfile: %s"%util_helper.get_blendfile_without_extension())
 
 		if self.isolate_output_in_folder==True:
 			self.render_output_path = self.output_path + "/" + util_helper.get_blendfile_without_extension() + "/" + bpy.context.scene.render.engine + "/"
 		else:
 			self.render_output_path = self.output_path + "/"
 
-		#print("isolate files: %d" %(self.isolate_output_in_folder))	
-
-		#print("render_output_path: %s" %self.render_output_path);
 
 		util_helper.ensure_dir(self.render_output_path);
 
@@ -228,10 +190,6 @@ class Rend_Helper:
 
 		if self.temp_dir!=None:
 			bpy.context.scene.render.filepath=self.temp_dir
-
-#		self.frame_start = bpy.context.scene.frame_start
-#		self.frame_end = bpy.context.scene.frame_end
-
 
 
 	def create_auto_save_nodes_DISABLED(self):

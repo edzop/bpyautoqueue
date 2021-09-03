@@ -6,7 +6,6 @@ import functools
 import glob
 
 
-
 def get_cycles_samples():
 	return 400
 
@@ -15,24 +14,6 @@ def setup_cycles_fstop():
 	bpy.context.scene.camera.data.cycles.aperture_blades=5
 	bpy.context.scene.camera.data.cycles.aperture_fstop=0.3
 
-
-#def setup_cyclesgpu_settings():
-#	bpy.context.scene.render.engine='CYCLES'
-#	bpy.context.scene.cycles.feature_set='EXPERIMENTAL'
-#	bpy.context.scene.cycles.device='GPU'
-#	bpy.context.scene.cycles.samples=100
-#	bpy.context.scene.cycles.max_bounces=12
-#	bpy.context.scene.cycles.min_bounces=3
-#	bpy.context.scene.cycles.diffuse_bounces=2
-#	bpy.context.scene.cycles.glossy_bounces=4
-#	bpy.context.scene.cycles.transmission_bounces=8
-#	bpy.context.scene.cycles.transparent_min_bounces=8
-#	bpy.context.scene.cycles.transparent_max_bounces=8
-#	bpy.context.scene.cycles.use_transparent_shadows=True
-#	bpy.context.scene.cycles.no_caustics=False
-#	bpy.context.scene.render.tile_x=512
-#	bpy.context.scene.render.tile_y=512
-#	return 'cyclesgpu'
 
 
 def check_cycles_is_lit():
@@ -59,14 +40,6 @@ def check_cycles_is_lit():
 	return islit
 
 def setup_cycles_settings():
-	#bpy.context.scene.render.use_raytrace=True
-	#bpy.context.scene.render.use_antialiasing=False
-	#bpy.context.scene.render.antialiasing_samples='5'
-	#bpy.context.scene.render.use_sss=False
-
-	#if bpy.context.scene.world!=None:
-	#	bpy.context.scene.world.light_settings.use_ambient_occlusion=False
-	#	bpy.context.scene.world.light_settings.use_environment_light=False
 
 	bpy.context.scene.render.engine='CYCLES'
 	bpy.context.scene.cycles.device='CPU'

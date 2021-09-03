@@ -15,9 +15,6 @@ from bpyautoqueue import material_helper
 
 import bmesh
 
-#blend_file = os.path.basename(bpy.context.blend_data.filepath)
-
-
 argv = sys.argv
 argv = argv[argv.index("--") + 1:]  # get all args after "--"
 
@@ -30,11 +27,6 @@ if len(argv)>1:
 
 def do_bake(obj,modifier):
 
-	#bpy.ops.fluid.free_all()
-
-	#modifier.show_viewport = False
-	#bpy.context.view_layer.update() 
-	
 
 	settings=modifier.domain_settings
 	
@@ -91,7 +83,6 @@ def do_bake(obj,modifier):
 
 	bpy.context.scene.frame_current=1
 	
-	#print(status_text)
 	
 	print(status_text)
 

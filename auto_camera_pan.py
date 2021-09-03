@@ -17,11 +17,7 @@ from . import camera_dolly_helper
 
 #	Todo: Floating object, Black space (emitter scene)
 
-# empty "zoom_limit"
-# empty "inside_scene"
-
 class Cam_Pan_Helper:
-	
 	
 	def __init__(self):
 
@@ -130,7 +126,6 @@ class Cam_Pan_Helper:
 			newnum = max
 			
 		return newnum
-		
 		
 		
 	def validate_settings(self):
@@ -719,22 +714,9 @@ class Cam_Pan_Helper:
 		bpy.ops.object.empty_add(type='CUBE', location=(0,0,0))
 		bpy.context.active_object.name=self.object_frame_name
 		
-#		bpy.ops.object.origin_set(type='ORIGIN_CURSOR')
-		
 		return bpy.context.active_object
 		
-	# This is pre blender 2.8 - remove after confirm it doesn't affect anything	
-	#def adjust_layers(self):
-		
-	#	if self.dof_object!=None:
-	#		self.set_object_layer(self.dof_object,0)
-			
-	#	if self.target_object!=None:
-	#		self.set_object_layer(self.target_object,9)
 
-	#	if self.cam!=None:
-	#		self.set_object_layer(self.cam,0)
-			
 	def setup_for_scene_only_render(self):
 		
 		# set inside scene tag so it doesn't append random scene when rendering
@@ -804,6 +786,4 @@ class Cam_Pan_Helper:
 		monkey.rotation_euler[0] = 1.0821
 		monkey.rotation_euler[1] = 0
 		monkey.rotation_euler[2] = 0
-
-		
 

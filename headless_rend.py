@@ -1,22 +1,4 @@
-	# --------------------------------------------------------------------------
-# Blender 2.5 LuxRender Console Headless Renderer Script
-# Version: 0.2
-# Author: ZukaZuka
-#
-# Usage: ./blender -b blendfile.blend -P lux_headless_render.py
-#
-# This script is designed to render frames from blend file with luxconsole from the command
-# line. It allows you to alter parameters such as resolution and quality from one
-# place so you can iterate through a series of blend files and have the same output
-# settings applied to all of them.
-#
-# This script will write image output file name and render time to a logfile so you can easily
-# keep track of render times for each file frame without having to grep through other
-# logs to extract info and match render times to blend files.
-# --------------------------------------------------------------------------
-
 import bpy
-
 import os
 import sys
 
@@ -36,7 +18,6 @@ class headless_renderer:
 	outputY=None
 	frameIndex=None
 	jobID=None
-	#render_engine_txt=None
 	autopanstep=None
 	moviemode=None
 
@@ -45,13 +26,7 @@ class headless_renderer:
 
 	def __init__(self):
 
-		#self.target_renderer = os.environ.get("TARGET_RENDERER")
-
 		self.theDB = render_db.render_db()
-
-		#self.theDB.selected_render_engine=self.target_renderer
-
-		#self.theDB.openDB()
 
 	def get_next_renderjob(self):
 
@@ -168,13 +143,3 @@ while the_headless_renderer.jobID!=None:
 	if last_filename!=the_headless_renderer.filename or last_autopanstep!=the_headless_renderer.autopanstep:
 		the_headless_renderer.jobID=None
 
-	
-
-
-
-
-
-
-
-
-# grep SEVERE *.log

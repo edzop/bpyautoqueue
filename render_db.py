@@ -8,16 +8,12 @@ import glob
 import os
 import subprocess
 
-
-
 #this_script_file_path = os.path.realpath(__file__)
 
 #import pathlib
 #this_script_file_path=pathlib.Path(__file__).parent.resolve()
 
 this_script_file_path=os.path.dirname(os.path.abspath(__file__))
-
-
 
 class render_db:
 	

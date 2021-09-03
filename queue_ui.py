@@ -1,13 +1,12 @@
 bl_info = {
 	"name": "Queue_Helper",
-	"author": "zuka",
-	"version": (1, 3, 1),
-	"blender": (2, 80, 0),
-	#"location": "User > Queue_Helper",
+	"author": "Ed Kraus",
+	"version": (1, 3, 2),
+	"blender": (2, 93, 0),
 	"location": "3D View > Queue",
 	"description": "Queue Helper",
 	"warning": "",
-	"wiki_url": "",
+	"wiki_url": "https://edzop.github.io/bpyautoqueue",
 	"tracker_url": "",
 	"category": "User"}
 

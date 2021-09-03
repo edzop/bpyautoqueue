@@ -146,6 +146,3 @@ def remove_group_by_name(searchname):
 			print("remove_group_by_name: %s"%searchname)
 			bpy.data.groups.remove(g)
 
-
-
-

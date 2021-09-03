@@ -2,7 +2,6 @@
 import sys, getopt
 import sqlite3
 from datetime import date, datetime
-#import hashlib
 import glob
 import os
 import subprocess
@@ -10,7 +9,6 @@ import functools
 
 
 this_script_file_path=os.path.dirname(os.path.abspath(__file__))
-
 
 class bake_db:
 
@@ -48,13 +46,12 @@ class bake_db:
 	def get_next_in_queue(self,mark_processing):
 
 		nextbake = []
-#		print("ss=%d AND ff=%d"%(self.code_queued,self.code_finished))
-		
+	
 		c=self.conn.execute("SELECT filename,jobID " \
 			"FROM bakes WHERE (status=%d) ORDER BY filename LIMIT 1"%(self.code_queued))
 			
 		for row in c:
-			#print("%s"%(row[0]))
+
 			jobID=row[1]
 			filename=row[0]
 
@@ -108,7 +105,6 @@ class bake_db:
 
 	def log_result(self,filename,baketime,frames,resolution,domain_size,cache_size):
 		timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
-		#hashval = self.make_hash(filename)	
 		self.conn.executemany("INSERT INTO results(finishdate,filename,baketime,frames,resolution,domain_size,cachesize)" \
 		" VALUES(?,?,?,?,?,?,?)",[(timestamp,filename,baketime,frames,resolution,domain_size,cache_size)])
 			
@@ -209,8 +205,6 @@ class bake_db:
 				jobID=nextbake[1]
 				print("Processing: #%d %s"%(jobID,filename))
 
-				#import add_helper
-
 				if os.path.isfile(filename):
 					args=["blender"]
 					args.append("-b")
@@ -228,7 +222,6 @@ class bake_db:
 							line = proc.stdout.readline()
 							if not line:
 								break
-							#the real code does filtering here
 							print(line.decode(),end="")
 
 					except BrokenPipeError:
@@ -396,4 +389,3 @@ def main(argv):
 if __name__ == "__main__":
 	main(sys.argv[1:])
 
-		

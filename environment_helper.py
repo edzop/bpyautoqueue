@@ -57,4 +57,3 @@ class Environment_Helper():
 
 		print("Assigning environment: %s"%world_file)
 		bpy.ops.wm.link(directory=world_file + '/Collection/',files=[{'name': 'environment'}],relative_path=False)
-

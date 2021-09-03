@@ -4,7 +4,6 @@ import bpy
 # foam material helper functions
 # ==================================================
 
-
 # delete all nodes except output material
 def delete_all_nodes_except_output_material(nodes):
 	for node in nodes:
@@ -63,8 +62,6 @@ def make_glass_material(name,color):
 	return mat
 
 
-
-
 def make_subsurf_material(name,color):
 	mat = bpy.data.materials.new(name)
 	mat.use_nodes=True
@@ -72,7 +69,6 @@ def make_subsurf_material(name,color):
 	nodes=tree.nodes
 
 	shader_node = nodes['Principled BSDF']
-	#color=[1,0.3,0.3,1] RGBA
 	shader_node.inputs[0].default_value=color
 
 	# subsurf
@@ -108,7 +104,6 @@ def make_liquid_material(name,color):
 	
 	# roughness
 	shader_node.inputs[7].default_value=0
-
 
 	# subsurf
 	shader_node.inputs[1].default_value=1

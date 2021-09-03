@@ -3,13 +3,6 @@ import bpy
 from . import util_helper
 
 from .util_cycles import cycles_helper
-#from .util_lux import lux_helper
-
-#util_helper        = imp.load_source('util_helper','/home/blender/scripts/util_helper.py')
-#auto_camera_pan 	= imp.load_source('auto_camera_pan','/home/blender/scripts/auto_camera_pan.py')
-
-#util_lux 			= imp.load_source('util_lux','/home/blender/scripts/lux/util_lux_helper.py')
-#util_cycles 		= imp.load_source('util_cycles','/home/blender/scripts/cycles/util_cycles_helper.py')
 
 class camera_dolly_helper:
 
@@ -22,12 +15,6 @@ class camera_dolly_helper:
 		self.thePanHelper=thePanHelper
 		self.light_size=0.9
 
-	#	thePanHelper = auto_camera_pan.Cam_Pan_Helper(None)
-
-	#	if thePanHelper.target_object!=None:
-	#		self.light_target=thePanHelper.target_object
-	#	else:
-	#		self.light_target = bpy.context.scene.camera
 
 	def setup_camera_rig(self,light_name,x,y,z,target_mat_name):
 
@@ -44,8 +31,6 @@ class camera_dolly_helper:
 		#newlight.parent=self.light_target
 		bpy.ops.object.material_slot_add()
 		newlight.material_slots[0].material = bpy.data.materials[target_mat_name]
-
-		#newlight.scale=[light_scale,light_scale,light_scale]
 
 	def get_light_focus_object(self):
 		light_focus_object_name="light_focus"
@@ -68,19 +53,6 @@ class camera_dolly_helper:
 		newlight = bpy.context.active_object
 		newlight.name=light_name
 
-		
-		'''
-		array_x = newlight.modifiers.new(type="ARRAY", name="array_x")
-		array_x.count=3
-		array_x.relative_offset_displace=( 1.2, 0, 0 )
-	
-		array_y = newlight.modifiers.new(type="ARRAY", name="array_y")
-		array_y.count=3
-		array_y.relative_offset_displace=( 0, 1.2, 0 )
-		'''
-
-
-
 		bpy.ops.object.material_slot_add()
 		newlight.material_slots[0].material = bpy.data.materials[target_mat_name]
 
@@ -89,8 +61,6 @@ class camera_dolly_helper:
 		track_new.up_axis = 'UP_Y'
 
 		track_new.target=self.get_light_focus_object()
-
-
 
 
 	def setup_auto_lights(self,autoPanStep):
