@@ -15,6 +15,7 @@ from bpyautoqueue import material_helper
 
 import bmesh
 
+
 argv = sys.argv
 argv = argv[argv.index("--") + 1:]  # get all args after "--"
 
@@ -26,7 +27,7 @@ if len(argv)>1:
 	bake_op=int(argv[1])
 
 def do_bake(obj,modifier):
-
+	
 
 	settings=modifier.domain_settings
 	
@@ -83,7 +84,7 @@ def do_bake(obj,modifier):
 
 	bpy.context.scene.frame_current=1
 	
-	
+
 	print(status_text)
 
 	
@@ -107,11 +108,23 @@ def disable_all_particles():
 					if modifier.fluid_type == 'DOMAIN':
 						settings=modifier.domain_settings
 						if settings.domain_type=="LIQUID":
-							settings.use_flip_particles=False
-							settings.use_spray_particles = False
-							settings.use_foam_particles = False
-							settings.use_bubble_particles = False
+							print("disabling particles")
 
+							# For some reason setting to false on particle system doesn't work - it toggles 
+							# so if you set to false when it's already false it becomes true...??? 
+							# So we check to see if it's true before setting to false
+
+							if settings.use_flip_particles:
+								settings.use_flip_particles=False
+
+							if settings.use_spray_particles:	
+								settings.use_spray_particles = False
+
+							if settings.use_foam_particles:
+								settings.use_foam_particles = False
+
+							if settings.use_bubble_particles:	
+								settings.use_bubble_particles = False
 
 def update_fluid_objects(fluid_settings):
 	#bpy.ops.fluid.free_all()
@@ -152,10 +165,22 @@ def configure_fluid_domain(obj,settings,fluid_settings):
 	if settings.domain_type=="LIQUID":
 
 			print("particles on")
-			settings.use_flip_particles=True
-			settings.use_spray_particles = True
-			settings.use_foam_particles = True
-			settings.use_bubble_particles = True
+
+			# For some reason setting to false on particle system doesn't work - it toggles 
+			# so if you set to false when it's already false it becomes true...??? 
+			# So we check to see if it's false before setting to true
+
+			#if settings.use_flip_particles==False:
+			#	settings.use_flip_particles=True
+
+			if settings.use_spray_particles==False:	
+				settings.use_spray_particles = True
+
+			if settings.use_foam_particles==False:
+				settings.use_foam_particles = True
+
+			if settings.use_bubble_particles==False:	
+				settings.use_bubble_particles = True
 
 			# sometimes we get ghost leftover particles... maybe a bug
 			# maybe because some were created with UI some with script... 
@@ -207,9 +232,9 @@ def assign_particles():
 	spray_obj_name="autogen_liquid_spray"
 	bubbles_obj_name="autogen_liquid_bubbles"
 
-	util_helper.remove_object_by_name(foam_obj_name,starts_with=True)
-	util_helper.remove_object_by_name(spray_obj_name,starts_with=True)
-	util_helper.remove_object_by_name(bubbles_obj_name,starts_with=True)
+	util_helper.remove_object_by_name(foam_obj_name,starting_with=True)
+	util_helper.remove_object_by_name(spray_obj_name,starting_with=True)
+	util_helper.remove_object_by_name(bubbles_obj_name,starting_with=True)
 
 	particle_size=0.12
 
@@ -267,8 +292,8 @@ def add_icosphere(name,size,color):
 	#ob = bpy.context.active_object
 	#ob.name=name
 
-	# hide it down below floor place
-	obj.location.z=-2
+	# hide it down below floor place where we can't see it
+	obj.location.z=-3
 
 	material_name=name
 
@@ -280,6 +305,11 @@ def add_icosphere(name,size,color):
 
 	return obj
 
+
+def print_particle_systems():
+
+	for p in bpy.data.particles:
+		print("Particle: %s"%(p.name))
 
 def delete_particle_systems():
 
@@ -300,7 +330,7 @@ def delete_particle_systems():
 def setup_final():
 
 	fluid_settings = {
-		"fluid_resolution": 64,
+		"fluid_resolution": 90,
 		"gas_resolution": 256,
 		"timesteps_min": 8,
 		"timesteps_max": 10,
@@ -329,6 +359,8 @@ def clean_all():
 	#bpy.ops.fluid.free_all()
 	disable_all_particles()
 	#delete_particle_systems()
+
+	print_particle_systems()
 	util_helper.do_save()
 
 if bake_op==bake_db.bake_db.code_bake_op_bake:
