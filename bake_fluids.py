@@ -272,12 +272,12 @@ def add_icosphere(name,size,color):
 	bmesh.ops.create_icosphere(
     bm,
     subdivisions=1,
-    diameter=size,
+    radius=size,
     matrix=transform,
     calc_uvs=False)
 
 
-	bmesh.ops.create_icosphere(bm, subdivisions=1, diameter=size,matrix=transform,calc_uvs=False) 
+	#bmesh.ops.create_icosphere(bm, subdivisions=1, radius=size,matrix=transform,calc_uvs=False) 
 	#, matrix, calc_uvs)
 
 	mesh = bpy.data.meshes.new(name)

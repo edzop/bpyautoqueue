@@ -7,7 +7,7 @@ import glob
 
 
 def get_cycles_samples():
-	return 400
+	return 64
 
 def setup_cycles_fstop():
 	bpy.context.scene.camera.data.cycles.aperture_type="FSTOP"
@@ -42,7 +42,8 @@ def check_cycles_is_lit():
 def setup_cycles_settings():
 
 	bpy.context.scene.render.engine='CYCLES'
-	bpy.context.scene.cycles.device='CPU'
+	bpy.context.scene.cycles.device='GPU'
+	#bpy.context.scene.cycles.device='CPU'
 	bpy.context.scene.cycles.max_bounces=8
 	bpy.context.scene.cycles.min_bounces=3
 	bpy.context.scene.cycles.diffuse_bounces=4
@@ -59,10 +60,10 @@ def setup_cycles_settings():
 	bpy.context.scene.view_settings.look="High Contrast"
 	bpy.context.scene.cycles.sample_clamp_indirect=9
 
-	bpy.context.scene.render.tile_x=64
-	bpy.context.scene.render.tile_y=64
+#	bpy.context.scene.render.tile_x=64
+#	bpy.context.scene.render.tile_y=64
 	#bpy.context.scene.cycles.use_cache=False
-	#bpy.context.scene.render.use_persistent_data=True
+	bpy.context.scene.render.use_persistent_data=True
 	#bpy.context.scene.cycles.use_animated_seed=True
 #	bpy.context.scene.render.layers.active.cycles.use_denoising=True
 
