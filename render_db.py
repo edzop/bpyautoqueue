@@ -464,11 +464,18 @@ class render_db:
 
 		c=self.conn.execute("SELECT filename,samples,sum(rendertime),outputX,outputY FROM blendfiles " \
 			"GROUP by filename")
+
+		totalSeconds=0
+		totalFiles=0
 			
 		for row in c:
 			filename=row[0]
 
 			renderSeconds=row[2]
+
+			totalSeconds=totalSeconds+renderSeconds
+			totalFiles=totalFiles+1
+
 			m, s = divmod(renderSeconds, 60)
 			h, m = divmod(m, 60)
 
@@ -478,6 +485,14 @@ class render_db:
 			outputRes="(%dx%d)"%(row[3],row[4])
 
 			print("Samples: %d Resolution: %s Time: %s File: %s"%(samples,outputRes,timeStr,filename))
+
+		m, s = divmod(totalSeconds, 60)
+		h, m = divmod(m, 60)
+
+		timeStr='{:02.0f}:{:02.0f}:{:02.0f}'.format(h, m, s)
+
+		print("===============================================")
+		print("Total Files: %d Render Time: %s"%(totalFiles,timeStr))
 
 
 
