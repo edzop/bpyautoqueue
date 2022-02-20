@@ -31,8 +31,8 @@ class render_db:
 	
 	selected_render_engine="CYCLES"
 	
-	outputX=480
-	outputY=270
+	outputX=640
+	outputY=320
 	anim_mode="anim"
 	autopanstep=1
 	moviemode=0
@@ -291,8 +291,8 @@ class render_db:
 		
 	def mark_item_finished(self,jobID,rendertime,samples):
 
-		print("Time2")
-		print(rendertime)
+		print("Render Time: %s"%(str(rendertime)))
+
 		cursor = self.conn.cursor()
 		cursor.execute('''UPDATE blendfiles SET status =?, rendertime=?, samples=? WHERE jobID = ? ''',
 			(self.code_finished,rendertime,samples,jobID))
@@ -503,6 +503,7 @@ def main(argv):
 				"mode",
 				"queue",
 				"quartersize",
+				"thirdsize",
 				"halfsize",
 				"fullsize",
 				"2ksize",
@@ -545,6 +546,9 @@ def main(argv):
 		elif opt in ("--quartersize"):
 			theDB.outputX,theDB.outputY=480,270
 			theDB.change_resolution()
+		elif opt in ("--thirdsize"):
+			theDB.outputX,theDB.outputY=640,360
+			theDB.change_resolution()
 		elif opt in ("--2ksize"):
 			theDB.outputX,theDB.outputY=2560,1440
 			theDB.change_resolution()
@@ -586,7 +590,7 @@ def main(argv):
 		elif opt in ("--help"):
 			#print('render_db.py -d <databasefile>')
 			print("====================================")
-			print("--halfsize --fullsize --quartersize --2ksize - resize all renders to preset size")
+			print("--halfsize --fullsize --quartersize --thirdsize --2ksize - resize all renders to preset size")
 			print("--clear  - clear DB")
 			print("-s --searchpath  - add files to DB")
 			print("-i - frame index")
