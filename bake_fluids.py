@@ -27,7 +27,7 @@ if len(argv)>1:
 	bake_op=int(argv[1])
 
 def do_bake(obj,modifier):
-	
+
 
 	settings=modifier.domain_settings
 	
@@ -343,10 +343,10 @@ def setup_final():
 
 def setup_draft():
 	fluid_settings = {
-		"fluid_resolution": 32,
+		"fluid_resolution": 48,
 		"gas_resolution": 120,
-		"timesteps_min": 1,
-		"timesteps_max": 4,
+		"timesteps_min": 3,
+		"timesteps_max": 10,
 		"flow_subframes": 3,
 		"effector_subframes": 3
 	}
