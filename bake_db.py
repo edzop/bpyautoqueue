@@ -228,6 +228,8 @@ class bake_db:
 						pass
 					except KeyboardInterrupt:
 						exit(0)
+				else:
+					print("file '%s' not found in path"%filename)
 
 					#out=subprocess.check_output(args)
 					#print(out)
