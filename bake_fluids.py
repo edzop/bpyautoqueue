@@ -15,6 +15,10 @@ from bpyautoqueue import material_helper
 
 import bmesh
 
+foam_obj_name="autogen_liquid_foam"
+spray_obj_name="autogen_liquid_spray"
+bubbles_obj_name="autogen_liquid_bubbles"
+
 
 argv = sys.argv
 argv = argv[argv.index("--") + 1:]  # get all args after "--"
@@ -126,6 +130,7 @@ def disable_all_particles():
 							if settings.use_bubble_particles:	
 								settings.use_bubble_particles = False
 
+
 def update_fluid_objects(fluid_settings):
 	#bpy.ops.fluid.free_all()
 
@@ -147,7 +152,37 @@ def update_fluid_objects(fluid_settings):
 
 					modifier.show_viewport = True
 				
-	util_helper.do_save()
+
+def assign_particle_material(obj,col): 
+	material_name="mat_%s"%obj.name
+	material_helper.delete_material(material_name)
+	mat=material_helper.make_diffuse_material(material_name,col)
+	material_helper.assign_material(obj,mat)
+
+def update_materials():
+
+	for obj in bpy.data.objects:
+
+		if obj.type=="MESH":
+
+			if obj.name==foam_obj_name:
+				assign_particle_material(obj,(1,0.8,0.8,1))
+
+			if obj.name==spray_obj_name:
+				assign_particle_material(obj,(1,0.8,1.0,1))
+
+			if obj.name==bubbles_obj_name:
+				assign_particle_material(obj,(1.0,1.0,0.8,1))
+
+
+			for modifier in obj.modifiers:
+				if modifier.type == 'FLUID':
+
+					if modifier.fluid_type == 'DOMAIN':
+						material_name="auto_water"
+						material_helper.delete_material(material_name)
+						mat=material_helper.make_liquid_material(material_name,(0.5,0.9,1.0,1))
+						material_helper.assign_material(obj,mat)
 
 
 
@@ -205,12 +240,6 @@ def configure_fluid_domain(obj,settings,fluid_settings):
 
 			assign_particles()
 
-			material_name="auto_water"
-
-			material_helper.delete_material(material_name)
-			mat=material_helper.make_liquid_material(material_name,(0.5,0.9,1.0,1))
-			material_helper.assign_material(obj,mat)
-
 	full_cache_path = "/home/blender/cache/%s/%s/"%(cache_dir,util_helper.get_blendfile_without_extension())
 		
 	util_helper.ensure_dir(full_cache_path);	
@@ -227,10 +256,6 @@ def configure_fluid_domain(obj,settings,fluid_settings):
 
 
 def assign_particles():
-
-	foam_obj_name="autogen_liquid_foam"
-	spray_obj_name="autogen_liquid_spray"
-	bubbles_obj_name="autogen_liquid_bubbles"
 
 	util_helper.remove_object_by_name(foam_obj_name,starting_with=True)
 	util_helper.remove_object_by_name(spray_obj_name,starting_with=True)
@@ -361,13 +386,18 @@ def clean_all():
 	#delete_particle_systems()
 
 	print_particle_systems()
-	util_helper.do_save()
 
 if bake_op==bake_db.bake_db.code_bake_op_bake:
 	bake_all_fluids()
 elif bake_op==bake_db.bake_db.code_bake_op_setup_draft:
 	setup_draft()
+	util_helper.do_save()
 elif bake_op==bake_db.bake_db.code_bake_op_setup_final:
 	setup_final()
+	util_helper.do_save()
 elif bake_op==bake_db.bake_db.code_bake_op_clean:
 	clean_all()
+	util_helper.do_save()
+elif bake_op==bake_db.bake_db.code_bake_op_update_materials:
+	update_materials()
+	util_helper.do_save()
