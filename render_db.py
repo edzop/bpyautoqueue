@@ -8,6 +8,12 @@ import glob
 import os
 import subprocess
 
+#from bpyautoqueue import video_encoder
+
+#from . import video_encoder
+
+#import video_encoder as video_encoder
+
 #this_script_file_path = os.path.realpath(__file__)
 
 #import pathlib
@@ -458,11 +464,17 @@ class render_db:
 	def closeDB(self):
 		self.conn.close()
 
+
+	def encode_movies(self):
+		path="."
+
+		#video_encoder.encode_subdirectories(path)
+
 	def printTimes(self):
 
 		print("================== Times =================")
 
-		c=self.conn.execute("SELECT filename,samples,sum(rendertime),outputX,outputY FROM blendfiles " \
+		c=self.conn.execute("SELECT filename,samples,sum(rendertime),outputX,outputY,count(filename) FROM blendfiles " \
 			"GROUP by filename")
 
 		totalSeconds=0
@@ -483,8 +495,24 @@ class render_db:
 			
 			samples=row[1]
 			outputRes="(%dx%d)"%(row[3],row[4])
+			frame_end=row[5]
+			average_time_per_frame=0
 
-			print("Samples: %d Resolution: %s Time: %s File: %s"%(samples,outputRes,timeStr,filename))
+			if frame_end > 0:
+				average_time_per_frame=renderSeconds/frame_end
+
+			m, s = divmod(average_time_per_frame, 60)
+			h, m = divmod(m, 60)
+
+			average_timeStr='{:02.0f}:{:02.0f}:{:02.0f}'.format(h, m, s)
+
+
+			print("Samples: %d Resolution: %s x %d Time: %s Average: %s File: %s"%(samples,
+				outputRes,
+				frame_end,
+				timeStr,
+				average_timeStr,
+				filename))
 
 		m, s = divmod(totalSeconds, 60)
 		h, m = divmod(m, 60)
@@ -512,6 +540,7 @@ def main(argv):
 				"requeuefailed",
 				"print",
 				"render",
+				"encodemovies",
 				"times",
 				"brief",
 				"clear",
@@ -575,6 +604,8 @@ def main(argv):
 			theDB.do_printDB()
 		elif opt in ("--times"):
 			theDB.printTimes()
+		elif opt in ("--encodemovies"):
+			theDB.encode_movies()
 		elif opt in ("--printqueued"):
 			theDB.do_printDB(None,theDB.code_queued)
 		elif opt in ("--printfailed"):
@@ -621,6 +652,7 @@ def main(argv):
 			print("--markallfinished - mark all files as finished")
 			print("-p --print  - print all files")
 			print("--render render files in queue")
+			print("--encodemovies encode movie output from separate directories")
 			print("--printqueued - print queued files")
 			print("--printfailed - print failed files")
 			print("-b --brief  - brief summary of DB")
