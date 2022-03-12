@@ -368,7 +368,7 @@ def setup_final():
 
 def setup_draft():
 	fluid_settings = {
-		"fluid_resolution": 48,
+		"fluid_resolution": 64,
 		"gas_resolution": 120,
 		"timesteps_min": 3,
 		"timesteps_max": 10,
