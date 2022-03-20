@@ -355,7 +355,7 @@ def delete_particle_systems():
 def setup_final():
 
 	fluid_settings = {
-		"fluid_resolution": 90,
+		"fluid_resolution": 140,
 		"gas_resolution": 256,
 		"timesteps_min": 8,
 		"timesteps_max": 10,
