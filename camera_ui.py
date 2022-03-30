@@ -89,7 +89,7 @@ class SetupRenderCameraDollyOperator(bpy.types.Operator):
 
 	def execute(self, context):
 
-		thePanHelper = auto_camera_pan.Cam_Pan_Helper(None)
+		thePanHelper = auto_camera_pan.Cam_Pan_Helper()
 		theDolly = camera_dolly_helper.camera_dolly_helper(thePanHelper)
 		autoPanStep=1
 		theDolly.setup_auto_lights(autoPanStep)
@@ -240,7 +240,7 @@ class SetupAutoPanOperator(bpy.types.Operator):
 
 	def execute(self, context):
 
-		thePanHelper = auto_camera_pan.Cam_Pan_Helper(None)
+		thePanHelper = auto_camera_pan.Cam_Pan_Helper()
 
 		my_camera_tool = context.scene.my_camera_tool
 

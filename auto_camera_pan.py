@@ -315,7 +315,7 @@ class Cam_Pan_Helper:
 				self.set_dof_position(self.target_object.location.x, 
 										self.target_object.location.y, 
 										self.target_object.location.z+(target_height*0.75),False)
-				self.zoom_out(self.target_object, 0.0, 0.0, 0.2, aspect_adjusted_zoom)
+				self.zoom_out(self.target_object, 0.0, -0.05, 0.2, aspect_adjusted_zoom)
 
 				#2.0 / (target_aspect * 1.0))
 				# tweak the camera position slightly to prevent camera flipping when it crosses zero because of the track to modifier
