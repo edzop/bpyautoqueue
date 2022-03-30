@@ -15,6 +15,8 @@ import bpy
 from bpy.props import CollectionProperty
 from bpy_extras.io_utils import ImportHelper
 from . import material_helper
+from . import bake_fluids
+
 
 from bpy.props import (StringProperty,
 					   BoolProperty,
@@ -276,6 +278,23 @@ class ReQueueBakeOperator(bpy.types.Operator):
 		return {'FINISHED'}
 
 
+
+class SetupSimOperator(bpy.types.Operator):
+	"""Setup fluids and particles"""
+	bl_idname = "wm.setupsim"
+	bl_label = "Setup Sim"
+
+
+	def execute(self, context):
+
+
+		print("Setup Sim...")
+
+		bake_fluids.setup_draft()
+
+		return {'FINISHED'}
+
+
 class ReQueueFileOperator(bpy.types.Operator):
 	"""Requeue file for rendering if it exists in render queue"""
 	bl_idname = "wm.render_requeue_file_operator"
@@ -331,12 +350,47 @@ class ResizeFileOperator(bpy.types.Operator):
 		return {'FINISHED'}
 
 
-class QueueHelperPanel(Panel):
-	bl_idname="PANEL_PT_queueHelperPanel"
-	bl_label = "Queue_Helper"
+class SimHelperPanel(Panel):
+	bl_idname="PANEL_PT_simHelperPanel"
+	bl_label = "Sim Helper"
 	bl_space_type = 'VIEW_3D'
 	bl_region_type = 'UI'
-	bl_category = "Queue"
+	bl_category = "bpyAutoQueue"
+	bl_context = "objectmode"   
+
+	@classmethod
+	def poll(self,context):
+		return context.object is not None
+
+	def draw(self, context):
+		layout = self.layout
+
+		row = layout.row()
+
+		scene = context.scene
+		my_queue_tool = scene.my_queue_tool
+
+
+		layout.operator(FluidAssignInflowOperator.bl_idname)
+		layout.operator(FluidAssignOutflowOperator.bl_idname)
+		layout.operator(FluidAssignObstacleOperator.bl_idname)
+		layout.operator(FluidAssignWireSkinOperator.bl_idname)
+		layout.operator(FluidAssignBevelOperator.bl_idname)
+
+		layout.operator(ReQueueBakeOperator.bl_idname)
+
+		row = layout.row()
+		layout.operator(SetupSimOperator.bl_idname)
+
+
+
+
+class QueueHelperPanel(Panel):
+	bl_idname="PANEL_PT_queueHelperPanel"
+	bl_label = "Queue"
+	bl_space_type = 'VIEW_3D'
+	bl_region_type = 'UI'
+	bl_category = "bpyAutoQueue"
 	bl_context = "objectmode"   
 
 
@@ -360,13 +414,6 @@ class QueueHelperPanel(Panel):
 		layout.operator(ClearFileFromQueueOperator.bl_idname)
 		layout.prop( my_queue_tool, "my_resolutions", text="Resolution") 
 		layout.operator(ResizeFileOperator.bl_idname)
-		layout.operator(ReQueueBakeOperator.bl_idname)
-
-		layout.operator(FluidAssignInflowOperator.bl_idname)
-		layout.operator(FluidAssignOutflowOperator.bl_idname)
-		layout.operator(FluidAssignObstacleOperator.bl_idname)
-		layout.operator(FluidAssignWireSkinOperator.bl_idname)
-		layout.operator(FluidAssignBevelOperator.bl_idname)
 
 		layout.prop( my_queue_tool, "my_render_modes", text="Render Mode") 
 		

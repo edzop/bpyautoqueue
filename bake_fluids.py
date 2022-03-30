@@ -15,16 +15,17 @@ from bpyautoqueue import material_helper
 
 import bmesh
 
-
-argv = sys.argv
-argv = argv[argv.index("--") + 1:]  # get all args after "--"
-
 bake_op=""
 jobID=0
 
-if len(argv)>1:
-	jobID=argv[0]
-	bake_op=int(argv[1])
+
+if len(sys.argv)>1:
+	argv = sys.argv
+	if "--" in argv:
+		argv = argv[argv.index("--") + 1:]  # get all args after "--"
+
+		jobID=argv[0]
+		bake_op=int(argv[1])
 
 def do_bake(obj,modifier):
 	
@@ -147,8 +148,6 @@ def update_fluid_objects(fluid_settings):
 
 					modifier.show_viewport = True
 				
-	util_helper.do_save()
-
 
 
 def configure_fluid_domain(obj,settings,fluid_settings):
@@ -361,13 +360,15 @@ def clean_all():
 	#delete_particle_systems()
 
 	print_particle_systems()
-	util_helper.do_save()
 
 if bake_op==bake_db.bake_db.code_bake_op_bake:
 	bake_all_fluids()
 elif bake_op==bake_db.bake_db.code_bake_op_setup_draft:
 	setup_draft()
+	util_helper.do_save()
 elif bake_op==bake_db.bake_db.code_bake_op_setup_final:
 	setup_final()
+	util_helper.do_save()
 elif bake_op==bake_db.bake_db.code_bake_op_clean:
 	clean_all()
+	util_helper.do_save()
