@@ -8,6 +8,12 @@ import glob
 import os
 import subprocess
 
+#from bpyautoqueue import video_encoder
+
+#from . import video_encoder
+
+#import video_encoder as video_encoder
+
 #this_script_file_path = os.path.realpath(__file__)
 
 #import pathlib
@@ -31,8 +37,8 @@ class render_db:
 	
 	selected_render_engine="CYCLES"
 	
-	outputX=480
-	outputY=270
+	outputX=640
+	outputY=320
 	anim_mode="anim"
 	autopanstep=1
 	moviemode=0
@@ -291,8 +297,8 @@ class render_db:
 		
 	def mark_item_finished(self,jobID,rendertime,samples):
 
-		print("Time2")
-		print(rendertime)
+		print("Render Time: %s"%(str(rendertime)))
+
 		cursor = self.conn.cursor()
 		cursor.execute('''UPDATE blendfiles SET status =?, rendertime=?, samples=? WHERE jobID = ? ''',
 			(self.code_finished,rendertime,samples,jobID))
@@ -458,17 +464,30 @@ class render_db:
 	def closeDB(self):
 		self.conn.close()
 
+
+	def encode_movies(self):
+		path="."
+
+		#video_encoder.encode_subdirectories(path)
+
 	def printTimes(self):
 
 		print("================== Times =================")
 
-		c=self.conn.execute("SELECT filename,samples,sum(rendertime),outputX,outputY FROM blendfiles " \
+		c=self.conn.execute("SELECT filename,samples,sum(rendertime),outputX,outputY,count(filename) FROM blendfiles " \
 			"GROUP by filename")
+
+		totalSeconds=0
+		totalFiles=0
 			
 		for row in c:
 			filename=row[0]
 
 			renderSeconds=row[2]
+
+			totalSeconds=totalSeconds+renderSeconds
+			totalFiles=totalFiles+1
+
 			m, s = divmod(renderSeconds, 60)
 			h, m = divmod(m, 60)
 
@@ -476,8 +495,32 @@ class render_db:
 			
 			samples=row[1]
 			outputRes="(%dx%d)"%(row[3],row[4])
+			frame_end=row[5]
+			average_time_per_frame=0
 
-			print("Samples: %d Resolution: %s Time: %s File: %s"%(samples,outputRes,timeStr,filename))
+			if frame_end > 0:
+				average_time_per_frame=renderSeconds/frame_end
+
+			m, s = divmod(average_time_per_frame, 60)
+			h, m = divmod(m, 60)
+
+			average_timeStr='{:02.0f}:{:02.0f}:{:02.0f}'.format(h, m, s)
+
+
+			print("Samples: %d Resolution: %s x %d Time: %s Average: %s File: %s"%(samples,
+				outputRes,
+				frame_end,
+				timeStr,
+				average_timeStr,
+				filename))
+
+		m, s = divmod(totalSeconds, 60)
+		h, m = divmod(m, 60)
+
+		timeStr='{:02.0f}:{:02.0f}:{:02.0f}'.format(h, m, s)
+
+		print("===============================================")
+		print("Total Files: %d Render Time: %s"%(totalFiles,timeStr))
 
 
 
@@ -497,12 +540,14 @@ def main(argv):
 				"requeuefailed",
 				"print",
 				"render",
+				"encodemovies",
 				"times",
 				"brief",
 				"clear",
 				"mode",
 				"queue",
 				"quartersize",
+				"thirdsize",
 				"halfsize",
 				"fullsize",
 				"2ksize",
@@ -545,6 +590,9 @@ def main(argv):
 		elif opt in ("--quartersize"):
 			theDB.outputX,theDB.outputY=480,270
 			theDB.change_resolution()
+		elif opt in ("--thirdsize"):
+			theDB.outputX,theDB.outputY=640,360
+			theDB.change_resolution()
 		elif opt in ("--2ksize"):
 			theDB.outputX,theDB.outputY=2560,1440
 			theDB.change_resolution()
@@ -556,6 +604,8 @@ def main(argv):
 			theDB.do_printDB()
 		elif opt in ("--times"):
 			theDB.printTimes()
+		elif opt in ("--encodemovies"):
+			theDB.encode_movies()
 		elif opt in ("--printqueued"):
 			theDB.do_printDB(None,theDB.code_queued)
 		elif opt in ("--printfailed"):
@@ -586,7 +636,7 @@ def main(argv):
 		elif opt in ("--help"):
 			#print('render_db.py -d <databasefile>')
 			print("====================================")
-			print("--halfsize --fullsize --quartersize --2ksize - resize all renders to preset size")
+			print("--halfsize --fullsize --quartersize --thirdsize --2ksize - resize all renders to preset size")
 			print("--clear  - clear DB")
 			print("-s --searchpath  - add files to DB")
 			print("-i - frame index")
@@ -602,6 +652,7 @@ def main(argv):
 			print("--markallfinished - mark all files as finished")
 			print("-p --print  - print all files")
 			print("--render render files in queue")
+			print("--encodemovies encode movie output from separate directories")
 			print("--printqueued - print queued files")
 			print("--printfailed - print failed files")
 			print("-b --brief  - brief summary of DB")

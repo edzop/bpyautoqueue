@@ -42,6 +42,7 @@ from . import rend_helper
 from .util_cycles import cycles_helper
 from . import auto_camera_pan
 from . import camera_dolly_helper
+from . import auto_light_helper
 
 class camera_helper_properties(PropertyGroup):
 
@@ -125,6 +126,35 @@ class LoadSceneOperator(bpy.types.Operator):
 		del theRendHelper
 
 		bpy.ops.wm.path_open(filepath=scenefile)
+
+		return {'FINISHED'}
+
+
+class SetBlackWorldOperator(bpy.types.Operator):
+	bl_idname = "wm.setup_black_world"
+	bl_label = "BlackWorld"
+
+	def execute(self, context):
+
+		print("Black World")
+
+		from .util_cycles import cycles_world_helper
+		theWorldHelper = cycles_world_helper.World_Helper()
+		theWorldHelper.set_black_world()
+
+
+		return {'FINISHED'}
+
+
+class StudioLightOperator(bpy.types.Operator):
+	bl_idname = "wm.setup_studio_light"
+	bl_label = "StudioLight"
+
+	def execute(self, context):
+
+		print("Studio Light")
+
+		auto_light_helper.add_studio_lights()
 
 		return {'FINISHED'}
 
@@ -325,7 +355,9 @@ class CamHelperPanel(bpy.types.Panel):
 		layout.operator(SetupLightingOperator.bl_idname)
 
 		layout.operator(DumpCamDataOperator.bl_idname)
-
+		layout.operator(SetBlackWorldOperator.bl_idname)
+		layout.operator(StudioLightOperator.bl_idname)
+		
 	@classmethod
 	def poll(self,context):
 		return context.object is not None

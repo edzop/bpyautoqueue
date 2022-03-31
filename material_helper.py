@@ -132,11 +132,11 @@ def make_liquid_material(name,color):
 	shader_node.inputs[0].default_value=color
 
 	# transmission
-	shader_node.inputs[15].default_value=1
+	shader_node.inputs[17].default_value=0.95
 	
 	# roughness
-	shader_node.inputs[7].default_value=0
-
+	shader_node.inputs[9].default_value=0
+ 
 	# subsurf
 	shader_node.inputs[1].default_value=1
 	shader_node.inputs[3].default_value=color

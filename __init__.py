@@ -45,6 +45,8 @@ classes = (
 	camera_ui.SetupRenderCameraDollyOperator,
 	camera_ui.LinkRandomLuxHdriOperator,
 	camera_ui.LoadSceneOperator,
+	camera_ui.StudioLightOperator,
+	camera_ui.SetBlackWorldOperator,
 	camera_ui.ClearSceneHelperOperator,
 	camera_ui.Operator_Choose_World,
 	camera_ui.Operator_Choose_Background,

@@ -25,6 +25,7 @@ class bake_db:
 	code_bake_op_setup_draft=2
 	code_bake_op_setup_final=3
 	code_bake_op_clean=4
+	code_bake_op_update_materials=5
 
 	def __init__(self):
 		self.databasefile="%s/bake_db.sqlite3"%(this_script_file_path)
@@ -192,6 +193,7 @@ class bake_db:
 			print("{1}: {0}".format(count,statustext))
 
 
+
 	def do_bake(self,mark_processing,bake_op):
 		doContinue=True
 
@@ -228,6 +230,8 @@ class bake_db:
 						pass
 					except KeyboardInterrupt:
 						exit(0)
+				else:
+					print("file '%s' not found in path"%filename)
 
 					#out=subprocess.check_output(args)
 					#print(out)
@@ -324,6 +328,7 @@ def main(argv):
 				"results",
 				"setupdraft",
 				"setupfinal",
+				"updatematerials",
 				"clean",
 				"requeueall","markallfinished","requeuefailed",
 				"searchpath=",
@@ -367,6 +372,8 @@ def main(argv):
 			theDB.clear_results()
 		elif opt in ("--clearjobs"):
 			theDB.clear_database()
+		elif opt in ("--updatematerials"):
+			theDB.do_bake(mark_processing=True,bake_op=theDB.code_bake_op_update_materials) 
 		elif opt in ("-h","--help"):
 			print("====================================")
 			print("-p --print\t\t| print all files")
@@ -382,6 +389,7 @@ def main(argv):
 			print("--markallfinished\t| mark all files as finished")
 			print("--requeueall\t\t| requeue all jobs")
 			print("--requeuefailed\t\t| requeue failed jobs")
+			print("--updatematerials\t\t| update fluid related materials")
 
 	if theDB!=None:
 		theDB.closeDB()

@@ -26,7 +26,7 @@ The Queue Helper UI is a provided to manipulate the render queue from the comman
 ## Render Queue
 The render queue is managed with the `blb` command. 
 
-The command `blq --help` will display a summary of options availible for the render queue:
+The command `blq --help` will display a summary of options available for the render queue:
 ```
 ====================================
 --halfsize --fullsize --quartersize --2ksize - resize all renders to preset size
@@ -158,7 +158,7 @@ The command `blb --setupfinal` will iterate through all files currently in the q
 The command `blb --clear` will clear all records from the bake queue. 
 
 ## Installation
-An automated install package is not availible at this time. If you copy this repository into your:
+An automated install package is not available at this time. If you copy this repository into your:
 `blender_installation_directory/addons/scripts/bpyautoqueue` directory you should see bpyautoqueue in the list of blender addons next time you start blender. 
 
 Running the command `setup_environment.sh` will add symbolic links for the commands `blq` and `blb` into `/usr/bin` so you can manipulate the render queue and the bake queue.
