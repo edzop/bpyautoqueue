@@ -287,6 +287,11 @@ class SetupSimOperator(bpy.types.Operator):
 
 	def execute(self, context):
 
+		filename=check_file_saved(self)
+
+		if filename==None:
+			return {'CANCELLED'}
+
 
 		print("Setup Sim...")
 
