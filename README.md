@@ -17,6 +17,10 @@ The Camera Helper UI is provided to provide a consistant repeatable way to strea
 
 ![](images/camera_helper.png)
 
+### Setup Camera Dolly
+Setup camera dolly with track to focus.
+![](images/setup_dolly.png)
+
 
 ## Queue Helper UI
 The Queue Helper UI is a provided to manipulate the render queue from the command blender user interface as an alternative to the `blq` and `blb` command line.
