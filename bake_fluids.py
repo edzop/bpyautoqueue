@@ -26,8 +26,8 @@ jobID=0
 
 if len(sys.argv)>1:
 	argv = sys.argv
-	if "--" in argv:
-		argv = argv[argv.index("--") + 1:]  # get all args after "--"
+	if "__" in argv:
+		argv = argv[argv.index("__") + 1:]  # get all args after "--"
 
 		jobID=argv[0]
 		bake_op=int(argv[1])

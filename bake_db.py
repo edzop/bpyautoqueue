@@ -213,7 +213,7 @@ class bake_db:
 					args.append(filename)
 					args.append("-P")
 					args.append("%s/bake_fluids.py"%(this_script_file_path))
-					args.append("--")
+					args.append("__")
 					args.append(str(jobID))
 					args.append(str(bake_op))
 
