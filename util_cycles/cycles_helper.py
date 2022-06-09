@@ -84,29 +84,54 @@ def setup_cycles_settings():
 	bpy.context.scene.cycles.adaptive_threshold = 0.05
 
 	bpy.context.scene.cycles.use_denoising = True
-
-
-	#bpy.context.view_layer.cycles.denoising_store_passes=True
-
-	#denoise_node=None
-	#render_layer_node=None
-
-	#scene = bpy.context.scene
-	#if scene.node_tree:
-
-	#	for node in scene.node_tree.nodes:
-	#		if node.type=="DENOISE":
-	#			denoise_node=node
-
-	#		if node.type=="R_LAYERS":
-	#			render_layer_node=node
-
-	#	if denoise_node!=None and render_layer_node!=None:
-	#		scene.node_tree.links.new(render_layer_node.outputs["Denoising Normal"],denoise_node.inputs["Normal"])
-	#		scene.node_tree.links.new(render_layer_node.outputs["Denoising Albedo"],denoise_node.inputs["Albedo"])
-
+	
+	setup_aces_cg()
 
 	setup_cycles_fstop()
+
+
+
+def setup_aces_cg():
+
+	render_layer_node=None
+	colorspace_node=None
+	composite_node=None
+
+	scene = bpy.context.scene
+
+	bpy.context.scene.use_nodes = True
+
+	node_tree=scene.node_tree
+
+	if node_tree:
+	
+		for node in node_tree.nodes:
+	
+			print(node.type)
+			
+			if node.type=="CONVERT_COLORSPACE":
+				colorspace_node=node
+
+			if node.type=="COMPOSITE":
+				composite_node=node
+
+			if node.type=="R_LAYERS":
+				render_layer_node=node
+
+		if colorspace_node==None:
+			colorspace_node = node_tree.nodes.new(type='CompositorNodeConvertColorSpace')
+
+		if colorspace_node!=None and render_layer_node!=None and composite_node!=None:
+
+			render_layer_node.location=0,0
+			colorspace_node.location = 300,0
+			composite_node.location=600,0
+			
+			colorspace_node.from_color_space = 'Linear'
+			colorspace_node.to_color_space = 'Linear ACEScg'
+
+			scene.node_tree.links.new(render_layer_node.outputs["Image"],colorspace_node.inputs["Image"])
+			scene.node_tree.links.new(colorspace_node.outputs["Image"],composite_node.inputs["Image"])
 
 
 def make_emission_material_cycles(name,color):
