@@ -206,7 +206,7 @@ class Cam_Pan_Helper:
 		
 	def find_dof(self,object):
 		for constraint in object.constraints:
-			if constraint.type == 'TRACK_TO':
+			if constraint.type == 'DAMPED_TRACK':
 				return constraint.target
 		return None
 		
@@ -215,14 +215,13 @@ class Cam_Pan_Helper:
 		isset=False
 		
 		for constraint in self.cam.constraints:
-			if constraint.type == 'TRACK_TO':
+			if constraint.type == 'DAMPED_TRACK':
 				constraint.target=newtarget				
 				isset=True
 				
 		if isset==False:
-			objs = self.cam.constraints.new(type='TRACK_TO')
+			objs = self.cam.constraints.new(type='DAMPED_TRACK')
 			objs.target = newtarget
-			objs.up_axis='UP_Y'
 			objs.track_axis='TRACK_NEGATIVE_Z'
 				
 		self.cam["dof_object"]=newtarget
