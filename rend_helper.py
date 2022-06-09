@@ -190,6 +190,11 @@ class Rend_Helper:
 
 		bpy.context.scene.render.image_settings.file_format=self.file_format
 
+		bpy.context.scene.render.image_settings.exr_codec = 'DWAA'
+		bpy.context.scene.render.image_settings.color_depth = '32'
+
+
+
 		if self.temp_dir!=None:
 			bpy.context.scene.render.filepath=self.temp_dir
 
