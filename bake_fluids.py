@@ -20,15 +20,17 @@ spray_obj_name="autogen_liquid_spray"
 bubbles_obj_name="autogen_liquid_bubbles"
 
 
-argv = sys.argv
-argv = argv[argv.index("--") + 1:]  # get all args after "--"
-
 bake_op=""
 jobID=0
 
-if len(argv)>1:
-	jobID=argv[0]
-	bake_op=int(argv[1])
+
+if len(sys.argv)>1:
+	argv = sys.argv
+	if "__" in argv:
+		argv = argv[argv.index("__") + 1:]  # get all args after "--"
+
+		jobID=argv[0]
+		bake_op=int(argv[1])
 
 def do_bake(obj,modifier):
 

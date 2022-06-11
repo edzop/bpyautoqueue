@@ -58,6 +58,7 @@ class camera_helper_properties(PropertyGroup):
 class SetupRenderSettingsLuxOperator(bpy.types.Operator):
 	bl_idname = "wm.scene_setup_render_settings_lux"
 	bl_label = "Lux Setup"
+	bl_description = "Setup lux rendering options"
 
 	def execute(self, context):
 
@@ -71,7 +72,8 @@ class SetupRenderSettingsLuxOperator(bpy.types.Operator):
 
 class SetupRenderSettingsCyclesOperator(bpy.types.Operator):
 	bl_idname = "wm.scene_setup_render_settings_cycles"
-	bl_label = "Cycles Setup "
+	bl_label = "Cycles Setup"
+	bl_description = "Setup cycles rendering options"
 
 	def execute(self, context):
 
@@ -87,10 +89,11 @@ class SetupRenderSettingsCyclesOperator(bpy.types.Operator):
 class SetupRenderCameraDollyOperator(bpy.types.Operator):
 	bl_idname = "wm.scene_setup_render_camera_dolly"
 	bl_label = "Setup Camera Dolly"
+	bl_description = "Setup camera dolly with track to focus"
 
 	def execute(self, context):
 
-		thePanHelper = auto_camera_pan.Cam_Pan_Helper(None)
+		thePanHelper = auto_camera_pan.Cam_Pan_Helper()
 		theDolly = camera_dolly_helper.camera_dolly_helper(thePanHelper)
 		autoPanStep=1
 		theDolly.setup_auto_lights(autoPanStep)
@@ -117,6 +120,7 @@ class LinkRandomLuxHdriOperator(bpy.types.Operator):
 class LoadSceneOperator(bpy.types.Operator):
 	bl_idname = "wm.scene_load_background"
 	bl_label = "Load Background"
+	bl_description = "Load background assigned to this file in separate window"
 
 	def execute(self, context):
 
@@ -133,6 +137,7 @@ class LoadSceneOperator(bpy.types.Operator):
 class SetBlackWorldOperator(bpy.types.Operator):
 	bl_idname = "wm.setup_black_world"
 	bl_label = "BlackWorld"
+	bl_description = "Make world black RGB"
 
 	def execute(self, context):
 
@@ -149,6 +154,7 @@ class SetBlackWorldOperator(bpy.types.Operator):
 class StudioLightOperator(bpy.types.Operator):
 	bl_idname = "wm.setup_studio_light"
 	bl_label = "StudioLight"
+	bl_description = "Setup studio lights"
 
 	def execute(self, context):
 
@@ -163,6 +169,7 @@ class StudioLightOperator(bpy.types.Operator):
 class ClearSceneHelperOperator(bpy.types.Operator):
 	bl_idname = "wm.scene_helper_clear"
 	bl_label = "Clear Background"
+	bl_description = "Clear background scene"
 
 	def execute(self, context):
 
@@ -179,6 +186,7 @@ class ClearSceneHelperOperator(bpy.types.Operator):
 class Operator_Choose_World(bpy.types.Operator, ImportHelper):
 	bl_idname = "wm.scene_helper_choose_world"
 	bl_label = "Choose World"
+	bl_description = "Choose a world"
 
     # From ImportHelper. Filter filenames.
 	filename_ext = ".blend"
@@ -208,6 +216,7 @@ class Operator_Choose_World(bpy.types.Operator, ImportHelper):
 class Operator_Choose_Background(bpy.types.Operator, ImportHelper):
 	bl_idname = "wm.scene_helper_choose_background"
 	bl_label = "Choose Background"
+	bl_description = "Choose a background"
 
 	filename_ext = ".blend"
 
@@ -233,6 +242,7 @@ class SetupLightingOperator(bpy.types.Operator):
 
 	bl_idname = "wm.scene_helper_set_lighting"
 	bl_label = "Setup Lighting"
+	bl_description = "Setup scene lighting"
 
 	def execute(self, context):
 
@@ -248,6 +258,7 @@ class SetupLightingOperator(bpy.types.Operator):
 class SetBackgroundSceneHelperOperator(bpy.types.Operator):
 	bl_idname = "wm.scene_helper_set_background"
 	bl_label = "Assign Background"
+	bl_description = "Assign random background"
 
 	def execute(self, context):
 
@@ -266,11 +277,11 @@ class SetBackgroundSceneHelperOperator(bpy.types.Operator):
 class SetupAutoPanOperator(bpy.types.Operator):
 	bl_idname = "wm.setup_auto_pan"
 	bl_label = "Anim Keyframes"
-	bl_description = "DESCRIPTION"
+	bl_description = "Animate keyframes (auto view)"
 
 	def execute(self, context):
 
-		thePanHelper = auto_camera_pan.Cam_Pan_Helper(None)
+		thePanHelper = auto_camera_pan.Cam_Pan_Helper()
 
 		my_camera_tool = context.scene.my_camera_tool
 
@@ -290,7 +301,7 @@ class DumpCamDataOperator(bpy.types.Operator):
 
 	bl_idname = "wm.dumpcamoperator"
 	bl_label = "dumpCam"
-	bl_description = "DESCRIPTION"
+	bl_description = "Dump camera info to console for automation"
 
 	def execute(self, context):
 
@@ -301,7 +312,7 @@ class DumpCamDataOperator(bpy.types.Operator):
 		for obj in bpy.data.objects:
 			if obj.type=="CAMERA":
 				for constraint in obj.constraints:
-					if constraint.type == 'TRACK_TO':
+					if constraint.type == 'DAMPED_TRACK':
 						camTarget=constraint.target
 						camObject=obj
 

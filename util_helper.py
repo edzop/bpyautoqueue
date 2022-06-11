@@ -104,7 +104,8 @@ def is_sun(obj):
 
 def scene_has_light():	
 
-	for obj in bpy.data.lights:
+	for obj in bpy.data.objects:
+		if obj.type=="LIGHT":
 			print("found light: %s type %s" %(obj.name,obj.type))
 			return True
 

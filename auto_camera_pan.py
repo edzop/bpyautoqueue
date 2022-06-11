@@ -44,7 +44,8 @@ class Cam_Pan_Helper:
 		self.current_frame=0
 		
 		self.object_frame_name="object_frame"		
-		self.object_scene_name="object_scene"	
+		self.object_scene_name="object_scene"
+		self.dof_name="dof_focus"
 		
 		self.orignal_dof_X = 0
 		self.orignal_dof_Y = 0
@@ -78,6 +79,7 @@ class Cam_Pan_Helper:
 		if self.dof_object==None:
 			bpy.ops.object.empty_add(type='PLAIN_AXES', location=(0, 0, 0))
 			self.dof_object=bpy.context.view_layer.objects.active
+			self.dof_object.name=self.dof_name
 			self.replace_cam_track_to_target(self.dof_object)
 			
 
@@ -204,7 +206,7 @@ class Cam_Pan_Helper:
 		
 	def find_dof(self,object):
 		for constraint in object.constraints:
-			if constraint.type == 'TRACK_TO':
+			if constraint.type == 'DAMPED_TRACK':
 				return constraint.target
 		return None
 		
@@ -213,14 +215,13 @@ class Cam_Pan_Helper:
 		isset=False
 		
 		for constraint in self.cam.constraints:
-			if constraint.type == 'TRACK_TO':
+			if constraint.type == 'DAMPED_TRACK':
 				constraint.target=newtarget				
 				isset=True
 				
 		if isset==False:
-			objs = self.cam.constraints.new(type='TRACK_TO')
+			objs = self.cam.constraints.new(type='DAMPED_TRACK')
 			objs.target = newtarget
-			objs.up_axis='UP_Y'
 			objs.track_axis='TRACK_NEGATIVE_Z'
 				
 		self.cam["dof_object"]=newtarget
@@ -315,7 +316,7 @@ class Cam_Pan_Helper:
 				self.set_dof_position(self.target_object.location.x, 
 										self.target_object.location.y, 
 										self.target_object.location.z+(target_height*0.75),False)
-				self.zoom_out(self.target_object, 0.0, 0.0, 0.2, aspect_adjusted_zoom)
+				self.zoom_out(self.target_object, 0.0, -0.05, 0.2, aspect_adjusted_zoom)
 
 				#2.0 / (target_aspect * 1.0))
 				# tweak the camera position slightly to prevent camera flipping when it crosses zero because of the track to modifier
@@ -737,11 +738,11 @@ class Cam_Pan_Helper:
 			util_helper.remove_object_by_name(dof.name)
 		
 
-		dof_name="dof"
-		util_helper.remove_object_by_name(dof_name)
+		
+		util_helper.remove_object_by_name(self.dof_name)
 		dof=bpy.ops.object.empty_add(type='SINGLE_ARROW', location=(0,0,1))
 		dof=bpy.context.active_object
-		dof.name=dof_name
+		dof.name=self.dof_name
 		self.set_object_layer(dof,0)
 		self.set_object_layer(self.cam,0)
 

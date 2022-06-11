@@ -16,28 +16,40 @@ def setup_cycles_fstop():
 
 
 
+def check_node_tree_is_lit(nodes):
+
+#   				 if "Emission" in nodes:
+#   					 print("yes")
+    for node in nodes:
+        if node.type == "EMISSION":
+            return True
+            
+        if node.type=="GROUP":
+            sub_tree=node.node_tree.nodes
+            if check_node_tree_is_lit(sub_tree):
+                return True
+
+        if node.type == "BSDF_PRINCIPLED":
+            if node.inputs[18].default_value>0:
+                return True
+
+    return False
+
+
+
 def check_cycles_is_lit():
-	islit=False
 
-	for obj in bpy.data.objects:
-#		print(obj.type + " = " + obj.name)
-		if obj.type=="MESH":
-
-			for mat in obj.data.materials:
-				if mat!=None:
-					if mat.node_tree!=None:
-						nodes=mat.node_tree.nodes
-	#   				 if "Emission" in nodes:
-	#   					 print("yes")
-						for node in nodes:
-							if node.type == "EMISSION":
-								islit=True
-
-							if node.type == "BSDF_PRINCIPLED":
-								if node.inputs[18].default_value>0:
-									islit=True
-
-	return islit
+    for obj in bpy.data.objects:
+    #    print(obj.type + " = " + obj.name)
+        if obj.type=="MESH":
+            for mat in obj.data.materials:
+                if mat!=None:
+                    if mat.node_tree!=None:
+                        nodes=mat.node_tree.nodes
+                        if check_node_tree_is_lit(nodes):
+                            return True
+                                    
+    return False
 
 def setup_cycles_settings():
 

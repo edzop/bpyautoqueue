@@ -103,8 +103,8 @@ class camera_dolly_helper:
 
 
 		renderer_name=bpy.context.scene.render.engine
-
-		if renderer_name=="CYCLES":
+		
+		if renderer_name=="CYCLES":		
 			color_top=(1.0,1.0,1.0)
 			color_side=(1.0,0.9,0.4)
 			color_back=(0.4,0.5,1.0)

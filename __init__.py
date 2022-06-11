@@ -30,6 +30,8 @@ classes = (
 	queue_ui.ResizeFileOperator,
 	queue_ui.QueueHelperPanel,
 	queue_ui.ReQueueBakeOperator,
+	queue_ui.SetupSimOperator,
+	queue_ui.SimHelperPanel,
 
 	queue_ui.FluidAssignInflowOperator,
 	queue_ui.FluidAssignOutflowOperator,

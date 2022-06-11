@@ -25,7 +25,9 @@ class Rend_Helper:
 	object_scene_name="object_scene"
 	autopanstep=0
 
-	image_file_extension = "PNG"
+	#image_file_extension = "PNG"
+	image_file_extension = "exr"
+	file_format="OPEN_EXR"
 
 	def __init__(self,isolate_output_in_folder=False,autopanstep=0):
 
@@ -186,7 +188,7 @@ class Rend_Helper:
 
 		self.temp_dir = os.environ.get("TEMP")
 
-		bpy.context.scene.render.image_settings.file_format=self.image_file_extension
+		bpy.context.scene.render.image_settings.file_format=self.file_format
 
 		if self.temp_dir!=None:
 			bpy.context.scene.render.filepath=self.temp_dir
