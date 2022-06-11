@@ -27,7 +27,7 @@ class Environment_Helper():
 		self.worldlist.sort()
 		self.blacklist.sort()
 
-		print(self.worldlist)
+		#print(self.worldlist)
 
 
 	# TODO reuse
