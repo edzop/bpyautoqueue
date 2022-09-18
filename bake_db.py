@@ -26,6 +26,8 @@ class bake_db:
 	code_bake_op_setup_final=3
 	code_bake_op_clean=4
 	code_bake_op_update_materials=5
+	code_dump_frames=6
+	code_set_frames=7
 
 	def __init__(self):
 		self.databasefile="%s/bake_db.sqlite3"%(this_script_file_path)
@@ -213,7 +215,7 @@ class bake_db:
 					args.append(filename)
 					args.append("-P")
 					args.append("%s/bake_fluids.py"%(this_script_file_path))
-					args.append("__")
+					args.append("--")
 					args.append(str(jobID))
 					args.append(str(bake_op))
 
@@ -330,6 +332,7 @@ def main(argv):
 				"setupfinal",
 				"updatematerials",
 				"clean",
+				"dumpframes",
 				"requeueall","markallfinished","requeuefailed",
 				"searchpath=",
 				"removefile=",
@@ -370,6 +373,10 @@ def main(argv):
 			theDB.do_briefDB()
 		elif opt in ("--clearresults"):
 			theDB.clear_results()
+		elif opt in ("--dumpframes"):
+			theDB.do_bake(mark_processing=True,bake_op=theDB.code_dump_frames) 
+		elif opt in ("--setframes"):
+			theDB.do_bake(mark_processing=True,bake_op=theDB.code_set_frames) 
 		elif opt in ("--clearjobs"):
 			theDB.clear_database()
 		elif opt in ("--updatematerials"):
@@ -378,6 +385,7 @@ def main(argv):
 			print("====================================")
 			print("-p --print\t\t| print all files")
 			print("-b --brief\t\t| brief summary of DB")
+			print("--dumpframes\t\t dump number of frames for each file")
 			print("--bake\t\t| bake remaining files in queue")
 			print("--setupdraft\t\t| setup draft settings")
 			print("--setupfinal\t\t| setup final settings")
@@ -397,5 +405,3 @@ def main(argv):
 
 if __name__ == "__main__":
 	main(sys.argv[1:])
-
-		

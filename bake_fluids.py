@@ -22,15 +22,22 @@ bubbles_obj_name="autogen_liquid_bubbles"
 
 bake_op=""
 jobID=0
+newFrames=1
 
 
-if len(sys.argv)>1:
-	argv = sys.argv
-	if "__" in argv:
-		argv = argv[argv.index("__") + 1:]  # get all args after "--"
+if __name__ == "__main__":
+	if len(sys.argv)>1:
+		argv = sys.argv
+		if "--" in argv:
+			argv = argv[argv.index("--") + 1:]  # get all args after "--"
 
-		jobID=argv[0]
-		bake_op=int(argv[1])
+			jobID=argv[0]
+
+			if argv[1] is not None: 
+				bake_op=int(argv[1])
+
+
+
 
 def do_bake(obj,modifier):
 
@@ -297,11 +304,11 @@ def add_icosphere(name,size,color):
 	transform = Matrix.Identity(4)
 	
 	bmesh.ops.create_icosphere(
-    bm,
-    subdivisions=1,
-    radius=size,
-    matrix=transform,
-    calc_uvs=False)
+	bm,
+	subdivisions=1,
+	radius=size,
+	matrix=transform,
+	calc_uvs=False)
 
 
 	#bmesh.ops.create_icosphere(bm, subdivisions=1, radius=size,matrix=transform,calc_uvs=False) 
@@ -380,6 +387,22 @@ def setup_draft():
 
 	update_fluid_objects(fluid_settings)
 
+def dump_frames():
+	blend_file = os.path.basename(bpy.context.blend_data.filepath)
+	info="%s %d\r\n"%(blend_file,bpy.context.scene.frame_end)
+
+	with open('frames.txt', 'a') as f:
+		f.write(info)
+	
+
+def set_frames():
+	blend_file = os.path.basename(bpy.context.blend_data.filepath)
+	info="%s %d\r\n"%(blend_file,bpy.context.scene.frame_end)
+
+	with open('frames.txt', 'a') as f:
+		f.write(info)
+
+
 
 def clean_all():
 	print("clean_all")
@@ -389,17 +412,25 @@ def clean_all():
 
 	print_particle_systems()
 
-if bake_op==bake_db.bake_db.code_bake_op_bake:
-	bake_all_fluids()
-elif bake_op==bake_db.bake_db.code_bake_op_setup_draft:
-	setup_draft()
-	util_helper.do_save()
-elif bake_op==bake_db.bake_db.code_bake_op_setup_final:
-	setup_final()
-	util_helper.do_save()
-elif bake_op==bake_db.bake_db.code_bake_op_clean:
-	clean_all()
-	util_helper.do_save()
-elif bake_op==bake_db.bake_db.code_bake_op_update_materials:
-	update_materials()
-	util_helper.do_save()
+def check_bake_op():
+	if bake_op==bake_db.bake_db.code_bake_op_bake:
+		bake_all_fluids()
+	elif bake_op==bake_db.bake_db.code_bake_op_setup_draft:
+		setup_draft()
+		util_helper.do_save()
+	elif bake_op==bake_db.bake_db.code_bake_op_setup_final:
+		setup_final()
+		util_helper.do_save()
+	elif bake_op==bake_db.bake_db.code_bake_op_clean:
+		clean_all()
+		util_helper.do_save()
+	elif bake_op==bake_db.bake_db.code_bake_op_update_materials:
+		update_materials()
+		util_helper.do_save()
+	elif bake_op==bake_db.bake_db.code_dump_frames:
+		dump_frames()
+	
+
+
+if __name__ == "__main__":
+	check_bake_op()

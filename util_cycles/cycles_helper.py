@@ -7,7 +7,7 @@ import glob
 
 
 def get_cycles_samples():
-	return 120
+	return 200
 
 def setup_cycles_fstop():
 	bpy.context.scene.camera.data.cycles.aperture_type="FSTOP"

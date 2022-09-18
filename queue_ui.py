@@ -52,6 +52,7 @@ class queue_helper_properties(PropertyGroup):
 
 
 	resolution_options=[ 
+				('3840x2160', '3840x2160', ""),
 				('2560x1440', '2560x1440', ""),
 				('1920x1080', "1920x1080", ""),
 				('960x540', "960x540", ""),

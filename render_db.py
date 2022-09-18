@@ -61,7 +61,7 @@ class render_db:
 		self.anim_mode=mode
 
 		if mode=="pananim":
-			self.autopanstep=85
+			self.autopanstep=120
 			self.moviemode=1
 		elif mode=="pankey":
 			self.autopanstep=1
@@ -551,6 +551,7 @@ def main(argv):
 				"halfsize",
 				"fullsize",
 				"2ksize",
+				"4ksize",				
 				"help",
 				"dfile=","searchpath=","resolution=","requeuefile=","removefile="])
 	except getopt.GetoptError as err:
@@ -596,6 +597,9 @@ def main(argv):
 		elif opt in ("--2ksize"):
 			theDB.outputX,theDB.outputY=2560,1440
 			theDB.change_resolution()
+		elif opt in ("--4ksize"):
+			theDB.outputX,theDB.outputY=3840,2160
+			theDB.change_resolution()
 		elif opt in ("--clear"):
 			theDB.clear_database()
 		elif opt in ("--render"):
@@ -636,7 +640,7 @@ def main(argv):
 		elif opt in ("--help"):
 			#print('render_db.py -d <databasefile>')
 			print("====================================")
-			print("--halfsize --fullsize --quartersize --thirdsize --2ksize - resize all renders to preset size")
+			print("--halfsize --fullsize --quartersize --thirdsize --4ksize --2ksize - resize all renders to preset size")
 			print("--clear  - clear DB")
 			print("-s --searchpath  - add files to DB")
 			print("-i - frame index")
