@@ -75,8 +75,8 @@ class headless_renderer:
 			self.theRendHelper.setup_lighting();
 
 			if self.autopanstep>0:
-				theDolly = camera_dolly_helper.camera_dolly_helper(thePanHelper)
-				theDolly.adjust_lights_for_camera(self.autopanstep)
+				theDolly = camera_dolly_helper.camera_dolly_helper()
+				theDolly.adjust_lights_for_camera(self.autopanstep,thePanHelper.scenecount)
 
 		except Exception as e:
 			print("Setup Render Failed: %s"%(e))

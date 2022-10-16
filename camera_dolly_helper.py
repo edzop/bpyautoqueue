@@ -11,8 +11,7 @@ class camera_dolly_helper:
 	name_light_side="light.side_auto"
 	name_light_back="light.back_auto"
 
-	def __init__(self,thePanHelper):
-		self.thePanHelper=thePanHelper
+	def __init__(self):
 		self.light_size=0.9
 
 
@@ -46,9 +45,9 @@ class camera_dolly_helper:
 
 	def setup_camera_rig2(self,light_name,x,y,z,target_mat_name):
 		util_helper.remove_object_by_name(light_name)
-		_location=(x, y, z)
+		#_location=(x, y, z)
 
-		bpy.ops.mesh.primitive_plane_add(size=self.light_size, enter_editmode=False, location=_location)
+		bpy.ops.mesh.primitive_plane_add(size=self.light_size, enter_editmode=False, location=(x,y,z))
 
 		newlight = bpy.context.active_object
 		newlight.name=light_name
@@ -65,42 +64,50 @@ class camera_dolly_helper:
 
 	def setup_auto_lights(self,autoPanStep):
 
+		scenecount=4
+
 		total_frames=bpy.context.scene.frame_end
 
+		if autoPanStep==0: 
+			autoPanStep=(total_frames-1)/(scenecount-1)
+
 		keyframes = list()
-		for i in range(0,self.thePanHelper.scenecount):
+		for i in range(0,scenecount):
 			keyframes.append((i*autoPanStep)+1)
 	
-		print("setup auto lights, total frames: %d"%(total_frames))
+		print("setup auto lights, total frames: %d Auto Pan Step %d"%(total_frames,autoPanStep))
 
-		frame_number_start=1
-		frame_number_mid=total_frames/2
-		frame_number_end=total_frames
+		#frame_number_start=1
+		#frame_number_mid=total_frames/2
+		#frame_number_end=total_frames
 
-		strength_off=0.2
+		strength_off=0.0
 		strength_max=1.0
 
 		keyframes_left = []
-		keyframes_left.append([keyframes[0],strength_max])
-		keyframes_left.append([keyframes[1],strength_off])
-		keyframes_left.append([keyframes[2],strength_max])
-		keyframes_left.append([keyframes[3],strength_max])
-		keyframes_left.append([keyframes[4],strength_max])
-
-		keyframes_top = []
-		keyframes_top.append([keyframes[0],strength_max])
-		keyframes_top.append([keyframes[1],strength_max])
-		keyframes_top.append([keyframes[2],strength_max])
-		keyframes_top.append([keyframes[3],strength_off])
-		keyframes_top.append([keyframes[4],strength_off])
-
 		keyframes_right = []
-		keyframes_right.append([keyframes[0],strength_off])
-		keyframes_right.append([keyframes[1],strength_max])
-		keyframes_right.append([keyframes[2],strength_off])
-		keyframes_right.append([keyframes[3],strength_max])
-		keyframes_right.append([keyframes[4],strength_max])
+		keyframes_top = []
 
+
+		# left + top
+		keyframes_left.append([keyframes[0],strength_max])
+		keyframes_right.append([keyframes[0],strength_off])
+		keyframes_top.append([keyframes[0],strength_max])
+
+		# right + top
+		keyframes_left.append([keyframes[1],strength_off])
+		keyframes_right.append([keyframes[1],strength_max])
+		keyframes_top.append([keyframes[1],strength_max])
+
+		# top only
+		keyframes_left.append([keyframes[2],strength_off])
+		keyframes_right.append([keyframes[2],strength_off])
+		keyframes_top.append([keyframes[2],strength_max])
+
+		# all on
+		keyframes_left.append([keyframes[3],strength_max])
+		keyframes_right.append([keyframes[3],strength_max])
+		keyframes_top.append([keyframes[3],strength_max])
 
 		renderer_name=bpy.context.scene.render.engine
 		
@@ -135,7 +142,12 @@ class camera_dolly_helper:
 		self.setup_camera_rig2(self.name_light_side,-6,-4,1.2,self.name_light_side)
 		self.setup_camera_rig2(self.name_light_back,6,-4,1.2,self.name_light_back)
 
-	def adjust_lights_for_camera(self,panStep):
+
+
+	# Adjust light positions to prevent camera from bumping into lights
+	# Because camera position is auto generated based on object size 
+	# for large object we need to move lights back a bit further in some cases
+	def adjust_lights_for_camera(self,panStep,scenecount):
 
 		oldFrameNumber = bpy.context.scene.frame_current
 
@@ -146,7 +158,7 @@ class camera_dolly_helper:
 
 		light_margin=self.light_size/2
 
-		for i in range(0,self.thePanHelper.scenecount):
+		for i in range(0,scenecount):
 			bpy.context.scene.frame_set((i*panStep)+1)
 			
 			#print("Checking lights in front of camera... frame %d"%bpy.context.scene.frame_current)

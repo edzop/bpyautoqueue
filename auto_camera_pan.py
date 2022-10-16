@@ -50,7 +50,8 @@ class Cam_Pan_Helper:
 		self.orignal_dof_X = 0
 		self.orignal_dof_Y = 0
 		self.orignal_dof_Z = 1
-		
+
+		# How many auto scene positions we have
 		self.scenecount=5
 		
 		self.init_cam_data();

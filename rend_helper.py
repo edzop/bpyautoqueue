@@ -68,8 +68,14 @@ class Rend_Helper:
 
 		if bpy.context.scene.render.engine==self.engine_name_cycles:
 			if self.scene_lit==False:
-				self.scene_lit=cycles_helper.check_cycles_is_lit()
-		
+				self.scene_lit=cycles_helper.check_cycles_emission_material()
+
+				if self.scene_lit==True:
+					theDollyHelper = camera_dolly_helper.camera_dolly_helper()
+
+					# force time rescale for all auto lights
+					theDollyHelper.setup_auto_lights(0)
+			
 			if self.autopanstep>0:
 				theWorldHelper = cycles_world_helper.World_Helper()
 				#theWorldHelper.link_random_cycles_hdri()
@@ -92,10 +98,10 @@ class Rend_Helper:
 
 			# Force always setup auto lights (this will break anim renders but for debugging)
 			if self.autopanstep>0:
-				theDollyHelper = camera_dolly_helper.camera_dolly_helper(self.thePanHelper)
+				theDollyHelper = camera_dolly_helper.camera_dolly_helper()
 				
 				theDollyHelper.setup_auto_lights(self.autopanstep)
-				theDollyHelper.adjust_lights_for_camera(self.autopanstep)
+				theDollyHelper.adjust_lights_for_camera(self.autopanstep,self.thePanHelper.scenecount)
 
 				theEnvironment_helper = environment_helper.Environment_Helper()
 

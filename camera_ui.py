@@ -49,7 +49,7 @@ class camera_helper_properties(PropertyGroup):
 	pan_step : IntProperty(
 		name = "PanStep",
 		description = "Steps between animation pan keyframes",
-		default = 1,
+		default = 0,
 		min = 0,
 		max = 1000
 		)
@@ -94,10 +94,13 @@ class SetupRenderCameraDollyOperator(bpy.types.Operator):
 	def execute(self, context):
 
 		thePanHelper = auto_camera_pan.Cam_Pan_Helper()
-		theDolly = camera_dolly_helper.camera_dolly_helper(thePanHelper)
-		autoPanStep=1
+		theDolly = camera_dolly_helper.camera_dolly_helper()
+
+		my_camera_tool = context.scene.my_camera_tool
+		autoPanStep=my_camera_tool.pan_step
+
 		theDolly.setup_auto_lights(autoPanStep)
-		theDolly.adjust_lights_for_camera(autoPanStep)
+		theDolly.adjust_lights_for_camera(autoPanStep,thePanHelper.scenecount)
 		
 		return {'FINISHED'}
 
@@ -289,7 +292,7 @@ class SetupAutoPanOperator(bpy.types.Operator):
 		if thePanHelper.validate_settings()==True:
 			thePanHelper.setup_auto_pan(my_camera_tool.pan_step)
 			theDolly = camera_dolly_helper.camera_dolly_helper(thePanHelper)
-			theDolly.adjust_lights_for_camera(my_camera_tool.pan_step)
+			theDolly.adjust_lights_for_camera(my_camera_tool.pan_step,thePanHelper.scenecount)
 		else:
 			self.report({'INFO'}, "camalign: %s" % thePanHelper.status_message)
 

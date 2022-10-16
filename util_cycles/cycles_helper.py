@@ -37,7 +37,7 @@ def check_node_tree_is_lit(nodes):
 
 
 
-def check_cycles_is_lit():
+def check_cycles_emission_material():
 
     for obj in bpy.data.objects:
     #    print(obj.type + " = " + obj.name)
@@ -107,7 +107,7 @@ def setup_aces_cg():
 	
 		for node in node_tree.nodes:
 	
-			print(node.type)
+			#print(node.type)
 			
 			if node.type=="CONVERT_COLORSPACE":
 				colorspace_node=node
@@ -134,8 +134,13 @@ def setup_aces_cg():
 			scene.node_tree.links.new(colorspace_node.outputs["Image"],composite_node.inputs["Image"])
 
 
-def make_emission_material_cycles(name,color):
-	mat = bpy.data.materials.new(name)
+def make_emission_material_cycles(material_name,color):
+
+	if material_name in bpy.data.materials:
+		mat = bpy.data.materials[material_name]
+	else:
+		mat = bpy.data.materials.new(material_name)
+
 	mat.use_nodes=True
 	tree=mat.node_tree
 	nodes=tree.nodes
@@ -182,5 +187,6 @@ def animate_emission_cycles(mat,keyframes):
 	node_emission = nodes.get("Emission")
 
 	for frame_number,strength_value in keyframes:
+		print("Frame: %d Strength: %d"%(frame_number,strength_value))
 		node_emission.inputs[1].default_value = (strength_value*300)
 		node_emission.inputs[1].keyframe_insert("default_value", frame=frame_number)
