@@ -108,8 +108,6 @@ def scene_has_light():
 		if obj.type=="LIGHT":
 			print("found light: %s type %s" %(obj.name,obj.type))
 			return True
-
-	print("NO lights")
 				
 	return False
 
