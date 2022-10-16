@@ -474,8 +474,8 @@ class render_db:
 
 		print("================== Times =================")
 
-		c=self.conn.execute("SELECT filename,samples,sum(rendertime),outputX,outputY,count(filename) FROM blendfiles " \
-			"GROUP by filename")
+		c=self.conn.execute("SELECT filename,samples,sum(rendertime),outputX,outputY,count(filename) FROM blendfiles where status=%d " \
+			"GROUP by filename"%(self.code_finished))
 
 		totalSeconds=0
 		totalFiles=0
