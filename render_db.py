@@ -38,7 +38,7 @@ class render_db:
 	selected_render_engine="CYCLES"
 	
 	outputX=640
-	outputY=320
+	outputY=360
 	anim_mode="anim"
 	autopanstep=1
 	moviemode=0
