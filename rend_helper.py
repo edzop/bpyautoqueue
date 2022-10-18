@@ -74,7 +74,8 @@ class Rend_Helper:
 					theDollyHelper = camera_dolly_helper.camera_dolly_helper()
 
 					# force time rescale for all auto lights
-					theDollyHelper.setup_auto_lights(0)
+					autopanstep=theDollyHelper.setup_auto_lights(0)
+					theDollyHelper.adjust_lights_for_camera(autopanstep,auto_camera_pan.Cam_Pan_Helper.scenecount)
 			
 			if self.autopanstep>0:
 				theWorldHelper = cycles_world_helper.World_Helper()

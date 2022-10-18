@@ -43,17 +43,24 @@ class camera_dolly_helper:
 
 		return light_focus
 
-	def setup_camera_rig2(self,light_name,x,y,z,target_mat_name):
-		util_helper.remove_object_by_name(light_name)
+	def setup_camera_rig2(self,light_name,x,y,z,material):
+
+		newlight=util_helper.find_object_by_name(light_name)
+
+		#util_helper.remove_object_by_name(light_name)
 		#_location=(x, y, z)
 
-		bpy.ops.mesh.primitive_plane_add(size=self.light_size, enter_editmode=False, location=(x,y,z))
+		if newlight is None:
 
-		newlight = bpy.context.active_object
-		newlight.name=light_name
+			bpy.ops.mesh.primitive_plane_add(size=self.light_size, enter_editmode=False, location=(x,y,z))
 
-		bpy.ops.object.material_slot_add()
-		newlight.material_slots[0].material = bpy.data.materials[target_mat_name]
+			newlight = bpy.context.active_object
+			newlight.name=light_name
+
+		cycles_helper.assign_material(newlight,material)
+
+		#bpy.ops.object.material_slot_add()
+		#newlight.material_slots[0].material = bpy.data.materials[target_mat_name]
 
 		track_new = newlight.constraints.new(type="TRACK_TO")
 		track_new.track_axis = 'TRACK_Z'
@@ -138,9 +145,11 @@ class camera_dolly_helper:
 			util_lux.animate_lightgroup(self.name_light_top,keyframes_top)
 
 
-		self.setup_camera_rig2(self.name_light_top,0,0,6,self.name_light_top)
-		self.setup_camera_rig2(self.name_light_side,-6,-4,1.2,self.name_light_side)
-		self.setup_camera_rig2(self.name_light_back,6,-4,1.2,self.name_light_back)
+		self.setup_camera_rig2(self.name_light_top,0,0,6,mat_top)
+		self.setup_camera_rig2(self.name_light_side,-6,-4,1.2,mat_side)
+		self.setup_camera_rig2(self.name_light_back,6,-4,1.2,mat_back)
+
+		return autoPanStep
 
 
 
@@ -155,11 +164,11 @@ class camera_dolly_helper:
 		light_top=util_helper.find_object_by_name(self.name_light_top)
 		light_left=util_helper.find_object_by_name(self.name_light_side)
 		light_back=util_helper.find_object_by_name(self.name_light_back)
-
+		
 		light_margin=self.light_size/2
 
 		for i in range(0,scenecount):
-			bpy.context.scene.frame_set((i*panStep)+1)
+			bpy.context.scene.frame_set((int)(i*panStep)+1)
 			
 			#print("Checking lights in front of camera... frame %d"%bpy.context.scene.frame_current)
 			

@@ -291,7 +291,7 @@ class SetupAutoPanOperator(bpy.types.Operator):
 		print("Auto Pan: %d"%my_camera_tool.pan_step)
 		if thePanHelper.validate_settings()==True:
 			thePanHelper.setup_auto_pan(my_camera_tool.pan_step)
-			theDolly = camera_dolly_helper.camera_dolly_helper(thePanHelper)
+			theDolly = camera_dolly_helper.camera_dolly_helper()
 			theDolly.adjust_lights_for_camera(my_camera_tool.pan_step,thePanHelper.scenecount)
 		else:
 			self.report({'INFO'}, "camalign: %s" % thePanHelper.status_message)

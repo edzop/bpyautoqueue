@@ -134,6 +134,16 @@ def setup_aces_cg():
 			scene.node_tree.links.new(colorspace_node.outputs["Image"],composite_node.inputs["Image"])
 
 
+def assign_material(ob,mat):
+	# Assign it to object
+	if ob.data.materials:
+	# assign to 1st material slot
+		ob.data.materials[0] = mat
+	else:
+	# no slots
+		ob.data.materials.append(mat)
+
+
 def make_emission_material_cycles(material_name,color):
 
 	if material_name in bpy.data.materials:

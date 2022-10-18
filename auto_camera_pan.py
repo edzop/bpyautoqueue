@@ -18,6 +18,9 @@ from . import camera_dolly_helper
 #	Todo: Floating object, Black space (emitter scene)
 
 class Cam_Pan_Helper:
+
+	# How many auto scene positions we have
+	scenecount=5
 	
 	def __init__(self):
 
@@ -51,8 +54,8 @@ class Cam_Pan_Helper:
 		self.orignal_dof_Y = 0
 		self.orignal_dof_Z = 1
 
-		# How many auto scene positions we have
-		self.scenecount=5
+		
+		#self.scenecount=5
 		
 		self.init_cam_data();
 		

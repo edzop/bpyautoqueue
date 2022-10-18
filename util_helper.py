@@ -29,7 +29,9 @@ def generate_location_keyframes(target_object,current_frame):
 def find_object_by_name(object_name):
 	for obj in bpy.data.objects:
 		if(obj.name==object_name):
-			return obj		
+			return obj
+	
+	return None	
 
 def remove_object_by_name(object_name,starting_with=False):
 	for obj in bpy.data.objects:
