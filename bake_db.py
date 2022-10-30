@@ -249,12 +249,14 @@ class bake_db:
 
 					proc.wait()
 
+					return_code = proc.returncode
 					
 					memory_used=resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss
 
-					print("Memory: %d"%memory_used)
+					print("Return Code: %d Memory: %s"%(return_code,human_readable_size(memory_used)))
 
-					self.update_bake_result_last_memory_record(memory_used)
+					if return_code==0:
+						self.update_bake_result_last_memory_record(memory_used)
 
 
 					try:
