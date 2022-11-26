@@ -12,6 +12,7 @@ from bpyautoqueue import util_helper
 
 from bpyautoqueue import util_helper
 from bpyautoqueue import material_helper
+from bpyautoqueue import bake_flip_fluids
 
 import bmesh
 
@@ -35,6 +36,7 @@ if __name__ == "__main__":
 
 			if argv[1] is not None: 
 				bake_op=int(argv[1])
+
 
 
 
@@ -446,6 +448,8 @@ def check_bake_op():
 		util_helper.do_save()
 	elif bake_op==bake_db.bake_db.code_dump_frames:
 		dump_frames()
+	elif bake_op==bake_db.bake_db.code_convert_to_flip:
+		bake_flip_fluids.convert_to_flip()
 	
 
 
