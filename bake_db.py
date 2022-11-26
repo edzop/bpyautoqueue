@@ -41,6 +41,8 @@ class bake_db:
 	code_bake_op_update_materials=5
 	code_dump_frames=6
 	code_set_frames=7
+	code_bake_op_setup_highres=8
+ 
 
 	def __init__(self):
 		self.databasefile="%s/bake_db.sqlite3"%(this_script_file_path)
@@ -327,6 +329,7 @@ class bake_db:
 
 
 	def update_job_set_status(self,new_status,jobID):
+		print("update job: %s %s"%(new_status,jobID))
 		cursor = self.conn.cursor()
 		cursor.execute("UPDATE bakes SET status = ? where jobID = ?",
 			(new_status,jobID,))
@@ -371,6 +374,7 @@ def main(argv):
 				"results",
 				"setupdraft",
 				"setupfinal",
+    			"setuphighres",
 				"updatematerials",
 				"clean",
 				"dumpframes",
@@ -396,6 +400,8 @@ def main(argv):
 			theDB.do_bake(mark_processing=True,bake_op=theDB.code_bake_op_setup_draft) 
 		elif opt in ("--setupfinal"):
 			theDB.do_bake(mark_processing=True,bake_op=theDB.code_bake_op_setup_final) 
+		elif opt in ("--setuphighres"):
+			theDB.do_bake(mark_processing=True,bake_op=theDB.code_bake_op_setup_highres) 
 		elif opt in ("--clean"):
 			theDB.do_bake(mark_processing=True,bake_op=theDB.code_bake_op_clean) 
 		elif opt in ("-r","--results"):
@@ -430,6 +436,7 @@ def main(argv):
 			print("--bake\t\t| bake remaining files in queue")
 			print("--setupdraft\t\t| setup draft settings")
 			print("--setupfinal\t\t| setup final settings")
+			print("--setuphighres\t\t| setup highres settings")
 			print("--clean\t\t| clean particles")
 			print("--clearresults\t\t| delete all bake results")
 			print("--results -r\t\tPrint bake results")
