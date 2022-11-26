@@ -108,7 +108,7 @@ def do_bake():
 
 		bake_time = time.time() - bake_start
 		
-		status_text = ' - Bake Time: %s' %(util_helper.secondsToStr(bake_time))
+		status_text = 'Job: %s - Bake Time: %s' %(jobID,util_helper.secondsToStr(bake_time))
 	except Exception as e:
 		e = sys.exc_info()[0]
 		status_text = "ERROR - %s" %(str(exc_info()))
@@ -297,7 +297,7 @@ def assign_particles():
 	particle_size=0.12
 
 	foam_obj = add_icosphere(foam_obj_name,particle_size,(0.3,0.6,1,1))
-	spray_obj = add_icosphere(spray_obj_name,particle_size,(0.7,0.7,1.0,1))
+	spray_obj = add_icosphere(spray_obj_name,particle_size,(0.85,0.85,0.85,1))
 	bubbles_obj = add_icosphere(bubbles_obj_name,particle_size,(1,1,1,1))
 
 	for p in bpy.data.particles:
@@ -385,6 +385,20 @@ def delete_particle_systems():
 
 
 
+def setup_highres():
+
+	fluid_settings = {
+		"fluid_resolution": 256,
+		"gas_resolution": 512,
+		"timesteps_min": 8,
+		"timesteps_max": 10,
+		"flow_subframes": 50,
+		"effector_subframes": 50
+	}
+
+	update_fluid_objects(fluid_settings)
+
+
 def setup_final():
 
 	fluid_settings = {
@@ -444,6 +458,9 @@ def check_bake_op():
 		util_helper.do_save()
 	elif bake_op==bake_db.bake_db.code_bake_op_setup_final:
 		setup_final()
+		util_helper.do_save()
+	elif bake_op==bake_db.bake_db.code_bake_op_setup_highres:
+		setup_highres()
 		util_helper.do_save()
 	elif bake_op==bake_db.bake_db.code_bake_op_clean:
 		clean_all()

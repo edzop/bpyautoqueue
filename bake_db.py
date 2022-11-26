@@ -41,6 +41,8 @@ class bake_db:
 	code_bake_op_update_materials=5
 	code_dump_frames=6
 	code_set_frames=7
+	code_bake_op_setup_highres=8
+ 
 
 	code_bake_engine_blender=0
 	code_bake_engine_flip_fluids=1
@@ -268,12 +270,14 @@ class bake_db:
 
 					proc.wait()
 
+					return_code = proc.returncode
 					
 					memory_used=resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss
 
-					print("Memory: %d"%memory_used)
+					print("Return Code: %d Memory: %s"%(return_code,human_readable_size(memory_used)))
 
-					self.update_bake_result_last_memory_record(memory_used)
+					if return_code==0:
+						self.update_bake_result_last_memory_record(memory_used)
 
 
 					try:
@@ -350,6 +354,7 @@ class bake_db:
 
 
 	def update_job_set_status(self,new_status,jobID):
+		print("update job: %s %s"%(new_status,jobID))
 		cursor = self.conn.cursor()
 		cursor.execute("UPDATE bakes SET status = ? where jobID = ?",
 			(new_status,jobID,))
@@ -394,6 +399,7 @@ def main(argv):
 				"results",
 				"setupdraft",
 				"setupfinal",
+    			"setuphighres",
 				"updatematerials",
 				"clean",
 				"engineflip",
@@ -421,6 +427,8 @@ def main(argv):
 			theDB.do_bake(mark_processing=True,bake_op=theDB.code_bake_op_setup_draft) 
 		elif opt in ("--setupfinal"):
 			theDB.do_bake(mark_processing=True,bake_op=theDB.code_bake_op_setup_final) 
+		elif opt in ("--setuphighres"):
+			theDB.do_bake(mark_processing=True,bake_op=theDB.code_bake_op_setup_highres) 
 		elif opt in ("--clean"):
 			theDB.do_bake(mark_processing=True,bake_op=theDB.code_bake_op_clean) 
 		elif opt in ("-r","--results"):
@@ -461,6 +469,7 @@ def main(argv):
 			print("--engineflip\t\t| use flip fluid bake engine")
 			print("--engineblender\t\t| use blender bake engine (default)")
 			print("--setupfinal\t\t| setup final settings")
+			print("--setuphighres\t\t| setup highres settings")
 			print("--clean\t\t| clean particles")
 			print("--clearresults\t\t| delete all bake results")
 			print("--results -r\t\tPrint bake results")
