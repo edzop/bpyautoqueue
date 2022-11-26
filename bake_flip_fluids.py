@@ -29,7 +29,7 @@ def get_resolution():
 	domain_obj=get_flip_domain_object()
 
 	if domain_obj is not None:
-		domain_obj.flip_fluid.domain.simulation.resolution = 33
+		return domain_obj.flip_fluid.domain.simulation.resolution
 
 	return 0
 
@@ -45,7 +45,7 @@ def convert_to_flip():
 			
 			for modifier in obj.modifiers:
 				if modifier.type == 'FLUID':
-        
+		
 					found_fluid=True
 
 					print("Found fluid simulation on object: %s (%s) - adding flip"%(obj.name,modifier.fluid_type))
@@ -60,6 +60,8 @@ def convert_to_flip():
 
 						bpy.context.scene.render.use_persistent_data=False
 						obj.flip_fluid.object_type="TYPE_DOMAIN"
+      
+						bpy.ops.flip_fluid_operators.reset_bake()
 
 						cache_dir="flip"
 						full_cache_path = "/home/blender/cache/%s/%s/"%(cache_dir,util_helper.get_blendfile_without_extension())
@@ -67,23 +69,24 @@ def convert_to_flip():
 						util_helper.ensure_dir(full_cache_path);	
 						print("Cache Path: " + full_cache_path)
 						obj.flip_fluid.domain.cache.cache_directory = full_cache_path
-						
-						obj.flip_fluid.domain.materials.surface_material = 'FF Water (ocean 2)'
-						obj.flip_fluid.domain.materials.whitewater_foam_material = 'FF Foam'
-						obj.flip_fluid.domain.materials.whitewater_bubble_material = 'FF Bubble'
-						obj.flip_fluid.domain.materials.whitewater_spray_material = 'FF Spray'
+	  
+						obj.flip_fluid.domain.whitewater.enable_whitewater_simulation = True
+      
 						obj.flip_fluid.domain.render.viewport_display = 'DISPLAY_PREVIEW'
 						
 						obj.flip_fluid.domain.simulation.auto_preview_resolution = False
 						obj.flip_fluid.domain.simulation.preview_resolution = 32
-						
+	  
+						obj.flip_fluid.domain.simulation.resolution=68
 
+						obj.flip_fluid.domain.materials.surface_material = 'FF Water (ocean 2)'
+						obj.flip_fluid.domain.materials.whitewater_foam_material = 'FF Foam'
+						obj.flip_fluid.domain.materials.whitewater_bubble_material = 'FF Bubble'
+						obj.flip_fluid.domain.materials.whitewater_spray_material = 'FF Spray'
+						
 					if modifier.fluid_type=='EFFECTOR':
 						if modifier.effector_settings.effector_type=='COLLISION':
 							obj.flip_fluid.object_type="TYPE_OBSTACLE"
-	
-					if modifier.fluid_type=="FLOW":
-						obj.flip_fluid.object_type="TYPE_DOMAIN"
 						
 					if modifier.fluid_type=="FLOW":
 						if modifier.flow_settings.flow_behavior=='INFLOW':
@@ -94,7 +97,7 @@ def convert_to_flip():
 						
 						if modifier.flow_settings.flow_behavior=='GEOMETRY':
 							obj.flip_fluid.object_type="TYPE_FLUID"
-       
-    
+	   
+	
 	if found_fluid:
 		util_helper.do_save()

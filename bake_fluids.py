@@ -90,6 +90,8 @@ def do_bake():
 	resolution=0
 	disk_cache_directory=None
 	domain_obj=None
+ 
+	finished=False
 
 	try:
 		bake_start = time.time()
@@ -109,29 +111,33 @@ def do_bake():
 		bake_time = time.time() - bake_start
 		
 		status_text = 'Job: %s - Bake Time: %s' %(jobID,util_helper.secondsToStr(bake_time))
+  
+		finished=True
 	except Exception as e:
 		e = sys.exc_info()[0]
 		status_text = "ERROR - %s" %(str(exc_info()))
 		#print(status_text)
+  
+	if finished:
 
-	theDB.update_job_set_status(jobID,bake_db.bake_db.code_finished)
+		cache_size="-"
 
-	cache_size="-"
+		if disk_cache_directory is not None:
+			if os.path.isdir(disk_cache_directory):
+				cache_size=subprocess.check_output(['du','-sh', disk_cache_directory]).split()[0].decode('utf-8')
 
-	if disk_cache_directory is not None:
-		if os.path.isdir(disk_cache_directory):
-			cache_size=subprocess.check_output(['du','-sh', disk_cache_directory]).split()[0].decode('utf-8')
+		bpy.context.scene.frame_current=bpy.context.scene.frame_end
 
-	bpy.context.scene.frame_current=bpy.context.scene.frame_end
+		if domain_obj is not None:
+		# With adaptive domain - the max domain size is usually at end of simulation as it gruws usually
+			domain_size="%2.1f,%2.1f,%2.1f"%(domain_obj.dimensions.x,domain_obj.dimensions.y,domain_obj.dimensions.z)
+		else:
+			domain_size="0,0,0"
 
-	if domain_obj is not None:
-	# With adaptive domain - the max domain size is usually at end of simulation as it gruws usually
-		domain_size="%2.1f,%2.1f,%2.1f"%(domain_obj.dimensions.x,domain_obj.dimensions.y,domain_obj.dimensions.z)
-	else:
-		domain_size="0,0,0"
-
-	blend_file = os.path.basename(bpy.context.blend_data.filepath)
-	theDB.log_result(blend_file,bake_time,bpy.context.scene.frame_end,resolution,domain_size,cache_size,bake_engine)
+		blend_file = os.path.basename(bpy.context.blend_data.filepath)
+		theDB.log_result(blend_file,bake_time,bpy.context.scene.frame_end,resolution,domain_size,cache_size,bake_engine)
+  
+		theDB.update_job_set_status(jobID,bake_db.bake_db.code_finished)
 
 	bpy.context.scene.frame_current=1
 	
@@ -444,6 +450,12 @@ def set_frames():
 
 def clean_all():
 	print("clean_all")
+ 
+ 
+	obj,modifier=get_blender_fluid_domain()
+	bpy.context.view_layer.objects.active = obj
+	obj.select_set(state=True)
+ 
 	bpy.ops.fluid.free_all()
 	disable_all_particles()
 	#delete_particle_systems()

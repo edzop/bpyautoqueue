@@ -177,8 +177,7 @@ class bake_db:
 
 			#print(row[0])
 			print('{0} baketime: {2}, engine: {8} frames: {3}, resolution: {4}, domain: ({5}), cache: {6}, memusage: {7} filename: {1} '
-				.format(row[0], 
-					row[1],row[7],timeStr,row[3],row[4],row[5],row[6],human_readable_mem_used))
+				.format(row[0], row[1],timeStr,row[3],row[4],row[5],row[6],human_readable_mem_used,self.bake_engine_to_text(row[8])))
 
 
 
@@ -266,9 +265,20 @@ class bake_db:
 					args.append(str(bake_op))
 					#print(args)
 
-					proc = subprocess.Popen(args,stdout=subprocess.PIPE)
+					proc = subprocess.Popen(args,
+							 stdout=subprocess.PIPE,
+							 encoding='utf-8')
+	 
+					while True:
+						realtime_output = proc.stdout.readline()
 
-					proc.wait()
+						if realtime_output == '' and proc.poll() is not None:
+							break
+
+						if realtime_output:
+							print(realtime_output.strip(), flush=True)
+
+					#proc.wait()
 
 					return_code = proc.returncode
 					
@@ -411,12 +421,13 @@ class bake_db:
 		self.conn.commit()
 
 
-	def update_job_set_status(self,new_status,jobID):
-		print("update job: %s %s"%(new_status,jobID))
+	def update_job_set_status(self,jobID,new_status):
+		print("update job Status: %s Job ID: %s"%(new_status,jobID))
 		cursor = self.conn.cursor()
 		cursor.execute("UPDATE bakes SET status = ? where jobID = ?",
 			(new_status,jobID,))
 		self.conn.commit()
+
 
 	def update_all_jobs_set_status(self,new_status):
 		cursor = self.conn.cursor()
@@ -457,7 +468,7 @@ def main(argv):
 				"results",
 				"setupdraft",
 				"setupfinal",
-    			"setuphighres",
+				"setuphighres",
 				"updatematerials", 
 				"convertflip=",
 				"clean",
