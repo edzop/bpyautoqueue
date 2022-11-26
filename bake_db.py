@@ -29,6 +29,8 @@ class bake_db:
 	code_dump_frames=6
 	code_set_frames=7
 
+	code_convert_to_flip=10
+
 	def __init__(self):
 		self.databasefile="%s/bake_db.sqlite3"%(this_script_file_path)
 		self.openDB()
