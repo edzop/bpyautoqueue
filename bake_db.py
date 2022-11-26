@@ -42,6 +42,11 @@ class bake_db:
 	code_dump_frames=6
 	code_set_frames=7
 
+	code_bake_engine_blender=0
+	code_bake_engine_flip_fluids=1
+
+	bake_engine=code_bake_engine_blender
+
 	code_convert_to_flip=10
 
 	def __init__(self):
@@ -56,10 +61,10 @@ class bake_db:
 	def create_tables(self):
 
 		self.conn.execute('''CREATE TABLE IF NOT EXISTS results
-			 (resultID INTEGER PRIMARY KEY AUTOINCREMENT, finishdate timestamp, filename text,baketime int, frames int, resolution int,domain_size text,cachesize text,memused int)''')
+			 (resultID INTEGER PRIMARY KEY AUTOINCREMENT, finishdate timestamp, filename text,baketime int, frames int, resolution int,domain_size text,cachesize text,memused int,bake_engine int)''')
 				 
 		self.conn.execute('''CREATE TABLE IF NOT EXISTS bakes
-			 (jobID INTEGER PRIMARY KEY AUTOINCREMENT, syncdate timestamp, filename text,status int default 0)''')
+			 (jobID INTEGER PRIMARY KEY AUTOINCREMENT, syncdate timestamp, filename text,status int default 0,bake_engine int default 0)''')
 
 	def get_next_in_queue(self,mark_processing):
 
@@ -110,6 +115,13 @@ class bake_db:
 		cursor.execute('''DELETE FROM bakes''')
 		self.conn.commit()
 
+
+	def bake_engine_to_text(self,engine_type):
+		if engine_type==self.code_bake_engine_blender:
+			return "blender"
+		elif engine_type==self.code_bake_engine_flip_fluids:
+			return "flip"
+
 	def statuscode_to_text(self,status):
 
 		if status==self.code_processing:
@@ -129,10 +141,10 @@ class bake_db:
 		self.conn.commit()
 
 
-	def log_result(self,filename,baketime,frames,resolution,domain_size,cache_size):
+	def log_result(self,filename,baketime,frames,resolution,domain_size,cache_size,bake_engine):
 		timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
-		self.conn.executemany("INSERT INTO results(finishdate,filename,baketime,frames,resolution,domain_size,cachesize)" \
-		" VALUES(?,?,?,?,?,?,?)",[(timestamp,filename,baketime,frames,resolution,domain_size,cache_size)])
+		self.conn.executemany("INSERT INTO results(finishdate,filename,baketime,frames,resolution,domain_size,cachesize,bake_engine)" \
+		" VALUES(?,?,?,?,?,?,?,?)",[(timestamp,filename,baketime,frames,resolution,domain_size,cache_size,bake_engine)])
 			
 		self.conn.commit()
 		
@@ -148,7 +160,7 @@ class bake_db:
 		if filename!=None:
 			fileselect = ' where filename=\"%s\"'%filename
 
-		query_text="SELECT finishdate, filename,baketime,frames,resolution,domain_size,cachesize,memused FROM results%s"%fileselect
+		query_text="SELECT finishdate, filename,baketime,frames,resolution,domain_size,cachesize,memused,bake_engine FROM results%s"%fileselect
 
 		c=self.conn.execute(query_text)
 		for row in c:
@@ -162,7 +174,9 @@ class bake_db:
 			human_readable_mem_used=human_readable_size(row[7])
 
 			#print(row[0])
-			print('{0} baketime: {2}, frames: {3}, resolution: {4}, domain: ({5}), cache: {6}, memusage: {7} filename: {1} '.format(row[0], row[1],timeStr,row[3],row[4],row[5],row[6],human_readable_mem_used))
+			print('{0} baketime: {2}, engine: {8} frames: {3}, resolution: {4}, domain: ({5}), cache: {6}, memusage: {7} filename: {1} '
+				.format(row[0], 
+					row[1],row[7],timeStr,row[3],row[4],row[5],row[6],human_readable_mem_used))
 
 
 
@@ -182,11 +196,14 @@ class bake_db:
 		if status_code!=self.code_none:
 			codeselect = ' where status="%d"'%status_code
 
-		query_text='''SELECT jobID, filename,status FROM bakes%s%s'''%(fileselect,codeselect)
+		query_text='''SELECT jobID, filename,status,bake_engine FROM bakes%s%s'''%(fileselect,codeselect)
 		
 		c=self.conn.execute(query_text)
 		for row in c:
-			print('#{0} status: {2} file: {1}'.format(row[0], row[1],self.statuscode_to_text(row[2])))
+			print('#{0} status: {2} engine: {3} file: {1}'.format(row[0], 
+				row[1],
+				self.statuscode_to_text(row[2]),
+				self.bake_engine_to_text(row[3])))
 		#	print(row)
 		
 			if row[2]==self.code_queued:
@@ -278,11 +295,17 @@ class bake_db:
 					#out=subprocess.check_output(args)
 					#print(out)
 
-
+	def get_bake_engine_by_jobID(self,jobID):
+		cursor = self.conn.cursor()
+		cursor.execute("SELECT bake_engine from bakes where jobID=?",(jobID,))
+		data=cursor.fetchone()[0]
+		cursor.close()
+		
+		return data
 
 	def blend_exists(self,filename):
 		cursor = self.conn.cursor()
-		cursor.execute("SELECT count(*) from bakes where filename=?",(filename,))
+		cursor.execute("SELECT count(*) from bakes where filename=? and bake_engine=?",(filename,self.bake_engine,))
 		data=cursor.fetchone()[0]
 		if data==0:
 			return False
@@ -311,8 +334,8 @@ class bake_db:
 	def insert_file(self,filename):
 		timestamp = datetime.now()
 		#hashval = self.make_hash(filename)	
-		self.conn.executemany("INSERT INTO bakes(syncdate,filename,status)" \
-		" VALUES(?,?,?)",[(timestamp,filename,self.code_queued)])
+		self.conn.executemany("INSERT INTO bakes(syncdate,filename,status,bake_engine)" \
+		" VALUES(?,?,?,?)",[(timestamp,filename,self.code_queued,self.bake_engine)])
 			
 		self.conn.commit()
 		
@@ -373,6 +396,8 @@ def main(argv):
 				"setupfinal",
 				"updatematerials",
 				"clean",
+				"engineflip",
+				"engineblender",
 				"dumpframes",
 				"requeueall","markallfinished","requeuefailed",
 				"searchpath=",
@@ -420,6 +445,10 @@ def main(argv):
 			theDB.do_bake(mark_processing=True,bake_op=theDB.code_set_frames) 
 		elif opt in ("--clearjobs"):
 			theDB.clear_database()
+		elif opt in ("--engineflip"):
+			theDB.bake_engine=bake_db.code_bake_engine_flip_fluids
+		elif opt in ("--engineblender"):	
+			theDB.bake_engine=bake_db.code_bake_engine_blender
 		elif opt in ("--updatematerials"):
 			theDB.do_bake(mark_processing=True,bake_op=theDB.code_bake_op_update_materials) 
 		elif opt in ("-h","--help"):
@@ -429,6 +458,8 @@ def main(argv):
 			print("--dumpframes\t\t dump number of frames for each file")
 			print("--bake\t\t| bake remaining files in queue")
 			print("--setupdraft\t\t| setup draft settings")
+			print("--engineflip\t\t| use flip fluid bake engine")
+			print("--engineblender\t\t| use blender bake engine (default)")
 			print("--setupfinal\t\t| setup final settings")
 			print("--clean\t\t| clean particles")
 			print("--clearresults\t\t| delete all bake results")

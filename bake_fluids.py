@@ -24,7 +24,7 @@ bubbles_obj_name="autogen_liquid_bubbles"
 bake_op=""
 jobID=0
 newFrames=1
-
+disk_cache_directory=None
 
 if __name__ == "__main__":
 	if len(sys.argv)>1:
@@ -38,21 +38,28 @@ if __name__ == "__main__":
 				bake_op=int(argv[1])
 
 
+def get_blender_fluid_domain():
+	for obj in bpy.data.objects:
+		if obj.type=="MESH":
+			for modifier in obj.modifiers:
+				if modifier.type == 'FLUID':
+					#print("Found fluid simulation on object: %s"%obj.name)
+					if modifier.fluid_type == 'DOMAIN':	
+						return obj,modifier
 
+	return None
 
+def do_blender_bake():
+	obj,modifier=get_blender_fluid_domain()
 
-def do_bake(obj,modifier):
+	if obj is None:
+		return
 
-
-	settings=modifier.domain_settings
-	
-	bpy.ops.object.select_all(action='DESELECT')
-	
 	bpy.context.view_layer.objects.active = obj
 	obj.select_set(state=True)
 
-	bpy.context.scene.frame_current=1
-	
+	settings=modifier.domain_settings
+
 	status_text = ""
 	
 	status_text=" - Resolution: %03d, end_frame: %04d, subframes: %02d, timesteps: %02d %02d" %(
@@ -64,12 +71,41 @@ def do_bake(obj,modifier):
 		
 	print(status_text)
 
+	bpy.ops.fluid.bake_all()
+
+	disk_cache_directory=settings.cache_directory
+
+
+def do_bake():
+
+	theDB = bake_db.bake_db()
+	bake_engine=theDB.get_bake_engine_by_jobID(jobID)
+	
+	bpy.ops.object.select_all(action='DESELECT')
+	
+	
+	bpy.context.scene.frame_current=1
+	
 	bake_time=0
+	resolution=0
+	disk_cache_directory=None
+	domain_obj=None
 
 	try:
 		bake_start = time.time()
 		#bpy.ops.fluid.free_all()
-		bpy.ops.fluid.bake_all()
+
+		if bake_engine==bake_db.bake_db.code_bake_engine_blender:
+			self.do_blender_bake()
+			domain_obj,modifier=get_blender_fluid_domain()
+			if modifier is not None:
+				resolution=modifier.settings.resolution_max
+		elif bake_engine==bake_db.bake_db.code_bake_engine_flip_fluids:
+			bake_flip_fluids.bake_flip_fluids()
+			domain_obj=bake_flip_fluids.get_flip_domain_object()
+			disk_cache_directory=bake_flip_fluids.get_domain_disk_cache_directory()
+			resolution=bake_flip_fluids.get_resolution()
+
 		bake_time = time.time() - bake_start
 		
 		status_text = ' - Bake Time: %s' %(util_helper.secondsToStr(bake_time))
@@ -78,42 +114,28 @@ def do_bake(obj,modifier):
 		status_text = "ERROR - %s" %(str(exc_info()))
 		#print(status_text)
 
-	theDB = bake_db.bake_db()
 	theDB.update_job_set_status(jobID,bake_db.bake_db.code_finished)
 
 	cache_size="-"
 
+	if disk_cache_directory is not None:
+		if os.path.isdir(disk_cache_directory):
+			cache_size=subprocess.check_output(['du','-sh', disk_cache_directory]).split()[0].decode('utf-8')
 
-	if os.path.isdir(settings.cache_directory):
-		cache_size=subprocess.check_output(['du','-sh', settings.cache_directory]).split()[0].decode('utf-8')
+	bpy.context.scene.frame_current=bpy.context.scene.frame_end
 
-
-	bpy.context.scene.frame_current=settings.cache_frame_end
-
+	if domain_obj is not None:
 	# With adaptive domain - the max domain size is usually at end of simulation as it gruws usually
-	domain_size="%2.1f,%2.1f,%2.1f"%(obj.dimensions.x,obj.dimensions.y,obj.dimensions.z)
+		domain_size="%2.1f,%2.1f,%2.1f"%(domain_obj.dimensions.x,domain_obj.dimensions.y,domain_obj.dimensions.z)
+	else:
+		domain_size="0,0,0"
 
-	
 	blend_file = os.path.basename(bpy.context.blend_data.filepath)
-	theDB.log_result(blend_file,bake_time,settings.cache_frame_end,settings.resolution_max,domain_size,cache_size)
+	theDB.log_result(blend_file,bake_time,bpy.context.scene.frame_end,resolution,domain_size,cache_size,bake_engine)
 
 	bpy.context.scene.frame_current=1
 	
-
 	print(status_text)
-
-	
-def bake_all_fluids():
-	for obj in bpy.data.objects:
-		if obj.type=="MESH":
-			for modifier in obj.modifiers:
-				if modifier.type == 'FLUID':
-					#print("Found fluid simulation on object: %s"%obj.name)
-					if modifier.fluid_type == 'DOMAIN':	
-						do_bake(obj,modifier)
-						#assign_particles()
-						#util_helper.do_save()
-
 
 def disable_all_particles():
 	for obj in bpy.data.objects:
@@ -416,7 +438,7 @@ def clean_all():
 
 def check_bake_op():
 	if bake_op==bake_db.bake_db.code_bake_op_bake:
-		bake_all_fluids()
+		do_bake()
 	elif bake_op==bake_db.bake_db.code_bake_op_setup_draft:
 		setup_draft()
 		util_helper.do_save()

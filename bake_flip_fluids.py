@@ -3,9 +3,39 @@ import bpy
 from bpyautoqueue import util_helper
 
 
-def convert_to_flip():
+def bake_flip_fluids():
 	#bpy.ops.flip_fluid_operators.export_fluid_simulation()
-	#bpy.ops.flip_fluid_operators.bake_fluid_simulation_cmd()
+	bpy.ops.flip_fluid_operators.bake_fluid_simulation_cmd()
+
+def get_flip_domain_object():
+	for obj in bpy.data.objects:
+		if obj.type=="MESH":
+			if obj.flip_fluid.object_type=="TYPE_DOMAIN":
+				return obj
+	
+	return None
+
+
+def get_domain_disk_cache_directory():
+	domain_obj=get_flip_domain_object()
+
+	if domain_obj is not None:
+		return domain_obj.flip_fluid.domain.cache.cache_directory
+	
+	return None
+
+def get_resolution(): 
+
+	domain_obj=get_flip_domain_object()
+
+	if domain_obj is not None:
+		domain_obj.flip_fluid.domain.simulation.resolution = 33
+
+	return 0
+
+
+def convert_to_flip():
+	
 	#bpy.ops.flip_fluid_operators.reset_bake()
 
 	for obj in bpy.data.objects:
@@ -21,9 +51,10 @@ def convert_to_flip():
 					obj.select_set(True)
 
 					bpy.ops.flip_fluid_operators.flip_fluid_add()
-					
+
 					if modifier.fluid_type=='DOMAIN':
 						print("%s: Setting domain"%obj.name)
+
 						bpy.context.scene.render.use_persistent_data=False
 						obj.flip_fluid.object_type="TYPE_DOMAIN"
 
