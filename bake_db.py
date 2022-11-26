@@ -6,9 +6,22 @@ import glob
 import os
 import subprocess
 import functools
-
+import resource
 
 this_script_file_path=os.path.dirname(os.path.abspath(__file__))
+
+
+def human_readable_size(size, decimal_places=2):
+	if size is None:
+		return "-"
+
+	for unit in ['M', 'G', 'T', 'P']:
+		if size < 1024.0 or unit == 'P':
+			break
+		size /= 1024.0
+		return f"{size:.{decimal_places}f} {unit}"
+
+
 
 class bake_db:
 
@@ -43,7 +56,7 @@ class bake_db:
 	def create_tables(self):
 
 		self.conn.execute('''CREATE TABLE IF NOT EXISTS results
-			 (resultID INTEGER PRIMARY KEY AUTOINCREMENT, finishdate timestamp, filename text,baketime int, frames int, resolution int,domain_size text,cachesize text)''')
+			 (resultID INTEGER PRIMARY KEY AUTOINCREMENT, finishdate timestamp, filename text,baketime int, frames int, resolution int,domain_size text,cachesize text,memused int)''')
 				 
 		self.conn.execute('''CREATE TABLE IF NOT EXISTS bakes
 			 (jobID INTEGER PRIMARY KEY AUTOINCREMENT, syncdate timestamp, filename text,status int default 0)''')
@@ -108,6 +121,14 @@ class bake_db:
 
 		return "unknown"
 
+
+	def update_bake_result_last_memory_record(self,memused):
+		query_text="UPDATE results set memused=%d where resultID=(SELECT MAX(resultID) FROM results)"%(memused)
+		self.conn.execute(query_text)
+
+		self.conn.commit()
+
+
 	def log_result(self,filename,baketime,frames,resolution,domain_size,cache_size):
 		timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
 		self.conn.executemany("INSERT INTO results(finishdate,filename,baketime,frames,resolution,domain_size,cachesize)" \
@@ -118,6 +139,7 @@ class bake_db:
 		return True
 
 
+
 	def do_print_results(self,filename=None,status_code=code_none):
 		print("================== Results =================")
 
@@ -126,7 +148,7 @@ class bake_db:
 		if filename!=None:
 			fileselect = ' where filename=\"%s\"'%filename
 
-		query_text="SELECT finishdate, filename,baketime,frames,resolution,domain_size,cachesize FROM results%s"%fileselect
+		query_text="SELECT finishdate, filename,baketime,frames,resolution,domain_size,cachesize,memused FROM results%s"%fileselect
 
 		c=self.conn.execute(query_text)
 		for row in c:
@@ -137,8 +159,10 @@ class bake_db:
 
 			timeStr='{:02.0f}:{:02.0f}:{:02.0f}'.format(h, m, s)
 
+			human_readable_mem_used=human_readable_size(row[7])
+
 			#print(row[0])
-			print('{0} baketime: {2}, frames: {3}, resolution: {4}, domain: ({5}), cache: {6}, filename: {1} '.format(row[0], row[1],timeStr,row[3],row[4],row[5],row[6]))
+			print('{0} baketime: {2}, frames: {3}, resolution: {4}, domain: ({5}), cache: {6}, memusage: {7} filename: {1} '.format(row[0], row[1],timeStr,row[3],row[4],row[5],row[6],human_readable_mem_used))
 
 
 
@@ -196,8 +220,6 @@ class bake_db:
 
 			print("{1}: {0}".format(count,statustext))
 
-
-
 	def do_bake(self,mark_processing,bake_op):
 		doContinue=True
 
@@ -211,7 +233,10 @@ class bake_db:
 				jobID=nextbake[1]
 				print("Processing: #%d %s"%(jobID,filename))
 
+				# /usr/bin/time -f '%M'
+
 				if os.path.isfile(filename):
+
 					args=["blender"]
 					args.append("-b")
 					args.append(filename)
@@ -220,15 +245,28 @@ class bake_db:
 					args.append("--")
 					args.append(str(jobID))
 					args.append(str(bake_op))
+					#print(args)
 
 					proc = subprocess.Popen(args,stdout=subprocess.PIPE)
+
+					proc.wait()
+
+					
+					memory_used=resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss
+
+					print("Memory: %d"%memory_used)
+
+					self.update_bake_result_last_memory_record(memory_used)
+
 
 					try:
 						while True:
 							line = proc.stdout.readline()
 							if not line:
 								break
+
 							print(line.decode(),end="")
+							
 
 					except BrokenPipeError:
 						pass
@@ -239,6 +277,7 @@ class bake_db:
 
 					#out=subprocess.check_output(args)
 					#print(out)
+
 
 
 	def blend_exists(self,filename):
