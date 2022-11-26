@@ -317,6 +317,64 @@ class bake_db:
 			return True
 
 
+	def load_and_convert_flip(self,filename):
+		if os.path.isfile(filename):
+
+			args=["blender"]
+			args.append("-b")
+			args.append(filename)
+			args.append("-P")
+			args.append("%s/bake_fluids.py"%(this_script_file_path))
+			args.append("--")
+			args.append(str(0))
+			args.append(str(self.code_convert_to_flip))
+			#print(args)
+
+			proc = subprocess.Popen(args,stdout=subprocess.PIPE)
+
+			proc.wait()
+
+			return_code = proc.returncode
+			
+			memory_used=resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss
+
+			print("Return Code: %d Memory: %s"%(return_code,human_readable_size(memory_used)))
+
+			try:
+				while True:
+					line = proc.stdout.readline()
+					if not line:
+						break
+
+					print(line.decode(),end="")
+					
+
+			except BrokenPipeError:
+				pass
+			except KeyboardInterrupt:
+				exit(0)
+		else:
+			print("file '%s' not found in path"%filename)
+
+
+	def convertflip(self,path):
+
+		if os.path.isfile(path):
+			if self.blend_exists(path)==False:
+				print("Found: %s"%path)
+				self.load_and_convert_flip(path)
+		else:
+			fq_path = "%s*.blend" % path
+			
+			print("Searching %s" % fq_path)
+
+			for f in glob.glob(fq_path):
+				print(f)
+				if self.blend_exists(f)==False:
+					self.load_and_convert_flip(f)
+				print("Found: %s"%f)
+
+
 	def iterate_blend_files(self,path):
 
 		if os.path.isfile(path):
@@ -400,7 +458,8 @@ def main(argv):
 				"setupdraft",
 				"setupfinal",
     			"setuphighres",
-				"updatematerials",
+				"updatematerials", 
+				"convertflip=",
 				"clean",
 				"engineflip",
 				"engineblender",
@@ -435,6 +494,8 @@ def main(argv):
 			theDB.do_print_results()
 		elif opt=="--searchpath":
 			theDB.iterate_blend_files(arg)
+		elif opt=="--convertflip":
+			theDB.convertflip(arg)
 		elif opt in ("--requeueall"):
 			theDB.update_all_jobs_set_status(theDB.code_queued)
 		elif opt in ("--markallfinished"):
@@ -471,6 +532,7 @@ def main(argv):
 			print("--setupfinal\t\t| setup final settings")
 			print("--setuphighres\t\t| setup highres settings")
 			print("--clean\t\t| clean particles")
+			print("--convertflip\t\t| convert from blender fluid to flip fluids")
 			print("--clearresults\t\t| delete all bake results")
 			print("--results -r\t\tPrint bake results")
 			print("-s --searchpath\t\t| add files to DB")

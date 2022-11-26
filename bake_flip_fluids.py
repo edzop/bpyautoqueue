@@ -33,10 +33,11 @@ def get_resolution():
 
 	return 0
 
-
 def convert_to_flip():
 	
 	#bpy.ops.flip_fluid_operators.reset_bake()
+ 
+	found_fluid=False
 
 	for obj in bpy.data.objects:
 		if obj.type=="MESH":
@@ -44,6 +45,8 @@ def convert_to_flip():
 			
 			for modifier in obj.modifiers:
 				if modifier.type == 'FLUID':
+        
+					found_fluid=True
 
 					print("Found fluid simulation on object: %s (%s) - adding flip"%(obj.name,modifier.fluid_type))
 
@@ -91,3 +94,7 @@ def convert_to_flip():
 						
 						if modifier.flow_settings.flow_behavior=='GEOMETRY':
 							obj.flip_fluid.object_type="TYPE_FLUID"
+       
+    
+	if found_fluid:
+		util_helper.do_save()

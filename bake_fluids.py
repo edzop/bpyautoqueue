@@ -444,7 +444,7 @@ def set_frames():
 
 def clean_all():
 	print("clean_all")
-	#bpy.ops.fluid.free_all()
+	bpy.ops.fluid.free_all()
 	disable_all_particles()
 	#delete_particle_systems()
 
