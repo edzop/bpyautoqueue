@@ -417,7 +417,7 @@ class bake_db:
 
 		cursor = self.conn.cursor()
 		cursor.execute("UPDATE bakes SET status = ? WHERE status = ?",
-			(self.code_queued,self.code_failed))
+			(self.code_queued,self.code_processing))
 		self.conn.commit()
 
 
@@ -550,7 +550,7 @@ def main(argv):
 			print("--clearjobs\t\t\t| clear DB")
 			print("--markallfinished\t| mark all files as finished")
 			print("--requeueall\t\t| requeue all jobs")
-			print("--requeuefailed\t\t| requeue failed jobs")
+			print("--requeuefailed\t\t| requeue processing jobs (sometimes they get stuck)")
 			print("--updatematerials\t\t| update fluid related materials")
 
 	if theDB!=None:
