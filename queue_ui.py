@@ -11,6 +11,7 @@ bl_info = {
 	"category": "User"}
 
 import bpy
+import os
 
 from bpy.props import CollectionProperty
 from bpy_extras.io_utils import ImportHelper
@@ -317,11 +318,13 @@ class ReQueueFileOperator(bpy.types.Operator):
 		theDB = render_db.render_db()
 	
 		scene = context.scene
+  
+		basename = os.path.basename(filename)
 
-		print("Requeue Filename: %s"%filename)
+		print("Requeue Filename: %s"%basename)
 
 		# 0 for all frames
-		theDB.update_jobs_mark_file_queued(filename,0)
+		theDB.update_jobs_mark_file_queued(basename,0)
 
 		return {'FINISHED'}
 
