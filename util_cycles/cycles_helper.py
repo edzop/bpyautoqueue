@@ -75,7 +75,10 @@ def setup_cycles_settings():
 #	bpy.context.scene.render.tile_x=64
 #	bpy.context.scene.render.tile_y=64
 	#bpy.context.scene.cycles.use_cache=False
-	bpy.context.scene.render.use_persistent_data=True
+ 
+	# disable this for flip fluids export
+	bpy.context.scene.render.use_persistent_data=False
+
 	#bpy.context.scene.cycles.use_animated_seed=True
 #	bpy.context.scene.render.layers.active.cycles.use_denoising=True
 
