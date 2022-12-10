@@ -77,7 +77,7 @@ def convert_to_flip():
 						obj.flip_fluid.domain.simulation.auto_preview_resolution = False
 						obj.flip_fluid.domain.simulation.preview_resolution = 32
 	  
-						obj.flip_fluid.domain.simulation.resolution=96
+						obj.flip_fluid.domain.simulation.resolution=256
 
 						obj.flip_fluid.domain.materials.surface_material = 'FF Water (ocean 2)'
 						obj.flip_fluid.domain.materials.whitewater_foam_material = 'FF Foam'
