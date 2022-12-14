@@ -147,3 +147,11 @@ def remove_group_by_name(searchname):
 			print("remove_group_by_name: %s"%searchname)
 			bpy.data.groups.remove(g)
 
+def check_file_saved(operator):
+		filename = bpy.context.blend_data.filepath
+
+		if len(filename)<1:
+			operator.report({'ERROR'}, "need to save file first")
+			return None
+
+		return filename

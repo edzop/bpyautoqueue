@@ -18,6 +18,8 @@ bl_info = {
 import bpy
 from . import queue_ui
 from . import camera_ui
+from . import beats_ui
+from . import sim_ui
 
 from bpy.props import PointerProperty
 
@@ -29,15 +31,24 @@ classes = (
 	queue_ui.ReQueueFileOperator,
 	queue_ui.ResizeFileOperator,
 	queue_ui.QueueHelperPanel,
-	queue_ui.ReQueueBakeOperator,
-	queue_ui.SetupSimOperator,
-	queue_ui.SimHelperPanel,
 
-	queue_ui.FluidAssignInflowOperator,
-	queue_ui.FluidAssignOutflowOperator,
-	queue_ui.FluidAssignWireSkinOperator,
-	queue_ui.FluidAssignObstacleOperator,
-	queue_ui.FluidAssignBevelOperator,
+
+
+
+	beats_ui.AddTracksOperator,
+	beats_ui.BeatsHelperPanel,
+
+
+
+	sim_ui.SetupSimOperator,
+	sim_ui.SimHelperPanel,
+	sim_ui.ReQueueBakeOperator,
+
+	sim_ui.FluidAssignInflowOperator,
+	sim_ui.FluidAssignOutflowOperator,
+	sim_ui.FluidAssignWireSkinOperator,
+	sim_ui.FluidAssignObstacleOperator,
+	sim_ui.FluidAssignBevelOperator,
 
 	camera_ui.camera_helper_properties,
 	camera_ui.SetupRenderSettingsLuxOperator,
