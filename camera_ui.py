@@ -43,6 +43,7 @@ from .util_cycles import cycles_helper
 from . import auto_camera_pan
 from . import camera_dolly_helper
 from . import auto_light_helper
+from . import construction_helper
 
 class camera_helper_properties(PropertyGroup):
 
@@ -152,6 +153,23 @@ class SetBlackWorldOperator(bpy.types.Operator):
 
 
 		return {'FINISHED'}
+
+# ------------------------------------------------------------------------
+#    Build
+# ------------------------------------------------------------------------
+
+class GenSceneOperator (bpy.types.Operator):
+	"""Quick generate background backdrop for rendering"""
+	bl_idname = "wm.genscene"
+	bl_label = "GenScene"
+
+	def execute(self, context):
+
+		backdrop=construction_helper.make_backdrop()
+		
+		return {'FINISHED'}
+
+
 
 
 class StudioLightOperator(bpy.types.Operator):
@@ -371,6 +389,8 @@ class CamHelperPanel(bpy.types.Panel):
 		layout.operator(DumpCamDataOperator.bl_idname)
 		layout.operator(SetBlackWorldOperator.bl_idname)
 		layout.operator(StudioLightOperator.bl_idname)
+		layout.operator(GenSceneOperator.bl_idname)
+
 		
 	@classmethod
 	def poll(self,context):

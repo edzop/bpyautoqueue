@@ -66,6 +66,7 @@ classes = (
 	camera_ui.SetupAutoPanOperator,
 	camera_ui.DumpCamDataOperator,
 	camera_ui.CamHelperPanel,
+	camera_ui.GenSceneOperator
 
 )
 
