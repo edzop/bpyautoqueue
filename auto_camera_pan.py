@@ -210,28 +210,28 @@ class Cam_Pan_Helper:
 		
 	def find_dof(self,object):
 		for constraint in object.constraints:
-			if constraint.type == 'DAMPED_TRACK':
+			if constraint.type == 'DAMPED_TRACK' or constraint.type == 'TRACK_TO':
 				return constraint.target
 		return None
 		
 	def replace_cam_track_to_target(self,newtarget):
 		
-		isset=False
+		dof = self.find_dof(self.cam)
 		
-		for constraint in self.cam.constraints:
-			if constraint.type == 'DAMPED_TRACK':
-				constraint.target=newtarget				
-				isset=True
-				
-		if isset==False:
-			objs = self.cam.constraints.new(type='DAMPED_TRACK')
-			objs.target = newtarget
-			objs.track_axis='TRACK_NEGATIVE_Z'
-				
-		self.cam["dof_object"]=newtarget
-				
+		if dof is None:
+			#objs = self.cam.constraints.new(type='DAMPED_TRACK')
+			#objs.track_axis='TRACK_NEGATIVE_Z'
 
-		
+			new_constraint = self.cam.constraints.new(type='TRACK_TO')
+			new_constraint.track_axis='TRACK_NEGATIVE_Z'
+			new_constraint.target = newtarget
+							
+		self.cam["dof_object"]=newtarget
+
+		self.cam.rotation_euler[0]=math.radians(90)
+		self.cam.rotation_euler[1]=math.radians(0)
+		self.cam.rotation_euler[2]=math.radians(0)
+				
 	def set_view_sequence(self,sequence):
 				
 		if self.target_object!=None:
@@ -630,21 +630,6 @@ class Cam_Pan_Helper:
 		
 		return relative_angle
 		
-		
-	def create_plain_horizon(self):
-		util_helper.remove_object_by_name(self.object_scene_name)
-		newplane = bpy.ops.mesh.primitive_plane_add(radius=10, view_align=False, location=(0, 0, 0))
-		newplane = bpy.context.active_object
-		newplane.name=self.object_scene_name
-		self.set_object_layer(newplane,8)
-		
-	def append_boundry_marker(self):
-		util_helper.remove_object_by_name('boundry_markers')
-		nob = bpy.ops.wm.link_append(directory="/home/blender/scenes/boundry_markers.blend/Group/",link=True,files=[{'name': 'boundry_markers'}], relative_path=False)
-		boundry_marker = bpy.context.scene.objects['boundry_markers']
-		boundry_marker.location=[0,0,0]
-		self.set_object_layer(boundry_marker,9)
-		
 
 		
 	def find_largest_object_and_set_dof_copy_constraint(self):
@@ -690,26 +675,14 @@ class Cam_Pan_Helper:
 				object_frame.rotation_euler.x=largest_object.rotation_euler.x
 				object_frame.rotation_euler.y=largest_object.rotation_euler.y
 				object_frame.rotation_euler.z=largest_object.rotation_euler.z
-					
-				self.set_object_layer(object_frame,9)
-				
+			
 				util_helper.remove_constraint_from_object(self.dof_object,'COPY_LOCATION')
 				objs = self.dof_object.constraints.new(type='COPY_LOCATION')
 				objs.target = object_frame
 				objs.use_x=False
 				objs.use_y=False
 				objs.use_z=False
-				
-		
-				
-	def set_object_layer(self,obj,layer):
-		obj.layers[layer]=True
-		
-		for i in range(len(bpy.context.scene.layers)):
-			if i!=layer:
-				obj.layers[i]=False
-				
-				
+								
 	def create_object_frame(self):
 		
 		bpy.context.scene.cursor_location.x=0
@@ -730,7 +703,6 @@ class Cam_Pan_Helper:
 		frame.location.x=20
 		frame.location.y=20
 		frame.location.z=-10
-		self.set_object_layer(frame,9)
 		frame.name=util_helper.Util_Helper.inside_scene_name
 		
 		
@@ -747,8 +719,6 @@ class Cam_Pan_Helper:
 		dof=bpy.ops.object.empty_add(type='SINGLE_ARROW', location=(0,0,1))
 		dof=bpy.context.active_object
 		dof.name=self.dof_name
-		self.set_object_layer(dof,0)
-		self.set_object_layer(self.cam,0)
 
 			
 		self.replace_cam_track_to_target(dof)
@@ -767,7 +737,6 @@ class Cam_Pan_Helper:
 		frame.location.x=dof.location.x
 		frame.location.y=dof.location.y
 		frame.location.z=dof.location.z
-		self.set_object_layer(frame,9)
 #		frame.name=self.object_frame_name
 
 		util_helper.remove_constraint_from_object(dof,'COPY_LOCATION')
@@ -787,7 +756,6 @@ class Cam_Pan_Helper:
 		util_helper.remove_object_by_name(monkey_name)
 		bpy.ops.mesh.primitive_monkey_add(radius=0.5, location=(dof.location.x,dof.location.y,dof.location.z))
 		monkey=bpy.context.active_object
-		self.set_object_layer(monkey,8)
 		monkey.rotation_euler[0] = 1.0821
 		monkey.rotation_euler[1] = 0
 		monkey.rotation_euler[2] = 0

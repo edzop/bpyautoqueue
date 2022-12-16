@@ -315,7 +315,7 @@ class DumpCamDataOperator(bpy.types.Operator):
 		for obj in bpy.data.objects:
 			if obj.type=="CAMERA":
 				for constraint in obj.constraints:
-					if constraint.type == 'DAMPED_TRACK':
+					if constraint.type == 'DAMPED_TRACK' or constraint.type=='TRACK_TO':
 						camTarget=constraint.target
 						camObject=obj
 

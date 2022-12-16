@@ -6,7 +6,7 @@ from . import material_helper
 
 
 def add_follow_target_constraint(obj,target):
-    trackConstraint = obj.constraints.new(type='DAMPED_TRACK')
+    trackConstraint = obj.constraints.new(type='TRACK_TO')
     trackConstraint.target = target
     trackConstraint.track_axis='TRACK_NEGATIVE_Z'
 
@@ -42,12 +42,12 @@ def add_studio_lights():
 
     # Make sure trackto constraint set
     for constraint in camObject.constraints:
-        if constraint.type == 'DAMPED_TRACK':
+        if constraint.type == 'DAMPED_TRACK' or constraint.type=='TRACK_TO':
             constraint.target=camTarget				
             isTracked=True
                     
     if isTracked==False:
-        trackConstraint = camObject.constraints.new(type='DAMPED_TRACK')
+        trackConstraint = camObject.constraints.new(type='TRACK_TO')
         trackConstraint.target = camTarget
         trackConstraint.track_axis='TRACK_NEGATIVE_Z'
 
