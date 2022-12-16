@@ -337,16 +337,52 @@ class DumpCamDataOperator(bpy.types.Operator):
 						camTarget=constraint.target
 						camObject=obj
 
-		for f in range(bpy.context.scene.frame_start,bpy.context.scene.frame_end+1):
-			bpy.context.scene.frame_set(f)
-			camLoc = camObject.location
-			targetLoc = camTarget.location
-			print("[ %d, [%f,%f,%f],[%f,%f,%f] ],"%(
-				f,
-				camLoc[0],camLoc[1],camLoc[2],
-				targetLoc[0],targetLoc[1],targetLoc[2]))
+		if camTarget is None or camObject is None:
+			print("no cam target")
+		else:
+
+			for f in range(bpy.context.scene.frame_start,bpy.context.scene.frame_end+1):
+				bpy.context.scene.frame_set(f)
+				camLoc = camObject.location
+				targetLoc = camTarget.location
+				print("[ %d, [%f,%f,%f],[%f,%f,%f] ],"%(
+					f,
+					camLoc[0],camLoc[1],camLoc[2],
+					targetLoc[0],targetLoc[1],targetLoc[2]))
 
 		return {'FINISHED'}
+
+
+
+
+class PanHelperPanel(Panel):
+	bl_idname="PANEL_PT_autopanHelperPanel"
+	bl_label = "AutoPan"
+	bl_space_type = 'VIEW_3D'
+	bl_region_type = 'UI'
+	
+	bl_category = "bpyAutoQueue"
+	bl_context = "objectmode"   
+
+	@classmethod
+	def poll(self,context):
+		return context.object is not None
+
+	def draw(self, context):
+		layout = self.layout
+
+		row = layout.row()
+
+		scene = context.scene
+		my_queue_tool = scene.my_queue_tool
+
+		my_camera_tool = scene.my_camera_tool
+
+		layout.prop( my_camera_tool, "pan_step")
+
+		layout.operator(SetupAutoPanOperator.bl_idname)
+
+
 
 
 
@@ -371,22 +407,17 @@ class CamHelperPanel(bpy.types.Panel):
 		layout.operator(LoadSceneOperator.bl_idname)
 		layout.operator(ClearSceneHelperOperator.bl_idname)
 
-		my_camera_tool = scene.my_camera_tool
-
-		layout.prop( my_camera_tool, "pan_step")
-
-		layout.operator(SetupAutoPanOperator.bl_idname)
 		
 
-		layout.operator(SetupRenderSettingsLuxOperator.bl_idname)
-		layout.operator(LinkRandomLuxHdriOperator.bl_idname)
+		#layout.operator(SetupRenderSettingsLuxOperator.bl_idname)
+		#layout.operator(LinkRandomLuxHdriOperator.bl_idname)
 		layout.operator(SetupRenderSettingsCyclesOperator.bl_idname)
 
 		layout.operator(SetupRenderCameraDollyOperator.bl_idname)
 
 		layout.operator(SetupLightingOperator.bl_idname)
 
-		layout.operator(DumpCamDataOperator.bl_idname)
+		#layout.operator(DumpCamDataOperator.bl_idname)
 		layout.operator(SetBlackWorldOperator.bl_idname)
 		layout.operator(StudioLightOperator.bl_idname)
 		layout.operator(GenSceneOperator.bl_idname)

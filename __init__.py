@@ -51,10 +51,10 @@ classes = (
 	sim_ui.FluidAssignBevelOperator,
 
 	camera_ui.camera_helper_properties,
-	camera_ui.SetupRenderSettingsLuxOperator,
+#	camera_ui.SetupRenderSettingsLuxOperator,
 	camera_ui.SetupRenderSettingsCyclesOperator,
 	camera_ui.SetupRenderCameraDollyOperator,
-	camera_ui.LinkRandomLuxHdriOperator,
+#	camera_ui.LinkRandomLuxHdriOperator,
 	camera_ui.LoadSceneOperator,
 	camera_ui.StudioLightOperator,
 	camera_ui.SetBlackWorldOperator,
@@ -66,7 +66,8 @@ classes = (
 	camera_ui.SetupAutoPanOperator,
 	camera_ui.DumpCamDataOperator,
 	camera_ui.CamHelperPanel,
-	camera_ui.GenSceneOperator
+	camera_ui.GenSceneOperator,
+	camera_ui.PanHelperPanel
 
 )
 
