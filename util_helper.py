@@ -155,3 +155,32 @@ def check_file_saved(operator):
 			return None
 
 		return filename
+
+def find_collection(context, item):
+	collections = item.users_collection
+	if len(collections) > 0:
+		return collections[0]
+	return context.scene.collection
+
+
+def move_object_to_collection(new_collection,the_object):
+
+	C_collection = find_collection(bpy, the_object)
+	C_collection.objects.unlink(the_object)
+
+	new_collection.objects.link(the_object)
+
+def make_collection(collection_name, parent_collection):
+	if collection_name in bpy.data.collections:
+		return bpy.data.collections[collection_name]
+	else:
+		new_collection = bpy.data.collections.new(collection_name)
+		bpy.context.scene.collection.children.link(new_collection)
+		return new_collection
+
+
+def move_to_scene_collection(obj):
+	collection =  make_collection("scene",bpy.context.scene.collection.children)
+	move_object_to_collection(collection,obj)
+
+

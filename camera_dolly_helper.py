@@ -40,6 +40,9 @@ class camera_dolly_helper:
 			bpy.ops.object.empty_add(type='PLAIN_AXES', location=(0, 0, 0))
 			light_focus = bpy.context.active_object
 			light_focus.name=light_focus_object_name
+			util_helper.move_to_scene_collection(light_focus)
+
+
 
 		return light_focus
 
@@ -57,6 +60,9 @@ class camera_dolly_helper:
 			newlight = bpy.context.active_object
 			newlight.name=light_name
 
+			util_helper.move_to_scene_collection(newlight)
+
+
 		cycles_helper.assign_material(newlight,material)
 
 		#bpy.ops.object.material_slot_add()
@@ -67,6 +73,7 @@ class camera_dolly_helper:
 		track_new.up_axis = 'UP_Y'
 
 		track_new.target=self.get_light_focus_object()
+
 
 
 	def setup_auto_lights(self,autoPanStep):

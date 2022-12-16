@@ -21,6 +21,7 @@ class Cam_Pan_Helper:
 
 	# How many auto scene positions we have
 	scenecount=5
+
 	
 	def __init__(self):
 
@@ -66,6 +67,7 @@ class Cam_Pan_Helper:
 			bpy.ops.object.mode_set(mode='OBJECT')
 			bpy.ops.object.camera_add(location=(0, -5, -5))
 			self.cam = bpy.context.view_layer.objects.active
+			util_helper.move_to_scene_collection(self.cam)
 
 
 
@@ -85,6 +87,7 @@ class Cam_Pan_Helper:
 			self.dof_object=bpy.context.view_layer.objects.active
 			self.dof_object.name=self.dof_name
 			self.replace_cam_track_to_target(self.dof_object)
+			util_helper.move_to_scene_collection(self.dof_object)
 			
 		if self.dof_object!=None:
 #			print("found DOF")

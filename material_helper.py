@@ -38,6 +38,24 @@ def assign_linked_material(ob,material_name,path,slot=0):
 	if m is not None:
 		assign_material(ob,m,slot)
 		
+def make_metalic_material(name,color):
+	mat = bpy.data.materials.new(name)
+	mat.use_nodes=True
+	tree=mat.node_tree
+	nodes=tree.nodes
+
+	shader_node = nodes['Principled BSDF']
+	#color=[1,0.3,0.3,1]
+	shader_node.inputs[0].default_value=color
+
+	# metalic
+	shader_node.inputs[4].default_value=0.67
+
+	# roughness
+	shader_node.inputs[7].default_value=0.277
+
+	mat.diffuse_color=shader_node.inputs[0].default_value
+	return mat
 
 
 def make_diffuse_material(name,color):
