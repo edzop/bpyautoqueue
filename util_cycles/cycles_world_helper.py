@@ -87,7 +87,6 @@ class World_Helper():
 		bg.inputs[0].default_value[:3] = color
 		bg.inputs[1].default_value = 1.0
 
-
 	# TODO share function
 	def getSequenceFromName(self,filename,maxVal):
 		hashVal = util_helper.stringToHash(filename)

@@ -52,10 +52,6 @@ def do_save():
 def IsNotNull(value):
 	return value is not None and len(value) > 0
 
-def add_sun_light():
-	print("adding sun")
-	bpy.ops.object.light_add(type='SUN', radius=1, location=(-4, -14, 15),rotation=(0.785, 0.0, -0.349))
-
 def ensure_dir(f):
 	d = os.path.dirname(f)
 	if not os.path.exists(d):
@@ -97,12 +93,7 @@ def is_hemi(obj):
 		
 	return False
 
-def is_sun(obj):
-	if (obj.type=='LAMP') :
-		if(obj.data.type == 'SUN') :
-			return True
-		
-	return False
+
 
 def scene_has_light():	
 
@@ -113,40 +104,11 @@ def scene_has_light():
 				
 	return False
 
-def scene_has_sun():	
-
-	for obj in bpy.data.lights:
-		if obj.type=="SUN":
-				print("found sun light: %s" %(obj.name))
-				return True
-
-	print("NO sun")
-				
-	return False
 				
 def remove_all_texts():
 	for text in bpy.data.texts:
 		bpy.data.texts.remove(text)
-		
-		
-def scene_remove_sun_light():
-	for scene in bpy.data.scenes:
-		for theobject in scene.objects:
-			if is_sun(theobject):
-				remove_object_by_name(theobject.name)
-	
-def scene_remove_hemi_light():
-	for scene in bpy.data.scenes:
-		for theobject in scene.objects:
-			if is_hemi(theobject):
-				remove_object_by_name(theobject.name)
-				
-def remove_group_by_name(searchname):
-	for g in bpy.data.groups:
-		if g.name==searchname:
-			print("remove_group_by_name: %s"%searchname)
-			bpy.data.groups.remove(g)
-
+			
 def check_file_saved(operator):
 		filename = bpy.context.blend_data.filepath
 

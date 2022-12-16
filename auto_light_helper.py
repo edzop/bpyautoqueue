@@ -5,7 +5,6 @@ import bpy
 from . import material_helper
 from . import util_helper
 
-
 def add_follow_target_constraint(obj,target):
 	trackConstraint = obj.constraints.new(type='TRACK_TO')
 	trackConstraint.target = target

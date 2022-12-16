@@ -300,9 +300,6 @@ def get_blendfile_without_extension():
 def link_random_lux_hdri():
 	print("Linking random LUX hdri")
 
-	util_helper.scene_remove_hemi_light()
-	util_helper.scene_remove_sun_light()
-
 	hdrilist = list()
 
 	hdriindex_index=0

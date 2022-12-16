@@ -172,6 +172,7 @@ class GenSceneOperator (bpy.types.Operator):
 
 
 
+
 class StudioLightOperator(bpy.types.Operator):
 	bl_idname = "wm.setup_studio_light"
 	bl_label = "StudioLight"
@@ -420,6 +421,7 @@ class CamHelperPanel(bpy.types.Panel):
 		#layout.operator(DumpCamDataOperator.bl_idname)
 		layout.operator(SetBlackWorldOperator.bl_idname)
 		layout.operator(StudioLightOperator.bl_idname)
+
 		layout.operator(GenSceneOperator.bl_idname)
 
 		

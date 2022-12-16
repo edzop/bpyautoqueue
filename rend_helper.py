@@ -15,6 +15,7 @@ from .util_cycles import cycles_world_helper
 from . import auto_camera_pan
 from . import camera_dolly_helper
 from . import environment_helper
+from . import auto_light_helper
 
 class Rend_Helper:
 
@@ -108,7 +109,6 @@ class Rend_Helper:
 
 				theEnvironment_helper.assign_sequenced_environment()
 				
-				#util_helper.add_sun_light()
 			else:
 
 				#typically animation sequence 
@@ -125,9 +125,6 @@ class Rend_Helper:
 						worldfile = theWorldHelper.worldlist[world_index]
 						theWorldHelper.link_world_file(worldfile)
 						self.scene_lit=True
-
-				# and a matching sun light
-				util_helper.add_sun_light()
 
 			self.scene_lit=True
 		else:
@@ -176,7 +173,6 @@ class Rend_Helper:
 			#self.scene_lit=True
 			#if self.scene_lit==False:
 			#	print("no ligh")
-			#util_helper.add_sun_light()
 			#self.scene_lit=True
 				#self.link_random_lux_hdri()
 				
@@ -317,9 +313,7 @@ class Rend_Helper:
 		else:
 			return True
 
-
 	def remove_scene(self):
-		#util_helper.remove_group_by_name(self.object_scene_name)
 		util_helper.remove_object_by_name(self.object_scene_name)
 
 	def get_random_scene_file(self):
