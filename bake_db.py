@@ -7,19 +7,10 @@ import os
 import subprocess
 import functools
 import resource
+import misc_helper
 
 this_script_file_path=os.path.dirname(os.path.abspath(__file__))
 
-
-def human_readable_size(size, decimal_places=2):
-	if size is None:
-		return "-"
-
-	for unit in ['M', 'G', 'T', 'P']:
-		if size < 1024.0 or unit == 'P':
-			break
-		size /= 1024.0
-		return f"{size:.{decimal_places}f} {unit}"
 
 
 
@@ -173,7 +164,10 @@ class bake_db:
 
 			timeStr='{:02.0f}:{:02.0f}:{:02.0f}'.format(h, m, s)
 
-			human_readable_mem_used=human_readable_size(row[7])
+			memory_used=row[7]
+			memory_used*=1024
+
+			human_readable_mem_used=misc_helper.human_readable_size(memory_used)
 
 			#print(row[0])
 			print('{0} baketime: {2}, engine: {8} frames: {3}, resolution: {4}, domain: ({5}), cache: {6}, memusage: {7} filename: {1} '
@@ -284,7 +278,7 @@ class bake_db:
 					
 					memory_used=resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss
 
-					print("Return Code: %d Memory: %s"%(return_code,human_readable_size(memory_used)))
+					print("Return Code: %d Memory: %s"%(return_code,misc_helper.human_readable_size(memory_used)))
 
 					if return_code==0:
 						self.update_bake_result_last_memory_record(memory_used)
@@ -348,7 +342,7 @@ class bake_db:
 			
 			memory_used=resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss
 
-			print("Return Code: %d Memory: %s"%(return_code,human_readable_size(memory_used)))
+			print("Return Code: %d Memory: %s"%(return_code,misc_helper.human_readable_size(memory_used)))
 
 			try:
 				while True:
