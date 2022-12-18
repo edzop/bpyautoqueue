@@ -351,7 +351,8 @@ class render_db:
 		self.conn.commit()
 		
 	def openDB(self):
-		print("Opening database: %s"%self.databasefile)
+		if self.verbose:
+			print("Opening database: %s"%self.databasefile)
 		self.conn = sqlite3.connect(self.databasefile)
 
 		
@@ -402,6 +403,31 @@ class render_db:
 		return "unknown"
 
 
+	def do_superbriefDB(self):
+		c=self.conn.execute('''select count(jobID),status,renderengine from blendfiles group by status,renderengine''')
+
+		queued=0
+		finished=0
+
+		for row in c:
+#			status=row[1]
+			count=row[0]
+			engine=row[2]
+
+			status=row[1]
+
+			if status==self.code_finished:
+				finished=finished+int(count)
+			elif status==self.code_queued:
+				queued=queued+int(count)
+
+			#statustext=self.statuscode_to_text(row[1])
+		print("%d/%d"%(finished,queued+finished))
+
+
+
+
+
 	def do_briefDB(self):
 		c=self.conn.execute('''select count(jobID),status,renderengine from blendfiles group by status,renderengine''')
 
@@ -411,7 +437,6 @@ class render_db:
 			engine=row[2]
 
 			statustext=self.statuscode_to_text(row[1])
-
 			print("{2}: {0} {1}".format(statustext,count,engine))
 
 
@@ -539,6 +564,7 @@ def main(argv):
 				"requeueall",
 				"requeuefailed",
 				"print",
+				"superbrief",
 				"render",
 				"encodemovies",
 				"times",
@@ -616,6 +642,8 @@ def main(argv):
 			theDB.do_printDB(None,theDB.code_failed)
 		elif opt in ("-b","--brief"):
 			theDB.do_briefDB()
+		elif opt in ("--superbrief"):
+			theDB.do_superbriefDB()
 		elif opt in ("--queue"):
 			theDB.get_next_in_queue()
 #		elif opt in ("-k"):
@@ -660,6 +688,7 @@ def main(argv):
 			print("--printqueued - print queued files")
 			print("--printfailed - print failed files")
 			print("-b --brief  - brief summary of DB")
+			print("--superbrief - super brief summary (used for automation script")
 #			print("-j jobID")
 			sys.exit(1)
 
