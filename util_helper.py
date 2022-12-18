@@ -140,9 +140,41 @@ def make_collection(collection_name, parent_collection):
 		bpy.context.scene.collection.children.link(new_collection)
 		return new_collection
 
+def convert_trackto_to_damped_track():
+    # first find camTarget
+    for obj in bpy.data.objects:
+        if obj.type=="CAMERA":
+            for constraint in obj.constraints:
+                if constraint.type == 'TRACK_TO':
+
+                    print("Found Track To")
+                    camTarget=constraint.target
+                    obj.constraints.remove(constraint)
+                    
+                    objs = obj.constraints.new(type='DAMPED_TRACK')
+                    objs.target = camTarget
+                    objs.track_axis='TRACK_NEGATIVE_Z'
+
+                    obj.rotation_euler[0]=math.radians(90)
+                    obj.rotation_euler[1]=math.radians(0)
+                    obj.rotation_euler[2]=math.radians(0)
+
+                    bpy.ops.wm.save_as_mainfile(filepath=bpy.context.blend_data.filepath, copy=True,relative_remap=False,compress=True)
+                    print("Saved")
+        
+def reset_camera_rotation():
+    for obj in bpy.data.objects:
+        if obj.type=="CAMERA":
+            obj.rotation_euler[0]=math.radians(90)
+            obj.rotation_euler[1]=math.radians(0)
+            obj.rotation_euler[2]=math.radians(0)
+
+            bpy.ops.wm.save_as_mainfile(filepath=bpy.context.blend_data.filepath, copy=True,relative_remap=False,compress=True)
+            print("Saved")
 
 def move_to_scene_collection(obj):
 	collection =  make_collection("scene",bpy.context.scene.collection.children)
 	move_object_to_collection(collection,obj)
+
 
 
