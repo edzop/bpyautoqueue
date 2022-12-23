@@ -33,6 +33,43 @@ def get_resolution():
 
 	return 0
 
+def setup_flip():
+
+	for obj in bpy.data.objects:
+
+		if obj.flip_fluid is not None:
+
+			flip=obj.flip_fluid
+
+			if flip.object_type=="TYPE_DOMAIN":
+
+				cache_dir="flip"
+				full_cache_path = "/home/blender/cache/%s/%s/"%(cache_dir,util_helper.get_blendfile_without_extension())
+
+				util_helper.ensure_dir(full_cache_path);	
+				print("Cache Path: " + full_cache_path)
+				flip.domain.cache.cache_directory = full_cache_path
+
+					  
+				flip.domain.whitewater.enable_whitewater_simulation = True
+
+				flip.domain.render.viewport_display = 'DISPLAY_PREVIEW'
+				
+				flip.domain.simulation.auto_preview_resolution = False
+				flip.domain.simulation.preview_resolution = 32
+
+				flip.domain.simulation.resolution=256
+
+
+				#obj.flip_fluid.domain.materials.surface_material = 'FF Water (ocean 2)'
+				flip.domain.materials.whitewater_foam_material = 'FF Foam'
+				flip.domain.materials.whitewater_bubble_material = 'FF Bubble'
+				flip.domain.materials.whitewater_spray_material = 'FF Spray'
+				
+
+
+
+
 def convert_to_flip():
 	
 	#bpy.ops.flip_fluid_operators.reset_bake()
@@ -63,27 +100,7 @@ def convert_to_flip():
       
 						bpy.ops.flip_fluid_operators.reset_bake()
 
-						cache_dir="flip"
-						full_cache_path = "/home/blender/cache/%s/%s/"%(cache_dir,util_helper.get_blendfile_without_extension())
-		
-						util_helper.ensure_dir(full_cache_path);	
-						print("Cache Path: " + full_cache_path)
-						obj.flip_fluid.domain.cache.cache_directory = full_cache_path
-	  
-						obj.flip_fluid.domain.whitewater.enable_whitewater_simulation = True
-      
-						obj.flip_fluid.domain.render.viewport_display = 'DISPLAY_PREVIEW'
-						
-						obj.flip_fluid.domain.simulation.auto_preview_resolution = False
-						obj.flip_fluid.domain.simulation.preview_resolution = 32
-	  
-						obj.flip_fluid.domain.simulation.resolution=256
 
-						#obj.flip_fluid.domain.materials.surface_material = 'FF Water (ocean 2)'
-						#obj.flip_fluid.domain.materials.whitewater_foam_material = 'FF Foam'
-						#obj.flip_fluid.domain.materials.whitewater_bubble_material = 'FF Bubble'
-						#obj.flip_fluid.domain.materials.whitewater_spray_material = 'FF Spray'
-						
 					if modifier.fluid_type=='EFFECTOR':
 						if modifier.effector_settings.effector_type=='COLLISION':
 							obj.flip_fluid.object_type="TYPE_OBSTACLE"
@@ -98,6 +115,10 @@ def convert_to_flip():
 						if modifier.flow_settings.flow_behavior=='GEOMETRY':
 							obj.flip_fluid.object_type="TYPE_FLUID"
 	   
-	
+
+
+
 	if found_fluid:
+		setup_flip()
+
 		util_helper.do_save()
