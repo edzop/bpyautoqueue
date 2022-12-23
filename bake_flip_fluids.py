@@ -79,10 +79,10 @@ def convert_to_flip():
 	  
 						obj.flip_fluid.domain.simulation.resolution=256
 
-						obj.flip_fluid.domain.materials.surface_material = 'FF Water (ocean 2)'
-						obj.flip_fluid.domain.materials.whitewater_foam_material = 'FF Foam'
-						obj.flip_fluid.domain.materials.whitewater_bubble_material = 'FF Bubble'
-						obj.flip_fluid.domain.materials.whitewater_spray_material = 'FF Spray'
+						#obj.flip_fluid.domain.materials.surface_material = 'FF Water (ocean 2)'
+						#obj.flip_fluid.domain.materials.whitewater_foam_material = 'FF Foam'
+						#obj.flip_fluid.domain.materials.whitewater_bubble_material = 'FF Bubble'
+						#obj.flip_fluid.domain.materials.whitewater_spray_material = 'FF Spray'
 						
 					if modifier.fluid_type=='EFFECTOR':
 						if modifier.effector_settings.effector_type=='COLLISION':
