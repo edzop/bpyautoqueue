@@ -1,4 +1,5 @@
 import bpy
+import os 
 
 from . import bake_fluids
 
@@ -126,17 +127,15 @@ class ReQueueBakeOperator(bpy.types.Operator):
 
 		if filename==None:
 			return {'CANCELLED'}
+ 
+		basename = os.path.basename(filename)
+
+		print("Requeue Bake Filename: %s"%basename)
 
 
 		theBakeDB = bake_db.bake_db()
-		theDB = render_db.render_db()
 
-		print("Requeue Bake Filename: %s"%filename)
-
-		# 0 for all frames
-		theDB.update_jobs_mark_file_queued(filename,0)
-
-		theBakeDB.update_jobs_mark_file_queued(filename)
+		theBakeDB.update_jobs_mark_file_queued(basename)
 
 		return {'FINISHED'}
 
