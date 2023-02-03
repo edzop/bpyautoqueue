@@ -1,4 +1,5 @@
 import bpy
+import os 
 
 from . import bake_fluids
 
@@ -20,6 +21,8 @@ from . import bake_db
 
 from . import material_helper
 from . import util_helper
+
+from . import bake_flip_fluids
 
 
 texlibpath_materials="/home/blender/texlib.blend/Material"
@@ -124,17 +127,37 @@ class ReQueueBakeOperator(bpy.types.Operator):
 
 		if filename==None:
 			return {'CANCELLED'}
+ 
+		basename = os.path.basename(filename)
+
+		print("Requeue Bake Filename: %s"%basename)
 
 
 		theBakeDB = bake_db.bake_db()
-		theDB = render_db.render_db()
 
-		print("Requeue Bake Filename: %s"%filename)
+		theBakeDB.update_jobs_mark_file_queued(basename)
 
-		# 0 for all frames
-		theDB.update_jobs_mark_file_queued(filename,0)
+		return {'FINISHED'}
 
-		theBakeDB.update_jobs_mark_file_queued(filename)
+
+
+class SetupFlipSimOperator(bpy.types.Operator):
+	"""Setup flip fluids and particles"""
+	bl_idname = "wm.setupflipsim"
+	bl_label = "Setup FlipSim"
+
+
+	def execute(self, context):
+
+		filename=util_helper.check_file_saved(self)
+
+		if filename==None:
+			return {'CANCELLED'}
+
+
+		print("Setup Flip Sim...")
+
+		bake_flip_fluids.setup_flip()
 
 		return {'FINISHED'}
 
@@ -194,4 +217,5 @@ class SimHelperPanel(Panel):
 
 		row = layout.row()
 		layout.operator(SetupSimOperator.bl_idname)
+		layout.operator(SetupFlipSimOperator.bl_idname)
 

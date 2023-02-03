@@ -40,6 +40,7 @@ classes = (
 
 
 
+	sim_ui.SetupFlipSimOperator,
 	sim_ui.SetupSimOperator,
 	sim_ui.SimHelperPanel,
 	sim_ui.ReQueueBakeOperator,

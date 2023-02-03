@@ -107,7 +107,7 @@ def do_bake():
 			domain_obj=bake_flip_fluids.get_flip_domain_object()
 			disk_cache_directory=bake_flip_fluids.get_domain_disk_cache_directory()
 			resolution=bake_flip_fluids.get_resolution()
-
+			
 		bake_time = time.time() - bake_start
 		
 		status_text = 'Job: %s - Bake Time: %s' %(jobID,util_helper.secondsToStr(bake_time))
@@ -464,7 +464,7 @@ def clean_all():
 
 def check_bake_op():
 	if bake_op==bake_db.bake_db.code_bake_op_bake:
-		do_bake()
+		do_bake()		
 	elif bake_op==bake_db.bake_db.code_bake_op_setup_draft:
 		setup_draft()
 		util_helper.do_save()
