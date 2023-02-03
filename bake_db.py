@@ -7,7 +7,7 @@ import os
 import subprocess
 import functools
 import resource
-import misc_helper
+from bpyautoqueue import misc_helper
 
 this_script_file_path=os.path.dirname(os.path.abspath(__file__))
 

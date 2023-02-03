@@ -35,6 +35,15 @@ class resolve_helper:
         #self.timeline = self.projectmanager.GetCurrentTimeline()
 
 
+    def getTimeline(self):
+        timeline=self.activeproject.GetCurrentTimeline()
+
+        if not timeline:
+	        mediapool = self.activeproject.GetMediaPool()
+	        timeline = mediapool.CreateEmptyTimeline("Timeline1")
+        
+        return timeline
+
     def print_folder_media(self,folder):
 
         print("Folder: %s"%folder.GetName())
