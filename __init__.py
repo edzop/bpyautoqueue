@@ -37,6 +37,7 @@ classes = (
 
 	beats_ui.AddTracksOperator,
 	beats_ui.BeatsHelperPanel,
+	beats_ui.beat_helper_properties,
 
 
 
@@ -81,6 +82,7 @@ def register():
 
 	bpy.types.Scene.my_queue_tool = PointerProperty(type=queue_ui.queue_helper_properties)
 	bpy.types.Scene.my_camera_tool = PointerProperty(type=camera_ui.camera_helper_properties)
+	bpy.types.Scene.my_beats_tool = PointerProperty(type=beats_ui.beat_helper_properties)
 
 
 def unregister():
