@@ -577,12 +577,7 @@ def main(argv):
 				"clear",
 				"mode",
 				"queue",
-				"quartersize",
-				"thirdsize",
-				"halfsize",
-				"fullsize",
-				"2ksize",
-				"4ksize",				
+				"quartersize", "thirdsize", "halfsize", "fullsize", "2ksize", "4ksize",	"4k_21",
 				"help",
 				"dfile=","searchpath=","resolution=","requeuefile=","removefile="])
 	except getopt.GetoptError as err:
@@ -631,6 +626,9 @@ def main(argv):
 		elif opt in ("--4ksize"):
 			theDB.outputX,theDB.outputY=3840,2160
 			theDB.change_resolution()
+		elif opt in ("--4k_21"):
+			theDB.outputX,theDB.outputY=3840,1080
+			theDB.change_resolution()
 		elif opt in ("--clear"):
 			theDB.clear_database()
 		elif opt in ("--render"):
@@ -673,7 +671,7 @@ def main(argv):
 		elif opt in ("--help"):
 			#print('render_db.py -d <databasefile>')
 			print("====================================")
-			print("--halfsize --fullsize --quartersize --thirdsize --4ksize --2ksize - resize all renders to preset size")
+			print("--halfsize --fullsize --quartersize --thirdsize --4ksize --2ksize --4k_21 (3840x1080) - resize all renders to preset size")
 			print("--clear  - clear DB")
 			print("-s --searchpath  - add files to DB")
 			print("-i - frame index")
