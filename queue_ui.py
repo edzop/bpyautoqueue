@@ -100,7 +100,7 @@ class QueueSingleFrameOperator(bpy.types.Operator):
 
 		theDB.IgnoreHashVal=True
 
-		theDB.insert_or_update_blend_file(filename,current_frame)
+		theDB.insert_or_update_blend_file(filename,current_frame,1)
 
 		return {'FINISHED'}
 

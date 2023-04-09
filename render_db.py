@@ -73,14 +73,14 @@ class render_db:
 			self.autopanstep=0
 			self.moviemode=0
 
-		
-	def insert_or_update_blend_file(self,filename,frames):
+	# number of cameras to render
+	def insert_or_update_blend_file(self,filename,frames,cameras_to_render=1):
 			if self.blend_exists(filename,frames[0]):
 				#print("Existing")
 				return self.update_file_queued(filename,frames)
 			else:
 				#print("Insert")
-				return self.insert_file(filename,frames)		
+				return self.insert_file(filename,frames,cameras_to_render)		
 
 	def render_db(self):
 
@@ -163,26 +163,30 @@ class render_db:
 				self.iterate_blend_files(f)
 				
 
-	def insert_file(self,filename,frames):
+	def insert_file(self,filename,frames,cameras_to_render):
 		timestamp = datetime.now()
 		hashval = self.make_hash(filename)
+  
+		print("cameras to render: %d"%cameras_to_render)
 
 		records = []
 
 		for i in frames:
-			records.append((	timestamp, \
-				filename, \
-				hashval, \
-				self.autopanstep, \
-				self.outputX, \
-				self.outputY, \
-				i, \
-				self.code_queued, \
-				self.selected_render_engine,
-				self.moviemode))
-		
+      
+			for camera in range(0,cameras_to_render):
+				records.append((	timestamp, \
+					filename, \
+					hashval, \
+					self.autopanstep, \
+					self.outputX, \
+					self.outputY, \
+					i, \
+					self.code_queued, \
+					self.selected_render_engine,
+					self.moviemode,camera))
+			
 		self.conn.executemany("INSERT INTO blendfiles(syncdate,filename,hashval," \
-		"autopanstep,outputX,outputY,frameIndex,status,renderengine,moviemode) VALUES(?,?,?,?,?,?,?,?,?,?)",
+		"autopanstep,outputX,outputY,frameIndex,status,renderengine,moviemode,camera) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
 		records)
 			
 		self.conn.commit()
@@ -362,7 +366,7 @@ class render_db:
              "(jobID INTEGER PRIMARY KEY AUTOINCREMENT, " \
 			"syncdate timestamp, filename text,hashval text, outputX int, outputY int, " \
 			"frameIndex int,status int default 0,renderengine text, " \
-			"autopanstep int, moviemode int default 0, " \
+			"autopanstep int, moviemode int default 0, camera int default 0," \
 			"samples int default 0, rendertime REAL default 0)")
                   
 
@@ -371,7 +375,7 @@ class render_db:
 		nextrend = []
 #		print("ss=%d AND ff=%d"%(self.code_queued,self.code_finished))
 		
-		c=self.conn.execute("SELECT filename,outputX,outputY,frameIndex,jobID,renderengine,autopanstep,moviemode " \
+		c=self.conn.execute("SELECT filename,outputX,outputY,frameIndex,jobID,renderengine,autopanstep,moviemode,camera " \
 			"FROM blendfiles WHERE (status=%d AND renderengine='%s') ORDER BY filename LIMIT 1"%(self.code_queued,self.selected_render_engine))
 			
 		for row in c:
@@ -383,6 +387,7 @@ class render_db:
 			nextrend.append(row[5])
 			nextrend.append(row[6])
 			nextrend.append(row[7])
+			nextrend.append(row[8])
 			
 		if len(nextrend)==0:
 			print("0")
@@ -457,17 +462,17 @@ class render_db:
 		if status_code!=self.code_none:
 			codeselect = ' where status="%d"'%status_code
 
-		query_text='''SELECT jobID, frameIndex, outputX,outputY, filename,status,renderengine,autopanstep,moviemode,samples,rendertime FROM blendfiles%s%s'''%(fileselect,codeselect)
+		query_text='''SELECT jobID, frameIndex, outputX,outputY, filename,status,renderengine,autopanstep,moviemode,samples,rendertime,camera FROM blendfiles%s%s'''%(fileselect,codeselect)
 		
 		c=self.conn.execute(query_text)
 		for row in c:
-			print('{0} {1}x{2} f:{3} pan:{7} movie:{8} {5}\t\t{6}\t{4} samples: {9} time: {10}'.format(
+			print('{0} {1}x{2} f:{3} pan:{7} movie:{8} {5}\t\t{6}\t{4} samples: {9} time: {10} camera: {11}'.format(
 				row[0], 
 				row[2],
 				row[3], row[1],row[4],
 				self.statuscode_to_text(row[5]),
 				row[6],row[7],row[8],
-				row[9],round(row[10],2)))
+				row[9],round(row[10],2),row[11]))
 		#	print(row)
 		
 			if row[5]==self.code_queued:

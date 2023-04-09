@@ -16,8 +16,8 @@ def remove_constraint_from_object(object,constraint_name):
 			if constraint.type == constraint_name:
 				object.constraints.remove(constraint)
 			
-def get_output_filename(blendfile_without_extension,frameIndex,renderer_name,image_file_extension):
-	image_output_filename = '%s.%04d.%s.%s' %(blendfile_without_extension,frameIndex,renderer_name,str.lower(image_file_extension))
+def get_output_filename(blendfile_without_extension,frameIndex,cameraIndex,image_file_extension):
+	image_output_filename = '%s.cam_%d.%04d.%s' %(blendfile_without_extension,cameraIndex,frameIndex,str.lower(image_file_extension))
 	return image_output_filename
 
 

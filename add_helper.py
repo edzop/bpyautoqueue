@@ -26,14 +26,25 @@ def add_frames(target_renderer,anim_mode):
 	theRendHelper = rend_helper.Rend_Helper(False,theDB.autopanstep)
 
 	print("Autopan step: %d" %(theDB.autopanstep))
+ 
+	cameras_to_render=0
 
 	if theDB.autopanstep>0:
 		thePanHelper = auto_camera_pan.Cam_Pan_Helper()
 		thePanHelper.setup_auto_pan(theDB.autopanstep)
-		
+  
+		cameras_to_render==1
+	else:
+		for o in bpy.data.objects:
+			if o.type=="CAMERA":
+				cameras_to_render=cameras_to_render+1
 
 	frame_start = bpy.context.scene.frame_start
 	frame_end = bpy.context.scene.frame_end
+ 
+ 
+			
+	print("Found %d cameras"%cameras_to_render)
 		
 	filename = bpy.context.blend_data.filepath
 
@@ -48,7 +59,7 @@ def add_frames(target_renderer,anim_mode):
 	for num in range(frame_start,frame_end+1):
 		framelist.append(num)
 
-	theDB.insert_or_update_blend_file(filename,framelist)
+	theDB.insert_or_update_blend_file(filename,framelist,cameras_to_render)
 
 	print("Checked frames: %s"%framelist)
 

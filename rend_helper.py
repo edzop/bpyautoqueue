@@ -272,11 +272,21 @@ class Rend_Helper:
 	last_frame_time=0
 			
 
-	def do_render(self,frameIndex):
+	def do_render(self,frameIndex,cameraIndex):
+     
+		searchCameraIndex=0
+		for o in bpy.data.objects:
+			if o.type=="CAMERA":
+				print("cam: %d = %d"%(searchCameraIndex,cameraIndex))
+				if searchCameraIndex==cameraIndex:
+					bpy.context.scene.camera = o
+					break
+				else:
+					searchCameraIndex=searchCameraIndex+1
 
 		bpy.context.scene.frame_set(frameIndex)
 
-		image_output_filename = util_helper.get_output_filename(util_helper.get_blendfile_without_extension(),frameIndex,self.renderer_name,self.image_file_extension)
+		image_output_filename = util_helper.get_output_filename(util_helper.get_blendfile_without_extension(),frameIndex,cameraIndex,self.image_file_extension)
 
 		self.last_frame_time=0
 		render_start = time.time()
@@ -295,7 +305,8 @@ class Rend_Helper:
 			if self.renderer_name=="luxcore":
 				util_lux.enable_lux_denoise()
 
-			full_output_image_path=self.render_output_path + image_output_filename
+
+			full_output_image_path=self.render_output_path + "cam_%d"%cameraIndex + os.sep + image_output_filename
 
 			bpy.data.images['Render Result'].save_render(filepath=full_output_image_path)
 
