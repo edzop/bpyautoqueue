@@ -277,7 +277,6 @@ class Rend_Helper:
 		searchCameraIndex=0
 		for o in bpy.data.objects:
 			if o.type=="CAMERA":
-				print("cam: %d = %d"%(searchCameraIndex,cameraIndex))
 				if searchCameraIndex==cameraIndex:
 					bpy.context.scene.camera = o
 					break
