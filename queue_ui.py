@@ -30,6 +30,7 @@ from bpy.types import (Panel,
 					   )
 
 from . import render_db
+from . import bake_db
 from . import util_helper
 
 class queue_helper_properties(PropertyGroup):
