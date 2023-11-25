@@ -26,6 +26,7 @@ from bpy.props import PointerProperty
 classes = (
 	queue_ui.queue_helper_properties,
 	queue_ui.QueueSingleFrameOperator,
+	queue_ui.QueueAllFramesOperator,
 	queue_ui.PrintQueueOperator,
 	queue_ui.ClearFileFromQueueOperator,
 	queue_ui.ReQueueFileOperator,

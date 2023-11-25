@@ -66,6 +66,52 @@ class queue_helper_properties(PropertyGroup):
 
 
 
+class QueueAllFramesOperator(bpy.types.Operator):
+	bl_idname = "wm.render_queue_all_frames_operator"
+	bl_label = "Queue All Frames"
+
+	def execute(self, context):
+	
+		filename=util_helper.check_file_saved(self)
+
+		if filename==None:
+			return {'CANCELLED'}
+		
+		print("Queue All Frames")
+
+		theDB = render_db.render_db()
+
+		frame_start=bpy.context.scene.frame_start
+		frame_end=bpy.context.scene.frame_end
+
+		scene = context.scene
+		my_queue_tool = scene.my_queue_tool
+
+		resX,resY=my_queue_tool.my_resolutions.split("x")
+		theDB.outputX=resX
+		theDB.outputY=resY
+
+		rendermode=my_queue_tool.my_render_modes
+
+		theDB.configure_anim_mode(rendermode)
+
+		frames_to_add=[]
+
+		for current_frame in range(frame_start,frame_end+1):
+			frames_to_add.append(current_frame)
+
+		theDB.IgnoreHashVal=True
+
+		theDB.insert_or_update_blend_file(filename,frames_to_add,1)
+
+		print("Filename: %s Frames: (%d-%d) Resolution(%s %s) Mode: %s"%(
+				filename,
+				frame_start,frame_end,
+				resX,resY,
+				rendermode))
+
+		return {'FINISHED'}
+
 
 class QueueSingleFrameOperator(bpy.types.Operator):
 	bl_idname = "wm.render_queue_single_frame_operator"
@@ -244,6 +290,7 @@ class QueueHelperPanel(Panel):
 
 		layout.operator(ReQueueFileOperator.bl_idname)
 		layout.operator(QueueSingleFrameOperator.bl_idname)
+		layout.operator(QueueAllFramesOperator.bl_idname)
 		layout.operator(PrintQueueOperator.bl_idname)
 		layout.operator(ClearFileFromQueueOperator.bl_idname)
 		layout.prop( my_queue_tool, "my_resolutions", text="Resolution") 
