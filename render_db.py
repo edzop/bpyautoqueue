@@ -585,7 +585,8 @@ def main(argv):
 				"clear",
 				"mode",
 				"queue",
-				"quartersize", "thirdsize", "halfsize", "fullsize", "2ksize", "4ksize",	"4k_21", "4k_235",
+				"size480", "size640", "size960", "sizeHD", "size2k", "size4k", 
+				"aspect235", "aspect355", 
 				"help",
 				"dfile=","searchpath=","resolution=","requeuefile=","removefile="])
 	except getopt.GetoptError as err:
@@ -616,32 +617,32 @@ def main(argv):
 			frameIndex=arg
 
 	for opt, arg in opts:
-		if opt in ("--halfsize"):
-			theDB.outputX, theDB.outputY=960,540
-			theDB.change_resolution()
-		elif opt in ("--fullsize"):
-			theDB.outputX,theDB.outputY=1920,1080
-			theDB.change_resolution()
-		elif opt in ("--quartersize"):
+		if opt in ("--clear"):
+			theDB.clear_database()
+		elif opt in ("--size480"):
 			theDB.outputX,theDB.outputY=480,270
 			theDB.change_resolution()
-		elif opt in ("--thirdsize"):
+		elif opt in ("--size640"):
 			theDB.outputX,theDB.outputY=640,360
 			theDB.change_resolution()
-		elif opt in ("--2ksize"):
+		elif opt in ("--size960"):
+			theDB.outputX, theDB.outputY=960,540
+			theDB.change_resolution()
+		elif opt in ("--sizeHD"):
+			theDB.outputX,theDB.outputY=1920,1080
+			theDB.change_resolution()
+		elif opt in ("--size2k"):
 			theDB.outputX,theDB.outputY=2560,1440
 			theDB.change_resolution()
-		elif opt in ("--4ksize"):
+		elif opt in ("--size4k"):
 			theDB.outputX,theDB.outputY=3840,2160
 			theDB.change_resolution()
-		elif opt in ("--4k_21"):
-			theDB.outputX,theDB.outputY=3840,1080
+		elif opt in ("--aspect355"):
+			theDB.outputY=int(theDB.outputX/3.55)
 			theDB.change_resolution()
-		elif opt in ("--4k_235"):
-			theDB.outputX,theDB.outputY=3840,1634
+		elif opt in ("--aspect235"):
+			theDB.outputY=int(theDB.outputX/2.35)
 			theDB.change_resolution()
-		elif opt in ("--clear"):
-			theDB.clear_database()
 		elif opt in ("--render"):
 			theDB.render_db()
 		elif opt in ("-p","--print"):
@@ -682,7 +683,8 @@ def main(argv):
 		elif opt in ("--help"):
 			#print('render_db.py -d <databasefile>')
 			print("====================================")
-			print("--halfsize --fullsize --quartersize --thirdsize --4ksize --2ksize --4k_235 (3840x1634) --4k_21 (3840x1080) - resize all renders to preset size")
+			print("--size480 --size640 --size960 --sizeHD --size2k --size4k")
+			print("--aspect235 --aspect355 (should be after --sizeXXX command)")
 			print("--clear  - clear DB")
 			print("-s --searchpath  - add files to DB")
 			print("-i - frame index")
