@@ -21,6 +21,7 @@ class headless_renderer:
 	autopanstep=None
 	moviemode=None
 	cameraID=0
+	sceneID=0
 
 	frames_rendered=0
 
@@ -92,18 +93,19 @@ class headless_renderer:
 
 		try:			
 
-			print("Rendering frame:%d (%dx%d) step: %d camera: %d renderer:%s file:%s" %(
+			print("Rendering frame:%d (%dx%d) step: %d scene: %d camera: %d renderer:%s file:%s" %(
 				self.frameIndex,
 				self.outputX,
 				self.outputY,
 				self.autopanstep,
+				self.sceneID,
 				self.cameraID,
 				self.target_renderer,
 				self.filename))
 
 			#sys.stdout.flush()	
 
-			if self.theRendHelper.do_render(self.frameIndex,self.cameraID)==True:
+			if self.theRendHelper.do_render(self.frameIndex,self.cameraID,self.sceneID)==True:
 				self.theDB.mark_item_finished(self.jobID,self.theRendHelper.last_frame_time,self.theRendHelper.get_samples())
 				self.frames_rendered+=1
 				result=True

@@ -41,11 +41,17 @@ class Rend_Helper:
 		self.max_frames=2
 		self.isolate_output_in_folder=isolate_output_in_folder
 
-		if self.isolate_output_in_folder==True:
-			self.render_output_path = self.output_path + "/" + util_helper.get_blendfile_without_extension() + "/" + bpy.context.scene.render.engine + "/"
-		else:
-			self.render_output_path = self.output_path + "/"
+		path_render_engine_part=""
 
+		if bpy.context.scene.render.engine!=self.engine_name_cycles:
+			path_render_engine_part=bpy.context.scene.render.engine + os.sep
+
+
+		if self.isolate_output_in_folder==True:
+			self.render_output_path = self.output_path + os.sep + util_helper.get_blendfile_without_extension() + \
+				path_render_engine_part
+		else:
+			self.render_output_path = self.output_path + os.sep
 
 		util_helper.ensure_dir(self.render_output_path);
 
@@ -272,20 +278,37 @@ class Rend_Helper:
 	last_frame_time=0
 			
 
-	def do_render(self,frameIndex,cameraIndex):
+	def do_render(self,frameIndex,cameraIndex,sceneIndex):
      
-		searchCameraIndex=0
-		for o in bpy.data.objects:
+		cameraCount=0
+		for o in bpy.context.scene.objects:
 			if o.type=="CAMERA":
-				if searchCameraIndex==cameraIndex:
+				if cameraCount==cameraIndex:
 					bpy.context.scene.camera = o
-					break
-				else:
-					searchCameraIndex=searchCameraIndex+1
+				
+				cameraCount=cameraCount+1
+
+		scene_count=len(bpy.data.scenes)
+
+		# If we have more than one scene
+		if scene_count>1:
+			context_window=util_helper.get_context_window()
+			target_scene=bpy.data.scenes[sceneIndex]
+
+			# Avoid a scene change assignment if not needed
+			# Probably faster this way
+			if context_window.scene!=target_scene:
+				context_window.scene=target_scene
+			
 
 		bpy.context.scene.frame_set(frameIndex)
 
-		image_output_filename = util_helper.get_output_filename(util_helper.get_blendfile_without_extension(),frameIndex,cameraIndex,self.image_file_extension)
+		image_output_filename = util_helper.get_output_filename(util_helper.get_blendfile_without_extension(),
+														  frameIndex,
+														  cameraIndex,
+														  cameraCount,
+														  sceneIndex,
+														  self.image_file_extension)
 
 		self.last_frame_time=0
 		render_start = time.time()
@@ -304,8 +327,18 @@ class Rend_Helper:
 			if self.renderer_name=="luxcore":
 				util_lux.enable_lux_denoise()
 
+			path_camera_part=""
+			path_scene_part=""
 
-			full_output_image_path=self.render_output_path + "cam_%d"%cameraIndex + os.sep + image_output_filename
+			if cameraCount>1:
+				path_camera_part="cam_" + str(cameraIndex) + os.sep
+
+			if scene_count>1:
+				path_scene_part="scene_" + str(sceneIndex) + os.sep
+
+			full_output_image_path= \
+				self.render_output_path + path_scene_part+path_camera_part + \
+				os.sep + image_output_filename
 
 			bpy.data.images['Render Result'].save_render(filepath=full_output_image_path)
 

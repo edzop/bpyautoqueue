@@ -74,13 +74,13 @@ class render_db:
 			self.moviemode=0
 
 	# number of cameras to render
-	def insert_or_update_blend_file(self,filename,frames,cameras_to_render=1):
-			if self.blend_exists(filename,frames[0]):
+	def insert_or_update_blend_file(self,filename,sceneIndex,frames,cameras_to_render=1):
+			if self.blend_exists(filename,sceneIndex,frames[0]):
 				#print("Existing")
-				return self.update_file_queued(filename,frames)
+				return self.update_file_queued(filename,frames,sceneIndex)
 			else:
-				#print("Insert")
-				return self.insert_file(filename,frames,cameras_to_render)		
+				print("Insert")
+				return self.insert_file(filename,sceneIndex,frames,cameras_to_render)		
 
 	def render_db(self):
 
@@ -163,11 +163,11 @@ class render_db:
 				self.iterate_blend_files(f)
 				
 
-	def insert_file(self,filename,frames,cameras_to_render):
+	def insert_file(self,filename,sceneID,frames,cameras_to_render):
 		timestamp = datetime.now()
 		hashval = self.make_hash(filename)
   
-		print("cameras to render: %d"%cameras_to_render)
+		#print("cameras to render: %d"%cameras_to_render)
 
 		records = []
 
@@ -183,10 +183,10 @@ class render_db:
 					i, \
 					self.code_queued, \
 					self.selected_render_engine,
-					self.moviemode,camera))
+					self.moviemode,camera,sceneID))
 			
 		self.conn.executemany("INSERT INTO blendfiles(syncdate,filename,hashval," \
-		"autopanstep,outputX,outputY,frameIndex,status,renderengine,moviemode,camera) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+		"autopanstep,outputX,outputY,frameIndex,status,renderengine,moviemode,camera,scene) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
 		records)
 			
 		self.conn.commit()
@@ -224,7 +224,7 @@ class render_db:
 		cursor.execute("DELETE FROM blendfiles WHERE filename like ?",('%'+filename+'%',))
 		self.conn.commit()
 
-	def update_jobs_mark_file_queued(self,filename,framenumber):
+	def update_jobs_mark_file_queued(self,filename,framenumber,sceneID):
 
 		cursor = self.conn.cursor()
 
@@ -234,13 +234,13 @@ class render_db:
 			cursor.execute("UPDATE blendfiles SET status = ? WHERE filename like ?",
 				(self.code_queued,'%'+filename+'%'))
 		else:
-			cursor.execute("UPDATE blendfiles SET status = ? WHERE filename = ? AND frameIndex = ?",
-				(self.code_queued,filename,framenumber))
+			cursor.execute("UPDATE blendfiles SET status = ? WHERE filename = ? AND frameIndex = ? AND scene = ?",
+				(self.code_queued,filename,framenumber,sceneID))
 
 		self.conn.commit()
 
 	# skips hash checking 
-	def update_file_queued(self,filename,frames):
+	def update_file_queued(self,filename,frames,sceneIndex):
 		
 		records = []
 
@@ -249,11 +249,12 @@ class render_db:
 				self.code_queued, \
 				filename, \
 				self.selected_render_engine,
-				i))
+				i,sceneIndex))
 		
 		cursor = self.conn.cursor()
 		cursor.executemany("UPDATE blendfiles SET status = ? " \
-			"WHERE filename = ? AND renderengine = ? AND frameIndex = ?",records)
+			"WHERE filename = ? AND renderengine = ? " \
+			"AND frameIndex = ? AND scene = ?",records)
 		self.conn.commit()	
 					
 		return True
@@ -301,7 +302,12 @@ class render_db:
 		
 	def mark_item_finished(self,jobID,rendertime,samples):
 
-		print("Render Time: %s"%(str(rendertime)))
+		m, s = divmod(rendertime, 60)
+		h, m = divmod(m, 60)
+
+		timeStr='{:02.0f}:{:02.0f}:{:02.0f}'.format(h, m, s)
+
+		print("Render Time: %s"%(timeStr))
 
 		cursor = self.conn.cursor()
 		cursor.execute('''UPDATE blendfiles SET status =?, rendertime=?, samples=? WHERE jobID = ? ''',
@@ -316,9 +322,10 @@ class render_db:
 			(self.code_failed,jobID))
 		self.conn.commit()
 		
-	def blend_exists(self,filename,frameIndex):
+	def blend_exists(self,filename,sceneIndex,frameIndex):
 		cursor = self.conn.cursor()
-		cursor.execute("SELECT count(*) from blendfiles where filename=? AND renderengine=? and frameIndex=?",(filename,self.selected_render_engine,frameIndex))
+		cursor.execute("SELECT count(*) from blendfiles where filename=? AND renderengine=? and frameIndex=? and scene=?",
+				 (filename,self.selected_render_engine,frameIndex,sceneIndex))
 		data=cursor.fetchone()[0]
 		if data==0:
 			return False
@@ -366,7 +373,8 @@ class render_db:
              "(jobID INTEGER PRIMARY KEY AUTOINCREMENT, " \
 			"syncdate timestamp, filename text,hashval text, outputX int, outputY int, " \
 			"frameIndex int,status int default 0,renderengine text, " \
-			"autopanstep int, moviemode int default 0, camera int default 0," \
+			"autopanstep int, moviemode int default 0, " \
+			"camera int default 0,scene int default 0, " \
 			"samples int default 0, rendertime REAL default 0)")
                   
 
@@ -462,17 +470,17 @@ class render_db:
 		if status_code!=self.code_none:
 			codeselect = ' where status="%d"'%status_code
 
-		query_text='''SELECT jobID, frameIndex, outputX,outputY, filename,status,renderengine,autopanstep,moviemode,samples,rendertime,camera FROM blendfiles%s%s'''%(fileselect,codeselect)
+		query_text='''SELECT jobID, frameIndex, outputX,outputY, filename,status,renderengine,autopanstep,moviemode,samples,rendertime,camera,scene FROM blendfiles%s%s'''%(fileselect,codeselect)
 		
 		c=self.conn.execute(query_text)
 		for row in c:
-			print('{0} {1}x{2} f:{3} pan:{7} movie:{8} {5}\t\t{6}\t{4} samples: {9} time: {10} camera: {11}'.format(
+			print('{0} {1}x{2} f:{3} pan:{7} movie:{8} {5}\t\t{6}\t{4} spp: {9} time: {10} cam: {11} scne: {12}'.format(
 				row[0], 
 				row[2],
 				row[3], row[1],row[4],
 				self.statuscode_to_text(row[5]),
 				row[6],row[7],row[8],
-				row[9],round(row[10],2),row[11]))
+				row[9],round(row[10],2),row[11],row[12]))
 		#	print(row)
 		
 			if row[5]==self.code_queued:

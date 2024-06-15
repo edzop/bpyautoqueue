@@ -15,9 +15,25 @@ def remove_constraint_from_object(object,constraint_name):
 	for constraint in object.constraints:
 			if constraint.type == constraint_name:
 				object.constraints.remove(constraint)
+
+def get_context_window():
+   for window in bpy.context.window_manager.windows:
+      if window:
+         return window
+   
+   return None
 			
-def get_output_filename(blendfile_without_extension,frameIndex,cameraIndex,image_file_extension):
-	image_output_filename = '%s.cam_%d.%04d.%s' %(blendfile_without_extension,cameraIndex,frameIndex,str.lower(image_file_extension))
+def get_output_filename(blendfile_without_extension,
+						frameIndex,
+						cameraIndex,
+						totalCameras,
+						sceneIndex,
+						image_file_extension):
+
+	scene_count=len(bpy.data.scenes)
+
+	image_output_filename = '%s.%04d.%s' %(blendfile_without_extension,
+										frameIndex,str.lower(image_file_extension))
 	return image_output_filename
 
 

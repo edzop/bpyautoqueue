@@ -4,6 +4,8 @@ import bpy
 import os
 import sys
 
+from bpyautoqueue import util_helper
+
 # Adds frames from a blender file to database
 
 from bpyautoqueue import render_db
@@ -27,41 +29,50 @@ def add_frames(target_renderer,anim_mode):
 
 	print("Autopan step: %d" %(theDB.autopanstep))
  
-	cameras_to_render=0
+	scene_count=len(bpy.data.scenes)
 
 	if theDB.autopanstep>0:
 		thePanHelper = auto_camera_pan.Cam_Pan_Helper()
 		thePanHelper.setup_auto_pan(theDB.autopanstep)
   
-		cameras_to_render==1
-	else:
-		for o in bpy.data.objects:
+	filename = bpy.context.blend_data.filepath
+	context_window=util_helper.get_context_window()
+		
+	for sceneIndex in range(0,scene_count):
+					
+		target_scene=bpy.data.scenes[sceneIndex]
+
+		context_window.scene=target_scene
+
+		cameras_to_render=0
+
+		for o in bpy.context.scene.objects:
 			if o.type=="CAMERA":
 				cameras_to_render=cameras_to_render+1
 
-	frame_start = bpy.context.scene.frame_start
-	frame_end = bpy.context.scene.frame_end
+		frame_start = bpy.context.scene.frame_start
+		frame_end = bpy.context.scene.frame_end
+
+		sceneName=target_scene.name
  
- 
+		print("Scene: %d/%d \"%s\" -  Found %d cameras"%(sceneIndex,scene_count,sceneName,cameras_to_render))
 			
-	print("Found %d cameras"%cameras_to_render)
-		
-	filename = bpy.context.blend_data.filepath
+		if cameras_to_render>0:
+			
+			print("Adding frames: %d - %d  renderer '%s' mode: %s"%(
+				frame_start,
+				frame_end,
+				target_renderer,
+				anim_mode))
 
-	print("Adding frames: %d - %d - renderer '%s' mode: %s"%(
-		frame_start,
-		frame_end,
-		target_renderer,
-		anim_mode))
+			framelist = []
 
-	framelist = []
+			for num in range(frame_start,frame_end+1):
+				framelist.append(num)
 
-	for num in range(frame_start,frame_end+1):
-		framelist.append(num)
+			theDB.insert_or_update_blend_file(filename,sceneIndex,framelist,cameras_to_render)
 
-	theDB.insert_or_update_blend_file(filename,framelist,cameras_to_render)
-
-	print("Checked frames: %s"%framelist)
+			print("Checked frames: %s"%framelist)
 
 
 add_frames(target_renderer,anim_mode)
