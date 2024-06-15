@@ -694,6 +694,7 @@ def main(argv):
 			print("--printqueued - print queued files")
 			print("--printfailed - print failed files")
 			print("-b --brief  - brief summary of DB")
+			print("-v Verbose mode")
 			print("--superbrief - super brief summary (used for automation script")
 #			print("-j jobID")
 			sys.exit(1)
