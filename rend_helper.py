@@ -44,7 +44,7 @@ class Rend_Helper:
 		path_render_engine_part=""
 
 		if bpy.context.scene.render.engine!=self.engine_name_cycles:
-			path_render_engine_part=bpy.context.scene.render.engine + os.sep
+			path_render_engine_part=os.sep+bpy.context.scene.render.engine
 
 
 		if self.isolate_output_in_folder==True:
@@ -331,10 +331,10 @@ class Rend_Helper:
 			path_scene_part=""
 
 			if cameraCount>1:
-				path_camera_part="cam_" + str(cameraIndex) + os.sep
+				path_camera_part=os.sep+"cam_" + str(cameraIndex)
 
 			if scene_count>1:
-				path_scene_part="scene_" + str(sceneIndex) + os.sep
+				path_scene_part=os.sep+"scene_" + str(sceneIndex)
 
 			full_output_image_path= \
 				self.render_output_path + path_scene_part+path_camera_part + \
