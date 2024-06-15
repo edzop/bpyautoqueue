@@ -10,10 +10,9 @@ def get_cycles_samples():
 	return 200
 
 def setup_cycles_fstop():
-	bpy.context.scene.camera.data.cycles.aperture_type="FSTOP"
-	bpy.context.scene.camera.data.cycles.aperture_blades=5
-	bpy.context.scene.camera.data.cycles.aperture_fstop=0.3
-
+	bpy.context.scene.camera.data.dof.use_dof=True
+	bpy.context.scene.camera.data.dof.aperture_fstop=0.6
+	bpy.context.scene.camera.data.dof.aperture_blades=5
 
 
 def check_node_tree_is_lit(nodes):
@@ -130,8 +129,8 @@ def setup_aces_cg():
 			colorspace_node.location = 300,0
 			composite_node.location=600,0
 			
-			colorspace_node.from_color_space = 'Linear'
-			colorspace_node.to_color_space = 'Linear ACEScg'
+			colorspace_node.from_color_space = 'Filmic Log'
+			colorspace_node.to_color_space = 'Filmic Log'
 
 			scene.node_tree.links.new(render_layer_node.outputs["Image"],colorspace_node.inputs["Image"])
 			scene.node_tree.links.new(colorspace_node.outputs["Image"],composite_node.inputs["Image"])
