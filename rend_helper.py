@@ -28,7 +28,6 @@ class Rend_Helper:
 
 	#image_file_extension = "PNG"
 	image_file_extension = "exr"
-	file_format="OPEN_EXR"
 
 	def __init__(self,isolate_output_in_folder=False,autopanstep=0):
 
@@ -197,7 +196,11 @@ class Rend_Helper:
 
 		self.temp_dir = os.environ.get("TEMP")
 
-		bpy.context.scene.render.image_settings.file_format=self.file_format
+		bpy.context.scene.render.image_settings.file_format="OPEN_EXR"
+		bpy.context.scene.render.image_settings.color_management = 'OVERRIDE'
+		bpy.context.scene.render.image_settings.linear_colorspace_settings.name = 'AgX Log'
+
+
 
 		bpy.context.scene.render.image_settings.exr_codec = 'DWAA'
 		bpy.context.scene.render.image_settings.color_depth = '32'

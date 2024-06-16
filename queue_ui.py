@@ -103,7 +103,9 @@ class QueueAllFramesOperator(bpy.types.Operator):
 
 		theDB.IgnoreHashVal=True
 
-		theDB.insert_or_update_blend_file(filename,frames_to_add,1)
+		current_scene_index = util_helper.get_current_scene_index()
+
+		theDB.insert_or_update_blend_file(filename,current_scene_index,frames_to_add,1)
 
 		print("Filename: %s Frames: (%d-%d) Resolution(%s %s) Mode: %s"%(
 				filename,
@@ -224,8 +226,12 @@ class ReQueueFileOperator(bpy.types.Operator):
 
 		print("Requeue Filename: %s"%basename)
 
+		current_scene_index = util_helper.get_current_scene_index()
+
+		frames = [ 0 ]
+
 		# 0 for all frames
-		theDB.update_jobs_mark_file_queued(basename,0)
+		theDB.update_jobs_mark_file_queued(basename,current_scene_index,frames)
 
 		return {'FINISHED'}
 

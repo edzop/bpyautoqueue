@@ -22,6 +22,22 @@ def get_context_window():
          return window
    
    return None
+
+def get_current_scene_index():
+	scene_count=len(bpy.data.scenes)
+
+	current_scene_index=0
+
+	if scene_count>1:
+		context_window=get_context_window()
+
+		for scene in bpy.data.scenes:
+			if context_window.scene==scene:
+				return current_scene_index
+			
+			current_scene_index=current_scene_index+1
+
+	return current_scene_index
 			
 def get_output_filename(blendfile_without_extension,
 						frameIndex,

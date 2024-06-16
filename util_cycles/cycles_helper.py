@@ -87,10 +87,9 @@ def setup_cycles_settings():
 
 	bpy.context.scene.cycles.use_denoising = True
 	
-	setup_aces_cg()
+	#setup_aces_cg()
 
 	setup_cycles_fstop()
-
 
 
 def setup_aces_cg():
