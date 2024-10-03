@@ -26,8 +26,7 @@ class Rend_Helper:
 	object_scene_name="object_scene"
 	autopanstep=0
 
-	#image_file_extension = "PNG"
-	image_file_extension = "exr"
+
 
 	def __init__(self,isolate_output_in_folder=False,autopanstep=0):
 
@@ -150,7 +149,7 @@ class Rend_Helper:
 
 		#self.create_auto_save_nodes()
 
-		#bpy.context.scene.render.image_settings.file_format="PNG"
+		
 		bpy.context.scene.render.use_compositing=True
 
 		if bpy.context.scene.render.engine==self.engine_name_cycles:
@@ -192,18 +191,39 @@ class Rend_Helper:
 		else:
 			bpy.context.scene.render.use_stamp=False
 				
-		#self.image_file_extension = "PNG"
+		
 
 		self.temp_dir = os.environ.get("TEMP")
 
-		bpy.context.scene.render.image_settings.file_format="OPEN_EXR"
-		bpy.context.scene.render.image_settings.color_management = 'OVERRIDE'
-		bpy.context.scene.render.image_settings.linear_colorspace_settings.name = 'AgX Log'
+		use_png=True
+
+
+		if use_png:
+			self.image_file_extension = "png"
+
+			bpy.context.scene.render.image_settings.color_management = 'OVERRIDE'
+			bpy.context.scene.view_settings.view_transform = 'Filmic'
+			bpy.context.scene.view_settings.look = 'High Contrast'
+			
+		else:
+
+			self.image_file_extension = "exr"
+
+			bpy.context.scene.render.image_settings.file_format="OPEN_EXR"
+			bpy.context.scene.render.image_settings.color_management = 'OVERRIDE'
+			bpy.context.scene.render.image_settings.linear_colorspace_settings.name = 'AgX Log'
+
+			bpy.context.scene.render.image_settings.exr_codec = 'DWAA'
+			bpy.context.scene.render.image_settings.color_depth = '32'
 
 
 
-		bpy.context.scene.render.image_settings.exr_codec = 'DWAA'
-		bpy.context.scene.render.image_settings.color_depth = '32'
+
+		#bpy.context.scene.render.image_settings.file_format="PNG"
+
+
+
+
 
 
 
