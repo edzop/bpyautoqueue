@@ -62,7 +62,7 @@ class headless_renderer:
 				self.useStamp=True
 				self.isolate_files_into_directories=False
 
-			#bpy.context.scene.render.engine = self.target_renderer.upper()
+			bpy.context.scene.render.engine = self.target_renderer.upper()
 			
 			self.theRendHelper = rend_helper.Rend_Helper(self.isolate_files_into_directories,self.autopanstep)
 

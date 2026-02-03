@@ -56,20 +56,26 @@ def setup_cycles_settings():
 	bpy.context.scene.cycles.device='GPU'
 	#bpy.context.scene.cycles.device='CPU'
 	bpy.context.scene.cycles.max_bounces=8
-	bpy.context.scene.cycles.min_bounces=3
+
+	bpy.context.scene.cycles.min_light_bounces = 3
+	bpy.context.scene.cycles.min_light_bounces = 1
+	bpy.context.scene.cycles.min_transparent_bounces = 8
+
+
+
 	bpy.context.scene.cycles.diffuse_bounces=4
 	bpy.context.scene.cycles.glossy_bounces=4
 	bpy.context.scene.cycles.transmission_bounces=12
-	bpy.context.scene.cycles.transparent_min_bounces=8
+
 	bpy.context.scene.cycles.transparent_max_bounces=8
 	bpy.context.scene.cycles.samples=get_cycles_samples()
-	bpy.context.scene.cycles.use_transparent_shadows=True
-	bpy.context.scene.cycles.no_caustics=False
-	bpy.context.scene.cycles.use_square_samples=False
+	#bpy.context.scene.cycles.use_transparent_shadows=True
+	#bpy.context.scene.cycles.no_caustics=False
+	#bpy.context.scene.cycles.use_square_samples=False
 
-	bpy.context.scene.view_settings.view_transform="Filmic"
-	bpy.context.scene.view_settings.look="High Contrast"
-	bpy.context.scene.cycles.sample_clamp_indirect=9
+	#bpy.context.scene.view_settings.view_transform="Filmic"
+	#bpy.context.scene.view_settings.look="High Contrast"
+	#bpy.context.scene.cycles.sample_clamp_indirect=9
 
 #	bpy.context.scene.render.tile_x=64
 #	bpy.context.scene.render.tile_y=64

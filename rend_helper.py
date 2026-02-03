@@ -195,7 +195,7 @@ class Rend_Helper:
 
 		self.temp_dir = os.environ.get("TEMP")
 
-		use_png=True
+		use_png=False
 
 
 		if use_png:
@@ -209,23 +209,19 @@ class Rend_Helper:
 
 			self.image_file_extension = "exr"
 
-			bpy.context.scene.render.image_settings.file_format="OPEN_EXR"
+			bpy.context.scene.render.image_settings.media_type = 'IMAGE'
+			bpy.context.scene.render.image_settings.file_format = 'OPEN_EXR'
+			bpy.context.scene.render.image_settings.color_mode = 'RGBA'
+			bpy.context.scene.render.image_settings.exr_codec = 'DWAA'
+
 			bpy.context.scene.render.image_settings.color_management = 'OVERRIDE'
-			bpy.context.scene.render.image_settings.linear_colorspace_settings.name = 'AgX Log'
+			#bpy.context.scene.render.image_settings.linear_colorspace_settings.name = 'AgX Log'
+			bpy.context.scene.render.image_settings.linear_colorspace_settings.name = 'ACEScg'
 
 			bpy.context.scene.render.image_settings.exr_codec = 'DWAA'
 			bpy.context.scene.render.image_settings.color_depth = '32'
 
-
-
-
 		#bpy.context.scene.render.image_settings.file_format="PNG"
-
-
-
-
-
-
 
 		if self.temp_dir!=None:
 			bpy.context.scene.render.filepath=self.temp_dir
