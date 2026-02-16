@@ -56,7 +56,7 @@ def setup_cycles_settings():
 	bpy.context.scene.cycles.device='GPU'
 	#bpy.context.scene.cycles.device='CPU'
 	bpy.context.scene.cycles.max_bounces=8
-
+	
 	bpy.context.scene.cycles.min_light_bounces = 3
 	bpy.context.scene.cycles.min_light_bounces = 1
 	bpy.context.scene.cycles.min_transparent_bounces = 8
