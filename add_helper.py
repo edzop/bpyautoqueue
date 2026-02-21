@@ -70,9 +70,9 @@ def add_frames(target_renderer,anim_mode):
 			for num in range(frame_start,frame_end+1):
 				framelist.append(num)
 
-			theDB.insert_or_update_blend_file(filename,sceneIndex,framelist,cameras_to_render)
+
+			theDB.insert_or_update_blend_file(filename,sceneIndex,framelist,cameras_to_render)	
 
 			print("Checked frames: %s"%framelist)
-
 
 add_frames(target_renderer,anim_mode)

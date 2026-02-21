@@ -1,12 +1,16 @@
 #!/usr/bin/python
 
-import sys, getopt
+import traceback
+
+import sys
 import sqlite3
 from datetime import date, datetime
 import hashlib
 import glob
 import os
 import subprocess
+
+import argparse
 
 #from bpyautoqueue import video_encoder
 
@@ -76,10 +80,8 @@ class render_db:
 	# number of cameras to render
 	def insert_or_update_blend_file(self,filename,sceneIndex,frames,cameras_to_render=1):
 			if self.blend_exists(filename,sceneIndex,frames[0]):
-				#print("Existing")
 				return self.update_file_queued(filename,frames,sceneIndex)
 			else:
-				print("Insert")
 				return self.insert_file(filename,sceneIndex,frames,cameras_to_render)		
 
 	def render_db(self):
@@ -381,7 +383,6 @@ class render_db:
 	def get_next_in_queue(self):
 
 		nextrend = []
-#		print("ss=%d AND ff=%d"%(self.code_queued,self.code_finished))
 		
 		c=self.conn.execute("SELECT filename,outputX,outputY,frameIndex,jobID,renderengine,autopanstep,moviemode,camera,scene " \
 			"FROM blendfiles WHERE (status=%d AND renderengine='%s') ORDER BY filename LIMIT 1"%(self.code_queued,self.selected_render_engine))
@@ -569,146 +570,170 @@ def main(argv):
 	theDB = None
 	
 	frameIndex=0
+
+	parser = argparse.ArgumentParser()
+
+	parser.add_argument("-v","--verbose",help="Verbose Mode",action="store_true")
+
+
+	# Reporting Functions
+
+	parser.add_argument("-p","--print", help="Print database",action="store_true")
+
+	parser.add_argument("--printqueued",help="print queued files",action="store_true")
+	parser.add_argument("-pf","--printfailed",help="print failed files",action="store_true")
+	parser.add_argument("-b","--brief",help="brief summary of DB",action="store_true")
+
+	parser.add_argument("-sb","--superbrief",help="super brief summary (used for automation script",action="store_true")
+
 	
-	try:
-		opts, args = getopt.getopt(argv,"vpbs:e:d:m:i:",[
-				"markallfinished",
-				"printqueued",
-				"printfailed",
-				"requeueall",
-				"requeuefailed",
-				"print",
-				"superbrief",
-				"render",
-				"encodemovies",
-				"times",
-				"brief",
-				"clear",
-				"mode",
-				"queue",
-				"size480", "size640", "size960", "sizeHD", "size2k", "size4k", 
-				"aspect235", "aspect355", 
-				"help",
-				"dfile=","searchpath=","resolution=","requeuefile=","removefile="])
-	except getopt.GetoptError as err:
-		print("Error: %s"%err)
-		print('render_db.py --help')
-		sys.exit(2)
+	# Adjust size functions
+
+	parser.add_argument("--size480",action="store_true")
+	parser.add_argument("--size640",action="store_true")
+	parser.add_argument("--size960",action="store_true")
+	parser.add_argument("--sizeHD",action="store_true")
+	parser.add_argument("--size2k",action="store_true")
+	parser.add_argument("--size4k",action="store_true")
+	parser.add_argument("--aspect355",action="store_true")
+	parser.add_argument("--aspect235",action="store_true")
 
 
-	#for opt, arg in opts:
-	#	if opt in ("-d", "--dfile"):
+	# Database modifiction functions
+
+	parser.add_argument("--clear",help="clear DB",action="store_true")
+	parser.add_argument("--searchpath",help="add files to DB")
+
+	parser.add_argument("-rf","--requeuefailed",help="requeue failed jobs",action="store_true")
+	parser.add_argument("-mf","--markallfinished",help="mark all files as finished",action="store_true")
+
+	parser.add_argument("-ra", "--requeueall",help="requeue all jobs",action="store_true")
+	parser.add_argument("-t", "--times",help="summary of render times",action="store_true")
+	
+	parser.add_argument("--encodemovies",help="encode movie output from separate directories",action="store_true")
+
+	parser.add_argument("--render",help="render files in queue",action="store_true")
+
+	parser.add_argument("-e","--engine",help="Engine Type (cycles - previously cycles or LUXCore)",action="store_true")
+
+	parser.add_argument("--queue",help="Get Next in queue",action="store_true")
+
+	parser.add_argument("-m","--mode",help="Render Mode (anim/pananim/pankey)")
+	parser.add_argument("-i","--index",help="Frame Index",type=int)
+
+	parser.add_argument("--requeuefile",help="requeue specific file (searches like wildcard)")
+	parser.add_argument("--removefile",help="remove specific file (searches like wildcard)")
+
+	args = parser.parse_args()
+
+	theDB=render_db()
+
+	if args.verbose:
+		theDB.verbose=True
+
+	if args.engine:
+		theDB.selected_render_engine=args.engine.upper()
+
+	if args.mode:
+		theDB.anim_mode=args.mode
+
+	if args.index:
+		frameIndex = args.index
+
+	if args.queue:
+		theDB.get_next_in_queue()
+
+	if args.requeuefile:
+		theDB.update_jobs_mark_file_queued(args.requeuefile)
+
+	if args.removefile:
+		theDB.update_jobs_mark_file_queued(args.removefile)
+
+	if args.render:
+		theDB.render_db()
+
+	if args.times:
+		theDB.printTimes()
+
+	if args.requeueall:
+		theDB.update_all_jobs_set_status(theDB.code_queued)
+
+	if args.printqueued:
+		theDB.do_printDB(None,theDB.code_queued)
+
+	if args.printfailed:
+		theDB.do_printDB(None,theDB.code_failed)
+
+	if args.clear:
+		theDB.clear_database()
+
+	if args.print:
+		theDB.do_printDB()
+
+	if args.brief:
+		theDB.do_briefDB()
+
+	if args.superbrief:
+		theDB.do_superbriefDB()
+
+	if args.requeuefailed:
+		theDB.requeue_failed_jobs()
+
+	if args.encodemovies:
+		theDB.encode_movies()
+
+	if args.markallfinished:
+		theDB.update_all_jobs_set_status(theDB.code_finished)
+
+	if args.searchpath:
+		theDB.iterate_blend_files(args.searchpath)
+
+
+
+	if args.size480:
+		theDB.outputX,theDB.outputY=480,270
+		theDB.change_resolution()
+	if args.size640:
+		theDB.outputX,theDB.outputY=640,360
+		theDB.change_resolution()
+	if args.size960:
+		theDB.outputX, theDB.outputY=960,540
+		theDB.change_resolution()
+	if args.sizeHD:
+		theDB.outputX,theDB.outputY=1920,1080
+		theDB.change_resolution()
+	if args.size2k:
+		theDB.outputX,theDB.outputY=2560,1440
+		theDB.change_resolution()
+	if args.size4k:
+		theDB.outputX,theDB.outputY=3840,2160
+		theDB.change_resolution()
+
+	if args.aspect355:
+		theDB.outputY=int(theDB.outputX/3.55)
+		theDB.change_resolution()
+	if args.aspect235:
+		theDB.outputY=int(theDB.outputX/2.35)
+		theDB.change_resolution()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	
 	theDB=render_db()
 
 
-	#if theDB==None:
-	#	print("need to set database first! (-d option)")
-	#	return
-
-	for opt, arg in opts:	
-		if opt in ("-e"):
-			theDB.selected_render_engine=arg.upper()
-		elif opt in ("-m","--mode"):
-			theDB.configure_anim_mode(arg.lower())
-		elif opt in ("-v","--verbose"):
-			print("verbose")
-			theDB.verbose=True
-		elif opt in ("-i"):
-			frameIndex=arg
-
-	for opt, arg in opts:
-		if opt in ("--clear"):
-			theDB.clear_database()
-		elif opt in ("--size480"):
-			theDB.outputX,theDB.outputY=480,270
-			theDB.change_resolution()
-		elif opt in ("--size640"):
-			theDB.outputX,theDB.outputY=640,360
-			theDB.change_resolution()
-		elif opt in ("--size960"):
-			theDB.outputX, theDB.outputY=960,540
-			theDB.change_resolution()
-		elif opt in ("--sizeHD"):
-			theDB.outputX,theDB.outputY=1920,1080
-			theDB.change_resolution()
-		elif opt in ("--size2k"):
-			theDB.outputX,theDB.outputY=2560,1440
-			theDB.change_resolution()
-		elif opt in ("--size4k"):
-			theDB.outputX,theDB.outputY=3840,2160
-			theDB.change_resolution()
-		elif opt in ("--aspect355"):
-			theDB.outputY=int(theDB.outputX/3.55)
-			theDB.change_resolution()
-		elif opt in ("--aspect235"):
-			theDB.outputY=int(theDB.outputX/2.35)
-			theDB.change_resolution()
-		elif opt in ("--render"):
-			theDB.render_db()
-		elif opt in ("-p","--print"):
-			theDB.do_printDB()
-		elif opt in ("--times"):
-			theDB.printTimes()
-		elif opt in ("--encodemovies"):
-			theDB.encode_movies()
-		elif opt in ("--printqueued"):
-			theDB.do_printDB(None,theDB.code_queued)
-		elif opt in ("--printfailed"):
-			theDB.do_printDB(None,theDB.code_failed)
-		elif opt in ("-b","--brief"):
-			theDB.do_briefDB()
-		elif opt in ("--superbrief"):
-			theDB.do_superbriefDB()
-		elif opt in ("--queue"):
-			theDB.get_next_in_queue()
-#		elif opt in ("-k"):
-#			theDB.change_resolution()
-		elif opt in ("--requeueall"):
-			theDB.update_all_jobs_set_status(theDB.code_queued)
-		elif opt in ("--markallfinished"):
-			theDB.update_all_jobs_set_status(theDB.code_finished)
-		elif opt in ("--requeuefailed"):
-			theDB.requeue_failed_jobs()
-		elif opt in ("--requeuefile"):
-			theDB.update_jobs_mark_file_queued(arg,frameIndex)
-		elif opt in ("--removefile"):
-			theDB.remove_file_from_queue(arg)
-#		elif opt in ("--resolution"):
-#			print("change resolution")
-#			resX,resY=arg.split("x")
-#			theDB.outputX=resX
-#			theDB.outputY=resY
-		elif opt in ("-s", "--searchpath"):
-			theDB.iterate_blend_files(arg)
-		elif opt in ("--help"):
-			#print('render_db.py -d <databasefile>')
-			print("====================================")
-			print("--size480 --size640 --size960 --sizeHD --size2k --size4k")
-			print("--aspect235 --aspect355 (should be after --sizeXXX command)")
-			print("--clear  - clear DB")
-			print("-s --searchpath  - add files to DB")
-			print("-i - frame index")
-			print("-m mode (anim/pananim/pankey)")
-#			print("--resolution specify resolution ex: 200x400")
-			print("-e engine: 'CYCLES' or 'LUXCORE'")
-#			print("-k change resolution (must be used with -r)")
-			print("--requeueall - requeue all jobs")
-			print("--times - summary of render times")
-			print("--requeuefailed - requeue failed jobs")
-			print("--requeuefile FILENAME - requeue specific file (searches like wildcard)")
-			print("--removefile FILENAME - remove specific file (searches like wildcard)")
-			print("--markallfinished - mark all files as finished")
-			print("-p --print  - print all files")
-			print("--render render files in queue")
-			print("--encodemovies encode movie output from separate directories")
-			print("--printqueued - print queued files")
-			print("--printfailed - print failed files")
-			print("-b --brief  - brief summary of DB")
-			print("-v Verbose mode")
-			print("--superbrief - super brief summary (used for automation script")
-#			print("-j jobID")
-			sys.exit(1)
 
 	if theDB!=None:
 		theDB.closeDB()
