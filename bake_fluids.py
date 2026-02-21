@@ -39,6 +39,7 @@ if __name__ == "__main__":
 
 
 def get_blender_fluid_domain():
+
 	for obj in bpy.data.objects:
 		if obj.type=="MESH":
 			for modifier in obj.modifiers:
@@ -50,8 +51,17 @@ def get_blender_fluid_domain():
 	return None
 
 def do_blender_bake():
-	obj,modifier=get_blender_fluid_domain()
-
+	
+	blender_fluid_domain = get_blender_fluid_domain()
+	
+	print("JJJ")
+	if blender_fluid_domain is None:
+		return 
+	
+	print("JJJ")
+	
+	obj,modifier=blender_fluid_domain
+	
 	if obj is None:
 		return
 
@@ -77,7 +87,7 @@ def do_blender_bake():
 
 
 def do_bake():
-
+	
 	theDB = bake_db.bake_db()
 	bake_engine=theDB.get_bake_engine_by_jobID(jobID)
 	
@@ -98,11 +108,12 @@ def do_bake():
 		#bpy.ops.fluid.free_all()
 
 		if bake_engine==bake_db.bake_db.code_bake_engine_blender:
-			self.do_blender_bake()
-			domain_obj,modifier=get_blender_fluid_domain()
-			if modifier is not None:
-				resolution=modifier.settings.resolution_max
+			
+			do_blender_bake()
+			
 		elif bake_engine==bake_db.bake_db.code_bake_engine_flip_fluids:
+			print("FLIP")
+			bake_flip_fluids.setup_flip()
 			bake_flip_fluids.bake_flip_fluids()
 			domain_obj=bake_flip_fluids.get_flip_domain_object()
 			disk_cache_directory=bake_flip_fluids.get_domain_disk_cache_directory()
@@ -173,6 +184,8 @@ def disable_all_particles():
 def update_fluid_objects(fluid_settings):
 	#bpy.ops.fluid.free_all()
 
+	
+
 	for obj in bpy.data.objects:
 		if obj.type=="MESH":
 			for modifier in obj.modifiers:
@@ -181,6 +194,7 @@ def update_fluid_objects(fluid_settings):
 					#print("Found fluid simulation on object: %s"%obj.name)
 
 					if modifier.fluid_type == 'DOMAIN':
+						
 						configure_fluid_domain(obj,modifier.domain_settings,fluid_settings)
 							
 					if modifier.fluid_type=="FLOW":
@@ -473,6 +487,9 @@ def check_bake_op():
 		util_helper.do_save()
 	elif bake_op==bake_db.bake_db.code_bake_op_setup_highres:
 		setup_highres()
+		util_helper.do_save()
+	elif bake_op==bake_db.bake_db.code_bake_op_setup_flip:
+		bake_flip_fluids.setup_flip()
 		util_helper.do_save()
 	elif bake_op==bake_db.bake_db.code_bake_op_clean:
 		clean_all()

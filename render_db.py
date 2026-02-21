@@ -717,24 +717,6 @@ def main(argv):
 		theDB.change_resolution()
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-	
-	theDB=render_db()
-
-
-
 	if theDB!=None:
 		theDB.closeDB()
 

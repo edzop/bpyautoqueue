@@ -16,6 +16,22 @@ def get_flip_domain_object():
 	return None
 
 
+def check_flip_fluids(obj):
+
+	flip_fluids_exists=False
+
+	for obj in bpy.data.objects:
+
+		if hasattr(obj, "flip_fluid"):
+			fluid_type = obj.flip_fluid.object_type
+			if fluid_type != 'NONE':
+				print(f"FLIP Fluid exists for '{obj.name}'. Type: {fluid_type}")
+				flip_fluids_exists=True
+
+	return flip_fluids_exists
+
+
+
 def get_domain_disk_cache_directory():
 	domain_obj=get_flip_domain_object()
 
@@ -58,7 +74,7 @@ def setup_flip():
 				flip.domain.simulation.auto_preview_resolution = False
 				flip.domain.simulation.preview_resolution = 32
 
-				flip.domain.simulation.resolution=256
+				flip.domain.simulation.resolution=64
 
 
 				#obj.flip_fluid.domain.materials.surface_material = 'FF Water (ocean 2)'
@@ -66,9 +82,6 @@ def setup_flip():
 				flip.domain.materials.whitewater_bubble_material = 'FF Bubble'
 				flip.domain.materials.whitewater_spray_material = 'FF Spray'
 				
-
-
-
 
 def convert_to_flip():
 	
@@ -97,7 +110,7 @@ def convert_to_flip():
 
 						bpy.context.scene.render.use_persistent_data=False
 						obj.flip_fluid.object_type="TYPE_DOMAIN"
-      
+	  
 						bpy.ops.flip_fluid_operators.reset_bake()
 
 

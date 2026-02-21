@@ -1,5 +1,6 @@
+#!/usr/bin/python
 
-import sys, getopt
+import sys
 import sqlite3
 from datetime import date, datetime
 import glob
@@ -7,6 +8,28 @@ import os
 import subprocess
 import functools
 import resource
+
+import argparse
+
+
+
+# Adapter for datetime (Python to SQLite)
+def adapt_datetime(dt):
+    return dt.isoformat()
+
+# Converter for timestamp (SQLite to Python)
+def convert_timestamp(val):
+    # val is a bytes object when coming from the database
+    return datetime.fromisoformat(val.decode('utf-8'))
+
+# Converter for date (SQLite to Python)
+def convert_date(val):
+    return date.fromisoformat(val.decode('utf-8'))
+
+# Register the custom adapters and converters
+sqlite3.register_adapter(datetime, adapt_datetime)
+sqlite3.register_converter("timestamp", convert_timestamp)
+sqlite3.register_converter("date", convert_date)
 
 this_script_file_path=os.path.dirname(os.path.abspath(__file__))
 
@@ -38,6 +61,7 @@ class bake_db:
 	code_dump_frames=6
 	code_set_frames=7
 	code_bake_op_setup_highres=8
+	code_bake_op_setup_flip=9
  
 
 	code_bake_engine_blender=0
@@ -170,9 +194,12 @@ class bake_db:
 			timeStr='{:02.0f}:{:02.0f}:{:02.0f}'.format(h, m, s)
 
 			memory_used=row[7]
-			memory_used*=1024
 
-			human_readable_mem_used=human_readable_size(memory_used)
+			human_readable_mem_used="-"
+
+			if memory_used is not None:
+				memory_used*=1024
+				human_readable_mem_used=human_readable_size(memory_used)
 
 			#print(row[0])
 			print('{0} baketime: {2}, engine: {8} frames: {3}, resolution: {4}, domain: ({5}), cache: {6}, memusage: {7} filename: {1} '
@@ -310,8 +337,14 @@ class bake_db:
 
 	def get_bake_engine_by_jobID(self,jobID):
 		cursor = self.conn.cursor()
+
+		data = None
+
 		cursor.execute("SELECT bake_engine from bakes where jobID=?",(jobID,))
-		data=cursor.fetchone()[0]
+		result = cursor.fetchone()
+		if result is not None:
+			data=result[0]
+		
 		cursor.close()
 		
 		return data
@@ -457,100 +490,114 @@ def main(argv):
 	
 	theDB = None
 
-	try:
-		opts, args = getopt.getopt(argv,"hpbr",[
-				"print",
-				"clearjobs",
-				"clearresults",
-				"bake",
-				"brief",
-				"results",
-				"setupdraft",
-				"setupfinal",
-				"setuphighres",
-				"updatematerials", 
-				"convertflip=",
-				"clean",
-				"engineflip",
-				"engineblender",
-				"dumpframes",
-				"requeueall","markallfinished","requeuefailed",
-				"searchpath=",
-				"removefile=",
-				"help"])
+	parser = argparse.ArgumentParser()
 
-	except getopt.GetoptError as err:
-		print("Error: %s"%err)
-		print('bake_db.py --help')
-		sys.exit(2)
+	parser.add_argument("-v","--verbose",help="Verbose Mode",action="store_true")
+
+	# Reporting Functions
+
+	parser.add_argument("-p","--print", help="Print database",action="store_true")
+	parser.add_argument("-b","--brief", help="Print brief summary",action="store_true")
+	parser.add_argument("-r","--results", help="Print bake results",action="store_true")
+
+	parser.add_argument("-ra", "--requeueall",help="requeue all jobs",action="store_true")
+	parser.add_argument("-mf","--markallfinished",help="mark all files as finished",action="store_true")
+	parser.add_argument("-rf","--requeuefailed",help="requeue failed jobs",action="store_true")
+	
+
+	parser.add_argument("--setupflip",help="Setup Flip",action="store_true")
+
+	parser.add_argument("--setupfinal",help="Setup Final Res",action="store_true")
+	parser.add_argument("--setuphighres",help="Setup High Res",action="store_true")
+	parser.add_argument("--setupdraft",help="Setup Draft Res",action="store_true")
+	parser.add_argument("--clean",help="clean particles",action="store_true")
+	parser.add_argument("--bake",help="bake remaining files in queue",action="store_true")
+
+	parser.add_argument("--updatematerials",help="update fluid related materials",action="store_true")
+
+	parser.add_argument("--dumpframes",help="-",action="store_true")
+	parser.add_argument("--setframes",help="-",action="store_true")
+
+	parser.add_argument("--clearresults",help="delete all bake results",action="store_true")
+	parser.add_argument("--cleardb",help="clear db",action="store_true")
+
+	parser.add_argument("--removefile",help="remove specific file (searches like wildcard)")
+	
+
+	parser.add_argument("--engineflip",help="use flip fluid bake engine",action="store_true")
+	parser.add_argument("--engineblender",help="use blender bake engine (default)",action="store_true")
+
+	parser.add_argument("--convertflip",help="convert from blender fluid to flip fluids")
+
+	parser.add_argument("--searchpath",help="add files to DB")
+
+
+	args = parser.parse_args()
 
 	theDB=bake_db()
 
-	for opt, arg in opts:
+	if args.print:
+		theDB.do_printDB()
 
-		if opt=="-p":
-			theDB.do_printDB()
-		elif opt=="--bake":
-			theDB.do_bake(mark_processing=True,bake_op=theDB.code_bake_op_bake)
-		elif opt in ("--setupdraft"):
-			theDB.do_bake(mark_processing=True,bake_op=theDB.code_bake_op_setup_draft) 
-		elif opt in ("--setupfinal"):
-			theDB.do_bake(mark_processing=True,bake_op=theDB.code_bake_op_setup_final) 
-		elif opt in ("--setuphighres"):
-			theDB.do_bake(mark_processing=True,bake_op=theDB.code_bake_op_setup_highres) 
-		elif opt in ("--clean"):
-			theDB.do_bake(mark_processing=True,bake_op=theDB.code_bake_op_clean) 
-		elif opt in ("-r","--results"):
-			theDB.do_print_results()
-		elif opt=="--searchpath":
-			theDB.iterate_blend_files(arg)
-		elif opt=="--convertflip":
-			theDB.convertflip(arg)
-		elif opt in ("--requeueall"):
-			theDB.update_all_jobs_set_status(theDB.code_queued)
-		elif opt in ("--markallfinished"):
-			theDB.update_all_jobs_set_status(theDB.code_finished)
-		elif opt in ("--requeuefailed"):
-			theDB.requeue_failed_jobs()
-		elif opt in ("--removefile"):
-			theDB.remove_file_from_queue(arg)
-		elif opt in ("-b","--brief"):
-			theDB.do_briefDB()
-		elif opt in ("--clearresults"):
-			theDB.clear_results()
-		elif opt in ("--dumpframes"):
-			theDB.do_bake(mark_processing=True,bake_op=theDB.code_dump_frames) 
-		elif opt in ("--setframes"):
-			theDB.do_bake(mark_processing=True,bake_op=theDB.code_set_frames) 
-		elif opt in ("--clearjobs"):
-			theDB.clear_database()
-		elif opt in ("--engineflip"):
-			theDB.bake_engine=bake_db.code_bake_engine_flip_fluids
-		elif opt in ("--engineblender"):	
-			theDB.bake_engine=bake_db.code_bake_engine_blender
-		elif opt in ("--updatematerials"):
-			theDB.do_bake(mark_processing=True,bake_op=theDB.code_bake_op_update_materials) 
-		elif opt in ("-h","--help"):
-			print("====================================")
-			print("-p --print\t\t| print all files")
-			print("-b --brief\t\t| brief summary of DB")
-			print("--dumpframes\t\t dump number of frames for each file")
-			print("--bake\t\t| bake remaining files in queue")
-			print("--setupdraft\t\t| setup draft settings")
-			print("--engineflip\t\t| use flip fluid bake engine")
-			print("--engineblender\t\t| use blender bake engine (default)")
-			print("--setupfinal\t\t| setup final settings")
-			print("--setuphighres\t\t| setup highres settings")
-			print("--clean\t\t| clean particles")
-			print("--convertflip\t\t| convert from blender fluid to flip fluids")
-			print("--clearresults\t\t| delete all bake results")
-			print("--results -r\t\tPrint bake results")
-			print("-s --searchpath\t\t| add files to DB")
-			print("--clearjobs\t\t\t| clear DB")
-			print("--markallfinished\t| mark all files as finished")
-			print("--requeueall\t\t| requeue all jobs")
-			print("--requeuefailed\t\t| requeue processing jobs (sometimes they get stuck)")
-			print("--updatematerials\t\t| update fluid related materials")
+	if args.engineflip:
+		theDB.bake_engine=bake_db.code_bake_engine_flip_fluids
+
+	if args.engineblender:
+		theDB.bake_engine=bake_db.code_bake_engine_blender
+
+	if args.setupflip:
+		theDB.do_bake(mark_processing=True,bake_op=theDB.code_bake_op_setup_flip)
+
+	if args.requeueall:
+		theDB.update_all_jobs_set_status(theDB.code_queued)
+
+	if args.markallfinished:
+		theDB.update_all_jobs_set_status(theDB.code_finished)
+
+	if args.searchpath:
+		theDB.iterate_blend_files(args.searchpath)
+
+	if args.bake:
+		theDB.do_bake(mark_processing=True,bake_op=theDB.code_bake_op_bake)
+	if args.setupdraft:
+		theDB.do_bake(mark_processing=True,bake_op=theDB.code_bake_op_setup_draft) 
+	if args.setupfinal: 
+		theDB.do_bake(mark_processing=True,bake_op=theDB.code_bake_op_setup_final) 
+	if args.setuphighres:
+		theDB.do_bake(mark_processing=True,bake_op=theDB.code_bake_op_setup_highres) 
+	if args.clean:
+		theDB.do_bake(mark_processing=True,bake_op=theDB.code_bake_op_clean)
+	if args.updatematerials:
+		theDB.do_bake(mark_processing=True,bake_op=theDB.code_bake_op_update_materials) 
+
+
+	if args.dumpframes:
+		theDB.do_bake(mark_processing=True,bake_op=theDB.code_dump_frames) 
+	if args.setframes:
+		theDB.do_bake(mark_processing=True,bake_op=theDB.code_set_frames) 
+
+	if args.convertflip:
+		theDB.convertflip(args.convertflip)
+
+	if args.requeuefailed:
+		theDB.requeue_failed_jobs()
+
+	if args.removefile:
+		theDB.remove_file_from_queue(args.removefile)
+	
+	if args.brief:
+		theDB.do_briefDB()
+
+	if args.results:
+		theDB.do_print_results()
+
+	if args.cleardb:
+		theDB.clear_database()
+
+	if args.clearresults:
+		theDB.clear_results()
+		
+
 
 	if theDB!=None:
 		theDB.closeDB()
