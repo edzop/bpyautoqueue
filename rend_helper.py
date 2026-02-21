@@ -298,15 +298,9 @@ class Rend_Helper:
 			
 
 	def do_render(self,frameIndex,cameraIndex,sceneIndex):
-     
-		cameraCount=0
-		for o in bpy.context.scene.objects:
-			if o.type=="CAMERA":
-				if cameraCount==cameraIndex:
-					bpy.context.scene.camera = o
-				
-				cameraCount=cameraCount+1
 
+
+		# Change Scene first then camera
 		scene_count=len(bpy.data.scenes)
 
 		# If we have more than one scene
@@ -321,6 +315,14 @@ class Rend_Helper:
 			
 
 		bpy.context.scene.frame_set(frameIndex)
+
+		cameraCount=0
+		for o in bpy.context.scene.objects:
+			if o.type=="CAMERA":
+				cameraCount=cameraCount+1
+		
+				if cameraCount==(cameraIndex+1):
+					bpy.context.scene.camera = o
 
 		image_output_filename = util_helper.get_output_filename(util_helper.get_blendfile_without_extension(),
 														  frameIndex,

@@ -383,7 +383,7 @@ class render_db:
 		nextrend = []
 #		print("ss=%d AND ff=%d"%(self.code_queued,self.code_finished))
 		
-		c=self.conn.execute("SELECT filename,outputX,outputY,frameIndex,jobID,renderengine,autopanstep,moviemode,camera " \
+		c=self.conn.execute("SELECT filename,outputX,outputY,frameIndex,jobID,renderengine,autopanstep,moviemode,camera,scene " \
 			"FROM blendfiles WHERE (status=%d AND renderengine='%s') ORDER BY filename LIMIT 1"%(self.code_queued,self.selected_render_engine))
 			
 		for row in c:
@@ -396,6 +396,7 @@ class render_db:
 			nextrend.append(row[6])
 			nextrend.append(row[7])
 			nextrend.append(row[8])
+			nextrend.append(row[9])
 			
 		if len(nextrend)==0:
 			print("0")

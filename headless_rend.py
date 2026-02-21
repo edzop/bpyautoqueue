@@ -7,6 +7,8 @@ from bpyautoqueue import camera_dolly_helper
 from bpyautoqueue import render_db
 from bpyautoqueue import auto_camera_pan
 
+from bpyautoqueue import util_helper
+
 
 class headless_renderer:
 
@@ -49,6 +51,7 @@ class headless_renderer:
 		self.autopanstep = renderjob[6]
 		self.moviemode = renderjob[7]
 		self.cameraID=renderjob[8]
+		self.sceneID=renderjob[9]
 
 		
 	def setup_render(self):
@@ -129,7 +132,25 @@ while the_headless_renderer.jobID!=None:
 
 	# only need to setup once per file (first frame)
 	if the_headless_renderer.frames_rendered==0:
-		the_headless_renderer.setup_render()
+
+		# setup for each scene
+		# (diffrerent scenes might have existing different render settings)
+
+		context_window=util_helper.get_context_window()
+		scene_count=len(bpy.data.scenes)
+
+		for sceneIndex in range(0,scene_count):		
+			target_scene=bpy.data.scenes[sceneIndex]
+
+			context_window.scene=target_scene
+
+			the_headless_renderer.setup_render()
+			print("settting up scene %d"%sceneIndex)
+			
+
+
+
+		
 
 	the_headless_renderer.do_render()
 
