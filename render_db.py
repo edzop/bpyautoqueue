@@ -230,8 +230,6 @@ class render_db:
 
 		cursor = self.conn.cursor()
 
-		print(filename)
-
 		if framenumber==0:	
 			cursor.execute("UPDATE blendfiles SET status = ? WHERE filename like ?",
 				(self.code_queued,'%'+filename+'%'))
@@ -647,7 +645,7 @@ def main(argv):
 		theDB.update_jobs_mark_file_queued(args.requeuefile)
 
 	if args.removefile:
-		theDB.update_jobs_mark_file_queued(args.removefile)
+		theDB.remove_file_from_queue(args.removefile)
 
 	if args.render:
 		theDB.render_db()

@@ -228,7 +228,7 @@ class ReQueueFileOperator(bpy.types.Operator):
 
 		current_scene_index = util_helper.get_current_scene_index()
 
-		frames = [ 0 ]
+		frames = 0
 
 		# 0 for all frames
 		theDB.update_jobs_mark_file_queued(basename,current_scene_index,frames)
@@ -261,16 +261,7 @@ class ResizeFileOperator(bpy.types.Operator):
 
 		print("Resize file: %s (%sx%s)"%(filename,resX,resY))
 
-		# 0 for all frames
-		#theDB.update_jobs_mark_file_queued(filename,0)
-
 		return {'FINISHED'}
-
-
-
-
-
-
 
 class QueueHelperPanel(Panel):
 	bl_idname="PANEL_PT_queueHelperPanel"
